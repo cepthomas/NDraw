@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NStateMachine</name>
+    </assembly>
+    <members>
+        <member name="T:NStateMachine.SmFunc">
+            <summary>Definition for transition/entry/exit functions.</summary>
+            <param name="o">Optional data.</param>
+        </member>
+        <member name="T:NStateMachine.EventInfo`2">
+            <summary>Data carrying class.</summary>
+        </member>
+        <member name="M:NStateMachine.EventInfo`2.#ctor(`1,System.Object)">
+            <summary>Data carrying class.</summary>
+        </member>
+        <member name="T:NStateMachine.LogInfo">
+            <summary>For tracing.</summary>
+        </member>
+        <member name="M:NStateMachine.LogInfo.#ctor(System.String,System.DateTime,System.String)">
+            <summary>For tracing.</summary>
+        </member>
+        <member name="T:NStateMachine.SmEngine`2">
+            <summary>Agnostic core engine of the state machine.</summary>
+        </member>
+        <member name="E:NStateMachine.SmEngine`2.LogEvent">
+            <summary>Log me please.</summary>
+        </member>
+        <member name="F:NStateMachine.SmEngine`2._states">
+            <summary>The original.</summary>
+        </member>
+        <member name="F:NStateMachine.SmEngine`2._stateMap">
+            <summary>All the states.</summary>
+        </member>
+        <member name="F:NStateMachine.SmEngine`2._currentState">
+            <summary>The current state.</summary>
+        </member>
+        <member name="F:NStateMachine.SmEngine`2._eventQueue">
+            <summary>The event queue.</summary>
+        </member>
+        <member name="F:NStateMachine.SmEngine`2._locker">
+            <summary>Queue serializing access.</summary>
+        </member>
+        <member name="F:NStateMachine.SmEngine`2._processingEvents">
+            <summary>Flag to handle recursion in event processing.</summary>
+        </member>
+        <member name="P:NStateMachine.SmEngine`2.CurrentState">
+            <summary>Readable version of current state.</summary>
+        </member>
+        <member name="M:NStateMachine.SmEngine`2.GenerateDot(System.String)">
+            <summary>
+            Generate DOT markup and create a picture.
+            </summary>
+            <returns>Returns a string that contains the DOT markup.</returns>
+        </member>
+        <member name="M:NStateMachine.SmEngine`2.InitSm(`0)">
+            <summary>
+            Init and validate the definitions.
+            </summary>
+            <param name="initialState">Initial state.</param>
+            <returns>List of syntax errors.</returns>
+        </member>
+        <member name="M:NStateMachine.SmEngine`2.StartSm">
+            <summary>
+            Machine is good so start it up.
+            </summary>
+        </member>
+        <member name="M:NStateMachine.SmEngine`2.ProcessEvent(`1,System.Object)">
+            <summary>
+            Processes an event. Returns when event queue is empty.
+            Events can be coming on different threads so this method is locked.
+            </summary>
+            <param name="evt">Incoming event.</param>
+            <param name="o">Optional event data.</param>
+            <returns>Ok or error.</returns>
+        </member>
+        <member name="M:NStateMachine.SmEngine`2.GetFuncName(System.Object,System.String)">
+            <summary>
+            Get the instance name of a SmFunc property.
+            </summary>
+            <param name="o">The instance object.</param>
+            <param name="prop">Which property.</param>
+            <returns>The name or empty if not available.</returns>
+        </member>
+        <member name="M:NStateMachine.SmEngine`2.Log(System.String,System.String)">
+            <summary>Trace/logging function.</summary>
+            <param name="cat">Printable category.</param>
+            <param name="msg">What to add.</param>
+        </member>
+        <member name="T:NStateMachine.State`2">
+            <summary>
+            Describes an individual state.
+             - Each state must have a name, except the(optional) default state identified by DEF_STATE.
+             - The current state is checked first, then the default state.
+             - Each state must have one or more Transitions.
+             - Each state may have an optional enter and/or exit action executed on state changes.Otherwise use NO_FUNC.
+            </summary>
+        </member>
+        <member name="P:NStateMachine.State`2.StateId">
+            <summary>The state name.</summary>
+        </member>
+        <member name="P:NStateMachine.State`2.EntryFunc">
+            <summary>Optional state entry action.</summary>
+        </member>
+        <member name="P:NStateMachine.State`2.ExitFunc">
+            <summary>Optional state exit action.</summary>
+        </member>
+        <member name="P:NStateMachine.State`2.Transitions">
+            <summary>All the transitions possible for this state. Only used for initialization.</summary>
+        </member>
+        <member name="F:NStateMachine.State`2._transitionMap">
+            <summary>Massaged runtime version of Transitions. Key is event.</summary>
+        </member>
+        <member name="M:NStateMachine.State`2.Init">
+            <returns>List of any errors.</returns>
+        </member>
+        <member name="M:NStateMachine.State`2.ProcessEvent(NStateMachine.EventInfo{`0,`1})">
+            <summary>Process the event. Execute transition if found, otherwise return indication and let the caller handle it.</summary>
+            <param name="ei">The event information.</param>
+            <returns>A tuple indicating if this was handled and if true the next state.</returns>
+        </member>
+        <member name="M:NStateMachine.State`2.Enter(System.Object)">
+            <summary>Enter the state by executing the enter action</summary>
+            <param name="o">Optional data object</param>
+        </member>
+        <member name="M:NStateMachine.State`2.Exit(System.Object)">
+            <summary>Exit the state by executing the exit action</summary>
+            <param name="o">Optional data object</param>
+        </member>
+        <member name="M:NStateMachine.State`2.ToString">
+            <summary>Readable version.</summary>
+        </member>
+        <member name="T:NStateMachine.States`2">
+            <summary>Specialized container. Has Add() to support cleaner initialization.</summary>
+        </member>
+        <member name="T:NStateMachine.Transition`2">
+            <summary>Describes an individual transition.
+              - Each transition must have an event name, except the (optional) default transition identified by DEF_EVENT.
+              - If a transition for the event name is not found, the DEF_EVENT transition is executed.
+              - Each transition may have a next state name or SAME_STATE which stays in the same state.
+              - Each transition may have an optional transition action. Otherwise use NO_FUNC.
+            </summary>
+        </member>
+        <member name="P:NStateMachine.Transition`2.EventId">
+            <summary>The name of the event that triggers this transition.</summary>
+        </member>
+        <member name="P:NStateMachine.Transition`2.NextState">
+            <summary>Change state to this after execution action.</summary>
+        </member>
+        <member name="P:NStateMachine.Transition`2.TransitionFunc">
+            <summary>Optional action - executed before state change</summary>
+        </member>
+        <member name="M:NStateMachine.Transition`2.Execute(NStateMachine.EventInfo{`0,`1})">
+            <summary>Execute transition action.</summary>
+            <param name="ei">Event information</param>
+            <returns>The next state</returns>
+        </member>
+        <member name="M:NStateMachine.Transition`2.ToString">
+            <summary>Readable version.</summary>
+        </member>
+        <member name="T:NStateMachine.Transitions`2">
+            <summary>Specialized container. Has Add() to support cleaner initialization.</summary>
+        </member>
+    </members>
+</doc>

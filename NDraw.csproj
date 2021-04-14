@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Canvas.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="NBagOfTricks">
+      <HintPath>lib\NBagOfTricks.dll</HintPath>
+    </Reference>
+    <Reference Include="NStateMachine">
+      <HintPath>lib\NStateMachine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
