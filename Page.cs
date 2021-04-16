@@ -24,10 +24,10 @@ namespace NDraw
         ///// <summary>Physical - inches</summary>
         //public float Border { get; set; } = 0.75f;
 
-        /// <summary>In Units.</summary>
+        /// <summary>Drawing area in Units.</summary>
         public float Width { get; set; } = 100.0f;
 
-        /// <summary>In Units.</summary>
+        /// <summary>Drawing area in Units.</summary>
         public float Height { get; set; } = 50.0f;
 
         /// <summary>In Units.</summary>
@@ -75,7 +75,7 @@ namespace NDraw
 
 
     [Serializable]
-    public class Style
+    public class Style : IDisposable
     {
         /// <summary>xxxx</summary>
         public string Id { get; set; } = "";
@@ -97,5 +97,25 @@ namespace NDraw
 
         /// <summary>xxxx</summary>
         public Color FillColor = Color.Salmon;
+
+
+        [JsonIgnore]
+        Pen _penLine = new Pen(Color.Black);
+
+        [JsonIgnore]
+        SolidBrush _brushFill = new SolidBrush(Color.Black);
+
+        public Style()
+        {
+            _penLine.Color = LineColor;
+            _brushFill.Color = FillColor;
+        }
+
+        public void Dispose()//TODO
+        {
+            Font?.Dispose();
+            _penLine?.Dispose();
+            _brushFill?.Dispose();
+        }
     }
 }

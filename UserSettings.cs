@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 namespace NDraw
 {
     [Serializable]
-    public class UserSettings
+    public class UserSettings : IDisposable
     {
 
         #region Persisted editable properties
@@ -103,10 +103,6 @@ namespace NDraw
                 // Clean up any bad file names.
                 TheSettings.RecentFiles.RemoveAll(f => !File.Exists(f));
 
-                // Translate htmlColor to a GDI Color structure.
-                //TheSettings.BackColor = ColorTranslator.FromHtml(TheSettings.BackColorName);
-                //TheSettings.GridColor = ColorTranslator.FromHtml(TheSettings.GridColorName);
-
                 TheSettings._fn = fn;
             }
             else
@@ -116,6 +112,15 @@ namespace NDraw
                 {
                     _fn = fn
                 };
+            }
+        }
+
+        /// <summary>Clean up.</summary>
+        public void Dispose()
+        {
+            foreach(Style style in AllStyles)
+            {
+                style.Dispose();
             }
         }
         #endregion

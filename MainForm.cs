@@ -3,40 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NBagOfTricks;
 
+
 namespace NDraw
 {
-
-
-    // page: w, h, border, scale, units
-
-    // point: id, x, y
-
-    // style: id, line_thickness, line_color, fill_style, fill_color
-
-    // rect: id, layer, style_id, top, left, width, height
-
-    // line: id, layer, style_id, start_pt, end_pt, 
-
-    // //?
-    // // ellipse, image, text, polyline/polygon
-    // // dimensions
-
-    // page [ 8.5, 11, 0.75, 50, ft]
-    // style [ STY_DEF, 3, blue, hatch, green ]
-    // scalar [ BOX_WIDTH, 15 ]
-    // scalar [ BOX_HEIGHT, 10 ]
-    // point [ ORIG, 2, 2 ]
-    // point [ ANCHOR, 5.5, 7.5 ]
-    // rect [ A_BOX, 1, STY_DEF, ORIG.y, ORIG.x, BOX_WIDTH, BOX_HEIGHT ]
-    // rect [ B_BOX, 1, STY_DEF, ANCHOR.y, ANCHOR.x, BOX_WIDTH, BOX_HEIGHT ]
-
-
     public partial class MainForm : Form
     {
         public MainForm()
@@ -46,8 +22,10 @@ namespace NDraw
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            string dir = NBagOfTricks.Utils.MiscUtils.GetAppDataDir("NDraw");
-            UserSettings.Load(dir);
+            string appDir = NBagOfTricks.Utils.MiscUtils.GetAppDataDir("NDraw");
+            DirectoryInfo di = new DirectoryInfo(appDir);
+            di.Create();
+            UserSettings.Load(appDir);
 
             //var pp = Page.Load("page.json");
 
@@ -58,9 +36,9 @@ namespace NDraw
             // What to draw.
             Page page = new();
 
-            page.Rects.Add(new RectShape() { Id = "R_1", Text = "foo", Extent = new RectX(50, 50, 100, 100) });
-            page.Rects.Add(new RectShape() { Id = "R_2", Text = "bar", Extent = new RectX(160, 170, 200, 300) });
-            page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar", Start = new PointX(250, 250), End = new PointX(300, 300) });
+            page.Rects.Add(new RectShape() { Id = "R_1", Text = "foo", L = 50, T = 50, R = 100, B = 100 });
+            page.Rects.Add(new RectShape() { Id = "R_2", Text = "bar", L = 160, T = 170, R = 200, B = 300 });
+            page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar", X1 = 250, Y1 = 250, X2 = 300, Y2 = 300 });
 
             canvas.Init(page);
 
@@ -68,6 +46,15 @@ namespace NDraw
             // Collect changes
             page.Save("page.json");
 
+            
+
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Clean up.
+            UserSettings.TheSettings.Save();
+            UserSettings.TheSettings.Dispose();
         }
     }
 }

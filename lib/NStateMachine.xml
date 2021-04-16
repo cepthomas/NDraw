@@ -26,6 +26,9 @@
         <member name="E:NStateMachine.SmEngine`2.LogEvent">
             <summary>Log me please.</summary>
         </member>
+        <member name="F:NStateMachine.SmEngine`2.SM_LOG_CAT">
+            <summary>Log category.</summary>
+        </member>
         <member name="F:NStateMachine.SmEngine`2._states">
             <summary>The original.</summary>
         </member>
@@ -43,6 +46,9 @@
         </member>
         <member name="F:NStateMachine.SmEngine`2._processingEvents">
             <summary>Flag to handle recursion in event processing.</summary>
+        </member>
+        <member name="F:NStateMachine.SmEngine`2.DEFAULT_STATE_ID">
+            <summary>Cast helper.</summary>
         </member>
         <member name="P:NStateMachine.SmEngine`2.CurrentState">
             <summary>Readable version of current state.</summary>
@@ -88,13 +94,7 @@
             <param name="msg">What to add.</param>
         </member>
         <member name="T:NStateMachine.State`2">
-            <summary>
-            Describes an individual state.
-             - Each state must have a name, except the(optional) default state identified by DEF_STATE.
-             - The current state is checked first, then the default state.
-             - Each state must have one or more Transitions.
-             - Each state may have an optional enter and/or exit action executed on state changes.Otherwise use NO_FUNC.
-            </summary>
+            <summary>Describes an individual state. See README.md for usage.</summary>
         </member>
         <member name="P:NStateMachine.State`2.StateId">
             <summary>The state name.</summary>
@@ -111,7 +111,11 @@
         <member name="F:NStateMachine.State`2._transitionMap">
             <summary>Massaged runtime version of Transitions. Key is event.</summary>
         </member>
+        <member name="F:NStateMachine.State`2.DEFAULT_EVENT_ID">
+            <summary>Cast helper.</summary>
+        </member>
         <member name="M:NStateMachine.State`2.Init">
+            <summary>Initialize the state and its transitions.</summary>
             <returns>List of any errors.</returns>
         </member>
         <member name="M:NStateMachine.State`2.ProcessEvent(NStateMachine.EventInfo{`0,`1})">
@@ -131,15 +135,17 @@
             <summary>Readable version.</summary>
         </member>
         <member name="T:NStateMachine.States`2">
-            <summary>Specialized container. Has Add() to support cleaner initialization.</summary>
+            <summary>Specialized container for syntactic sugar.</summary>
+        </member>
+        <member name="M:NStateMachine.States`2.Add(`0,NStateMachine.SmFunc,NStateMachine.SmFunc,NStateMachine.Transitions{`0,`1})">
+            <summary>Has Add() to support cleaner initialization.</summary>
+            <param name="stn"></param>
+            <param name="entry"></param>
+            <param name="exit"></param>
+            <param name="transitions"></param>
         </member>
         <member name="T:NStateMachine.Transition`2">
-            <summary>Describes an individual transition.
-              - Each transition must have an event name, except the (optional) default transition identified by DEF_EVENT.
-              - If a transition for the event name is not found, the DEF_EVENT transition is executed.
-              - Each transition may have a next state name or SAME_STATE which stays in the same state.
-              - Each transition may have an optional transition action. Otherwise use NO_FUNC.
-            </summary>
+            <summary>Describes an individual transition. See README.md for usage.</summary>
         </member>
         <member name="P:NStateMachine.Transition`2.EventId">
             <summary>The name of the event that triggers this transition.</summary>
@@ -159,7 +165,13 @@
             <summary>Readable version.</summary>
         </member>
         <member name="T:NStateMachine.Transitions`2">
-            <summary>Specialized container. Has Add() to support cleaner initialization.</summary>
+            <summary>Specialized container for syntactic sugar.</summary>
+        </member>
+        <member name="M:NStateMachine.Transitions`2.Add(`1,`0,NStateMachine.SmFunc)">
+            <summary>Has Add() to support cleaner initialization.</summary>
+            <param name="evt"></param>
+            <param name="nextState"></param>
+            <param name="transFunc"></param>
         </member>
     </members>
 </doc>
