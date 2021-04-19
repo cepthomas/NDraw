@@ -13,6 +13,7 @@ using NStateMachine;
 using NBagOfTricks;
 
 
+
 //https://devblogs.microsoft.com/dotnet/whats-new-in-windows-forms-runtime-in-net-5-0/
 //In.NET 5.0 we’ve lifted the bar higher and optimised several painting paths. Historically Windows Forms relied on GDI+ (and some GDI)
 //for rendering operations. Whilst GDI + is easier to use than GDI because it abstracts the device context(a structure with information
@@ -21,6 +22,14 @@ using NBagOfTricks;
 //We have also extended a number rendering-related APIs(e.g.PaintEventArgs) with IDeviceContext interface, which whilst may not be available
 //to Windows Forms developers directly, allow us to bypass the GDI+ Graphics object, and thus reduce allocations and gain speed. These optimisations
 //have shown a significant reduction in memory consumptions in redraw paths, in some cases saving x10 in memory allocations).
+
+
+//If you are starting from scratch and you want to use Json then go for Utf8Json which is generic and very fast. Also the startup costs are
+//lower than from JIL because Utf8Json and MessagePackSharp (same author) seem to hit a fine spot by having most code already put into the
+//main library and generate only a small amount of code around that. DataContractSerializer generates only the de/serialize code depending
+//on the code path you actually hit on the fly.
+
+//System.Text.Json library (above this is labeled as “NetCoreJson”).
 
 
 namespace NDraw
@@ -33,14 +42,14 @@ namespace NDraw
         /// <summary>The various shapes in _page converted to internal format.</summary>
         List<Shape> _shapes = new();
 
-        /// <summary>Top left corner of the drawing in pixels.</summary>
+        /// <summary>The center of the display in pixels.</summary>
         PointF _origin = new(0, 0);
 
         /// <summary>Cosmetics.</summary>
-        public const float GRID_LINE_WIDTH = 1.0f;
+        const float GRID_LINE_WIDTH = 1.0f;
 
         /// <summary>How close do you have to be to select a feature in pixels.</summary>
-        public const int SELECT_RANGE = 5;
+        const int SELECT_RANGE = 5;
 
         #region Control states
         /// <summary>If control is pressed.</summary>
@@ -50,21 +59,21 @@ namespace NDraw
         bool _shiftPressed = false;
 
         /// <summary>Saves state as to whether left button is down.</summary>
-        bool _mouseDown = false;
+ //       bool _mouseDown = false;
 
-        /// <summary>Boolean to determine if the user is dragging the mouse.</summary>
+        /// <summary>The user is dragging the mouse.</summary>
         bool _dragging = false;
         #endregion
 
         #region Memories
-        /// <summary>Start mouse position when button pressed.</summary>
-        Point _startMousePos = new();
+        /// <summary>Mouse position when button pressed.</summary>
+        Point _startPos = new();
 
-        /// <summary>End mouse position when button unpressed.</summary>
-        Point _endMousePos = new();
+        /// <summary>Mouse position when button unpressed.</summary>
+//        Point _endMousePos = new();
 
-        /// <summary>Saves the previous mouse position for move operations.</summary>
-        Point _lastMousePos = new();
+        /// <summary>Current mouse position.</summary>
+ //       Point _currentMousePos = new();
         #endregion
 
         #region Zoom
@@ -82,19 +91,26 @@ namespace NDraw
         Pen _penGrid = new(Color.Gray);
 
         // Temp pen.
-        Pen _penShapeTemp = new(Color.Green);
+        Pen _penShapeTemp = new(Color.Green, 2);
+        Pen _penHighlightTemp = new(Color.Green, 4);
 
         Pen _penSelect = new(Color.Gray);
         #endregion
 
         #region Lifecycle
+        /// <summary>
+        /// 
+        /// </summary>
         public Canvas()
         {
             InitializeComponent();
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
         }
 
-        /// <summary>Perform initialization.</summary>
+        /// <summary>
+        /// Perform initialization. Convert page to internal format.
+        /// </summary>
+        /// <param name="page"></param>
         public void Init(Page page)
         {
             _page = page;
@@ -109,6 +125,33 @@ namespace NDraw
             _penGrid.Width = GRID_LINE_WIDTH;
 
             Invalidate();
+        }
+
+        /// <summary>
+        /// Convert current shapes to Page and save to file.
+        /// </summary>
+        /// <returns></returns>
+        public void SavePage(string fn)
+        {
+            // Collect changes.
+            _page.Lines.Clear();
+            _page.Rects.Clear();
+
+            foreach(var sh in _shapes)
+            {
+                switch(sh)
+                {
+                    case LineShape ls:
+                        _page.Lines.Add(ls);
+                        break;
+
+                    case RectShape rs:
+                        _page.Rects.Add(rs);
+                        break;
+                }
+            }
+
+            _page.Save(fn);
         }
 
         /// <summary> 
@@ -130,7 +173,9 @@ namespace NDraw
         #endregion
 
         #region Painting
-        /// <summary>OnPaint event handler.  Calls the appropriate method to paint the chart based upon the chosen chartType.</summary>
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="sender">Object that sent triggered the event.</param>
         /// <param name="e">The particular PaintEventArgs.</param>
         protected override void OnPaint(PaintEventArgs e)
@@ -138,122 +183,115 @@ namespace NDraw
             e.Graphics.Clear(UserSettings.TheSettings.BackColor);
 
             // Draw the grid and axes.
-            PaintGrid(e.Graphics);
+            DrawGrid(e.Graphics);
                                  
             // Draw the shapes.
             RectangleF cr = ClientRectangle;
+            int marker = 3;
 
             foreach (var s in _shapes)
             {
-                switch(s)
+                if (s.ContainedIn(cr, true))
                 {
-                    case RectShape r:
-                        if (r.ContainedIn(cr, true))
-                        {
-                            e.Graphics.DrawRectangle(_penShapeTemp, r.L, r.T, r.Width, r.Height);
-                        }
-                        break;
+                    switch (s)
+                    {
+                        case RectShape r:
+                            e.Graphics.DrawRectangle(r.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, r.L, r.T, r.Width, r.Height);
 
-                    case LineShape l:
-                        if (cr.Contains(l.X1, l.Y1) || cr.Contains(l.X2, l.Y2))
-                        {
-                            e.Graphics.DrawLine(_penShapeTemp, l.X1, l.Y1, l.X2, l.Y2);
-                        }
-                        break;
+                            if (r.State == ShapeState.Selected)
+                            {
+                                e.Graphics.FillEllipse(_penShapeTemp.Brush, r.L, r.T, marker, marker);
+                            }
+                            break;
+
+                        case LineShape l:
+                            e.Graphics.DrawLine(l.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, l.X1, l.Y1, l.X2, l.Y2);
+
+                            if (l.State == ShapeState.Selected)
+                            {
+                                e.Graphics.FillEllipse(_penShapeTemp.Brush, l.X1, l.Y1, marker, marker);
+                            }
+                            break;
+                    }
                 }
             }
 
-            // Draw Selection Rectangle if ctrl is down and not dragging cursor.
-            if (_ctrlPressed && _dragging)
+            // Draw Selection Rectangle if dragging cursor.
+            if (_dragging)
             {
-                float width = 0.0F, height = 0.0F;
+                Point start = new();
+                Point pos = PointToClient(Cursor.Position);
 
-                Point startPoint = new();
+                float width = Math.Abs(pos.X - _startPos.X);
+                float height = Math.Abs(pos.Y - _startPos.Y);
+                start.X = pos.X > _startPos.X ? _startPos.X : pos.X;
+                start.Y = pos.Y > _startPos.Y ? _startPos.Y : pos.Y;
 
-                if (_endMousePos.X > _startMousePos.X)
-                {
-                    width = _endMousePos.X - _startMousePos.X;
-                    startPoint.X = _startMousePos.X;
-                }
-                else
-                {
-                    width = _startMousePos.X - _endMousePos.X;
-                    startPoint.X = _endMousePos.X;
-                }
-
-                if (_endMousePos.Y > _startMousePos.Y)
-                {
-                    height = _endMousePos.Y - _startMousePos.Y;
-                    startPoint.Y = _startMousePos.Y;
-                }
-                else
-                {
-                    height = _startMousePos.Y - _endMousePos.Y;
-                    startPoint.Y = _endMousePos.Y;
-                }
-
-                e.Graphics.DrawRectangle(_penSelect, startPoint.X, startPoint.Y, width, height);
+                e.Graphics.DrawRectangle(_penSelect, start.X, start.Y, width, height);
             }
 
-            // Draw the Border
-            //e.Graphics.DrawRectangle(new Pen(Color.RoyalBlue, 1), new Rectangle(0, 0, Width - 1, Height - 1));
-
-            //_firstPaint = false;
+            DrawText(e.Graphics, 450, 150, "Hello!", UserSettings.TheSettings.DefaultFont, 45);
         }
 
-        /// <summary>Draw the axes on the chart.</summary>
+        /// <summary>
+        /// Draw the grid.
+        /// </summary>
         /// <param name="g">The Graphics object to use.</param>
-        /// <param name="xticks">List of X Tick values.</param>
-        /// <param name="yticks">List of Y Tick values.</param>
-        void PaintGrid(Graphics g)//, out List<StringFloatPair> xticks, out List<StringFloatPair> yticks)
+        void DrawGrid(Graphics g)
         {
-            float _gridWidth = 42.0f; //TODO calculate along with others
+            float spacing = 42.0f; //TODO calculate along with others
 
             // Draw X-Axis Increments
-            for (float tickPos = _gridWidth; tickPos < Width; tickPos += _gridWidth)
+            for (float tickPos = spacing; tickPos < Width; tickPos += spacing)
             {
                 g.DrawLine(_penGrid, tickPos, 0, tickPos, Width);
             }
 
             // Draw Y-Axis Increments
-            for (float tickPos = _gridWidth; tickPos < Height; tickPos += _gridWidth)
+            for (float tickPos = spacing; tickPos < Height; tickPos += spacing)
             {
-                //float x = 
                 g.DrawLine(_penGrid, 0, tickPos, Right, tickPos);
             }
         }
 
-        /// <summary>An axis label should be drawn using the specified transformations.</summary>
+        /// <summary>
+        /// A label should be drawn using the specified transformations.
+        /// </summary>
         /// <param name="g">The Graphics object to use.</param>
         /// <param name="transformX">The X transform</param>
         /// <param name="transformY">The Y transform</param>
         /// <param name="labelText">The text of the label.</param>
         /// <param name="rotationDegrees">The rotation of the axis.</param>
-        void PaintLabel(Graphics g, float transformX, float transformY, string labelText, Font font, int rotationDegrees)
+        void DrawText(Graphics g, float transformX, float transformY, string labelText, Font font, int rotationDegrees)
         {
             g.TranslateTransform(transformX, transformY);
             g.RotateTransform(rotationDegrees);
-            g.DrawString(labelText, font, Brushes.Black, new PointF(0F, 0F));
+            g.DrawString(labelText, font, Brushes.Black, 0, 0);
             g.ResetTransform();
         }
         #endregion
 
         #region Misc window events
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnResize(EventArgs e)
         {
-            // Force repaint of chart.
-            //_firstPaint = true; // Need to recalc the grid too.
-           // Invalidate();
-            //Refresh();
+            Invalidate();
         }
 
-        /// <summary>Resets key states when control loses focus.</summary>
+        /// <summary>
+        /// Resets key states when control loses focus.
+        /// </summary>
         /// <param name="sender">Sender</param>
         /// <param name="e">Event Arguments</param>
         protected override void OnLostFocus(EventArgs e)
         {
             _ctrlPressed = false;
             _shiftPressed = false;
+            _dragging = false;
+            Invalidate();
         }
         #endregion
 
@@ -264,27 +302,30 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            switch (e.Button)
+            bool update = false;
+            switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
-                case MouseButtons.Left:
-                    // Retain mouse state.
-                    _mouseDown = true;
-                    _startMousePos = new Point(e.X, e.Y);
+                case (MouseButtons.Left, true, false): // if near a shape toggle selected
+                    Shape pt = GetCloseShape(new PointF(e.X, e.Y));
 
-                    if (!_shiftPressed)
+                    if (pt != null)
                     {
-                        //// Are we on a cursor?
-                        //_dragCursor = GetClosestCursor(_startMousePos);
-
-                        //// Unselect previously selected points.
-                        //UnselectPoints();
-                        //SelectedPoints = new List<DataPoint>();
-
-                        // Force repaint of chart.
-                        Invalidate();
-                        //Refresh();
+                        pt.State = pt.State == ShapeState.Selected ? ShapeState.Default : ShapeState.Selected;
+                        update = true;
                     }
                     break;
+
+                default:
+                    break;
+            };
+
+            _startPos = new Point(e.X, e.Y);
+//            _mouseDown = true;
+
+            if(update)
+            {
+                // TODO
+                Invalidate();
             }
         }
 
@@ -294,71 +335,35 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            switch (e.Button)
+            bool update = false;
+            switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
-                case MouseButtons.Left:
-                    if (_ctrlPressed)
-                    {
-                        // Get points within bounds of dragged rectangle
-                        if (_shiftPressed)
-                        {
-                            //List<DataPoint> tempPoints = GetSelectedPoints();
-                            //foreach (DataPoint pt in tempPoints)
-                            //{
-                            //    if (!SelectedPoints.Contains(pt))
-                            //    {
-                            //        SelectedPoints.Add(pt);
-                            //        pt.Selected = true;
-                            //    }
-                            //}
-                        }
-                        else
-                        {
-                            //SelectedPoints = GetSelectedPoints();
-                        }
-
-                        // Reset status.
-                        _dragging = false;
-                        Cursor = Cursors.Default;
-
-                        // Force repaint of chart
-                        Invalidate();
-                        //Refresh();
-
-                        _startMousePos = new Point();
-                        _endMousePos = new Point();
-                    }
-                    else if (_shiftPressed)
-                    {
-                        Shape pt = GetClosestShape(new Point(e.X, e.Y));
-
-                        if (pt != null)
-                        {
-                            //if (SelectedPoints.Contains(pt))
-                            //{
-                            //    SelectedPoints.Remove(pt);
-                            //    pt.Selected = false;
-                            //}
-                            //else
-                            //{
-                            //    SelectedPoints.Add(pt);
-                            //    pt.Selected = true;
-                            //}
-
-                            Invalidate();
-                            //Refresh();
-                        }
-                    }
-                    //else if (_dragCursor != null)
+                case (MouseButtons.Left, false, false): // Select shapes within drag rectangle TODOX
+                    
+                    //List<DataPoint> tempPoints = GetSelectedPoints();
+                    //foreach (DataPoint pt in tempPoints)
                     //{
-                    //    // Notify clients.
-                    //    ChartCursorMove(this, new ChartCursorMoveEventArgs() { CursorId = _dragCursor.Id, Position = _dragCursor.Position });
+                    //    if (!SelectedPoints.Contains(pt))
+                    //    {
+                    //        SelectedPoints.Add(pt);
+                    //        pt.Selected = true;
+                    //    }
                     //}
+                    // }
 
-                    // Reset status.
-                    _mouseDown = false;
-//                    _dragCursor = null;
+                    update = true;
                     break;
+
+                default:
+                    break;
+            };
+
+//            _mouseDown = false;
+
+            if(update)
+            {
+                // TODO
+                Invalidate();
             }
         }
 
@@ -368,56 +373,60 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            // Focus();
-            if (!_ctrlPressed)
+            //// Save position.
+            //_lastMousePos.X = e.X;
+            //_lastMousePos.Y = e.Y;
+
+            bool update = false;
+            switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
-                Point newPos = new(e.X, e.Y);
+                //case (MouseButtons.Left, true, false): // toggle selecting shapes
+                //    update = true;
+                //    break;
 
-                // If the _mouseDown state is true then move the chart with the mouse.
-                if (_mouseDown && (_lastMousePos != new Point(int.MaxValue, int.MaxValue)))
-                {
-                    int xChange = (newPos.X - _lastMousePos.X);
-                    int yChange = (newPos.Y - _lastMousePos.Y);
-
-                    // If there is a change in x or y...
-                    if (xChange != 0 || yChange != 0)
+                case (MouseButtons.Left, false, false): // drawing selection rect
+                    if(!_dragging)
                     {
-                        if (_dragging)
+                        _dragging = true;
+                    }
+                    else
+                    {
+
+                    }
+//                    _endMousePos = new Point(e.X, e.Y);
+                    update = true;
+                    break;
+
+                case (MouseButtons.None, false, false): // highlight any close shapes
+                    foreach(Shape shape in _shapes)
+                    {
+                        if(shape.IsClose(e.Location, SELECT_RANGE))
                         {
-                            // Update the cursor position. Get mouse x and convert to x axis scaled value.
-                            PointF pt = GetChartPoint(new PointF(newPos.X, newPos.Y));
-                            //_dragCursor.Position = pt.X;
+                            if (shape.State == ShapeState.Default)
+                            {
+                                shape.State = ShapeState.Highlighted;
+                                update = true;
+                            }
                         }
                         else
                         {
-                            // Adjust the axes
-                            _origin.Y += yChange;
-                            _origin.X += xChange;
-
-                            //FireScaleChange();
+                            if(shape.State == ShapeState.Highlighted)
+                            {
+                                shape.State = ShapeState.Default;
+                                update = true;
+                            }
                         }
-
-                        // Repaint
-                        Invalidate();
-                        //Refresh();
                     }
-                }
+                    break;
 
-                _lastMousePos = newPos;
-            }
-            else
+                default:
+                    break;
+            };
+
+            if(update)
             {
-                if (_mouseDown)
-                {
-                    // Do some special stuff to show a rectangle selection box.
-                    _endMousePos = new Point(e.X, e.Y);
-                    _dragging = true;
-                    Cursor = Cursors.Hand;
-
-                    // Force repaint of chart
-                    Invalidate();
-                    //Refresh();
-                }
+                // TODO
+                Invalidate();
             }
         }
 
@@ -428,26 +437,22 @@ namespace NDraw
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             var hme = e as HandledMouseEventArgs;
-            hme.Handled = true; // This prevents the mouse wheel event from getting back to the parent. ???
+            hme.Handled = true; // This prevents the mouse wheel event from getting back to the parent. TODO???
 
-            // mouse wheel:
-            //    if ctrl: zoom
-            //    else if shift: left/right
-            //    else: up/down
             bool update = false;
-            switch (_ctrlPressed, _shiftPressed) 
+            switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
-                case (true, false):
+                case (MouseButtons.Left, true, false): // Zoom in/out
                     _zoomFactor *= e.Delta > 0 ? 1.1f : 0.9f;
                     update = true;
                     break;
 
-                case (false, true):
+                case (MouseButtons.Left, false, true): // Shift left/right
                     _origin.X += e.Delta;
                     update = true;
                     break;
 
-                case (false, false):
+                case (MouseButtons.Left, false, false): // Shift up/down
                     _origin.Y += e.Delta;
                     update = true;
                     break;
@@ -458,7 +463,7 @@ namespace NDraw
 
             if(update)
             {
-                // Check limits. TODO
+                // Check limits. TODOX
                 //Gets a signed count of the number of detents the mouse wheel has rotated, multiplied
                 //     by the WHEEL_DELTA constant. A detent is one notch of the mouse wheel.
 
@@ -479,9 +484,9 @@ namespace NDraw
                 case Keys.ControlKey:
                     if (!_ctrlPressed)
                     {
-                        _startMousePos = new(_lastMousePos.X, _lastMousePos.Y);
+                        _startPos = Cursor.Position;
+                        _ctrlPressed = true;
                     }
-                    _ctrlPressed = true;
                     break;
 
                 case Keys.ShiftKey:
@@ -489,19 +494,16 @@ namespace NDraw
                     break;
 
                 case Keys.H: // reset
-                    //_firstPaint = true;
-                    _zoomFactor = 1.0f;
-                    Invalidate();
-                    //Refresh();
+                    Reset();
                     break;
 
-                case Keys.A: //TODO
+                case Keys.A: //TODO select all
                     break;
 
-                case Keys.C: //TODO
+                case Keys.C: //TODO copy/paste/cut
                     break;
 
-                case Keys.Escape: //TODO
+                case Keys.Escape: //TODO reset all selections
                     break;
             }
         }
@@ -528,8 +530,8 @@ namespace NDraw
                         //Refresh();
                     }
 
-                    _startMousePos = new Point();
-                    _endMousePos = new Point();
+                    _startPos = new Point();
+ //                   _endMousePos = new Point();
                     break;
 
                 case Keys.ShiftKey:
@@ -539,7 +541,6 @@ namespace NDraw
         }
         #endregion
 
-        #region Private helper functions
         /// <summary>
         /// 
         /// </summary>
@@ -551,12 +552,36 @@ namespace NDraw
             Invalidate();
         }
 
+
+
+        /////////////////////// TODO mapping ////////////////////////////////
+        ///////////////////////      mapping ////////////////////////////////
+        ///////////////////////      mapping ////////////////////////////////
+
+
+        /// <summary>Obtain the point on the page based on a client/display position.</summary>
+        /// <param name="pdisp">The client/display point.</param>
+        /// <returns>The page point.</returns>
+        PointF DisplayToPage(PointF pdisp)
+        {
+            var ppageX = (pdisp.X - _origin.X) / _zoomFactor;
+            var ppageY = (_origin.Y - pdisp.Y) / _zoomFactor;
+            return new PointF(ppageX, ppageY);
+        }
+
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="pvirt"></param>
-        void ConvertVirtualToScreen(PointX pvirt)
+        /// <param name="ppage"></param>
+        /// <returns></returns>
+        PointF PageToDisplay(PointF ppage)
         {
+            var pdispX = ppage.X * _zoomFactor + _origin.X;
+            var pdispY = - (ppage.Y * _zoomFactor - _origin.Y);
+
+            return new(pdispX, pdispY);
+
+
             // C:\Dev\repos\NBagOfTricks\Source\Utils\MathUtils.cs:
             //   109: public static double Map(double val, double start1, double stop1, double start2, double stop2)
             //   123: public static int Map(int val, int start1, int stop1, int start2, int stop2)
@@ -574,25 +599,60 @@ namespace NDraw
             // }
 
             // NBagOfTricks.Utils.MathUtils.Map()
+
+
+
+            ///// <summary>Obtain a client point based on a point on the chart.</summary>
+            ///// <param name="p">The PointF to correct</param>
+            ///// <returns>A PointF corresponding to the proper raw client position of the given PointF.</returns>
+            //private PointF GetClientPoint(PointF p)
+            //{
+            //    bool xPos = (p.X > 0);
+            //    bool yPos = (p.Y > 0);
+            //    float x = p.X * _zoomFactor;
+            //    float y = p.Y * _zoomFactor;
+            //    PointF retPoint = new PointF(0F, 0F);
+
+            //    if (xPos && yPos) // Both Positive
+            //    {
+            //        retPoint = new PointF(x + _origin.X, _origin.Y - y);
+            //    }
+            //    else if (xPos && !yPos) // Y is negative
+            //    {
+            //        retPoint = new PointF(x + _origin.X, _origin.Y + Math.Abs(y));
+            //    }
+            //    else if (!xPos && yPos) // X is negative
+            //    {
+            //        retPoint = new PointF(_origin.X - Math.Abs(x), _origin.Y - y);
+            //    }
+            //    else // Both Negative
+            //    {
+            //        retPoint = new PointF(_origin.X - Math.Abs(x), _origin.Y + Math.Abs(y));
+            //    }
+
+            //    return retPoint;
+            //}
         }
 
-        /// <summary>Find the closest to the given point.</summary>
+
+
+        /// <summary>Get shape that is within range of point.</summary>
         /// <param name="point">Mouse point</param>
-        /// <returns>The closest DataPoint</returns>
-        Shape GetClosestShape(Point point)
+        /// <returns>The closest DataPoint or null if none in range.</returns>
+        Shape GetCloseShape(PointF pt)
         {
-            Shape closest = null;
+            Shape close = null;
 
-            //foreach (DataPoint p in series.DataPoints)
-            //{
-            //    if (Math.Abs(point.X - p.ClientPoint.X) < MOUSE_SELECT_RANGE && Math.Abs(point.Y - p.ClientPoint.Y) < MOUSE_SELECT_RANGE)
-            //    {
-            //        closestSeries = series;
-            //        closestPoint = p;
-            //    }
-            //}
+            foreach(var shape in _shapes)
+            {
+                if(shape.IsClose(pt, SELECT_RANGE))
+                {
+                    close = shape;
+                    break;
+                }
+            }
 
-            return closest;
+            return close;
         }
 
         /// <summary>Select multiple shapes.</summary>
@@ -601,56 +661,28 @@ namespace NDraw
         {
             List<Shape> shapes = new();
 
-            //    if (!_startMousePos.IsEmpty && !_endMousePos.IsEmpty)
-            //    {
-            //        float xmin, xmax, ymin, ymax;
-            //        if (_startMousePos.X > _endMousePos.X)
-            //        {
-            //            xmin = _endMousePos.X;
-            //            xmax = _startMousePos.X;
-            //        }
-            //        else
-            //        {
-            //            xmin = _startMousePos.X;
-            //            xmax = _endMousePos.X;
-            //        }
-
-            //        if (_startMousePos.Y > _endMousePos.Y)
-            //        {
-            //            ymin = _endMousePos.Y;
-            //            ymax = _startMousePos.Y;
-            //        }
-            //        else
-            //        {
-            //            ymin = _startMousePos.Y;
-            //            ymax = _endMousePos.Y;
-            //        }
-
-            //        foreach (DataSeries series in SeriesCollection.Items)
-            //        {
-            //            foreach (DataPoint point in series.DataPoints)
-            //            {
-            //                if (point.ClientPoint.X >= xmin && point.ClientPoint.X <= xmax &&
-            //                    point.ClientPoint.Y >= ymin && point.ClientPoint.Y <= ymax)
-            //                {
-            //                    points.Add(point);
-            //                    point.Selected = true;
-            //                }
-            //            }
-            //        }
-            //    }
-
             return shapes;
         }
 
-        /// <summary>Obtain the point on the chart based on a client position.</summary>
-        /// <param name="p">The PointF to restore</param>
-        /// <returns>A PointF corresponding to the true coordinates (non-client) of the given PointF.</returns>
-        PointF GetChartPoint(PointF p)
+        /// <summary>Recenter the chart after zooming in or out.</summary>
+        /// <param name="xRatio">The change ratio for the x axis</param>
+        /// <param name="yRatio">The change ratio for the y axis</param>
+        private void Recenter(float xRatio, float yRatio)
         {
-            return new PointF();
-            //return new PointF((float)((p.X - _origin.X) / _xZoomedScale), (float)((_origin.Y - p.Y) / _yZoomedScale));
+            // Get the axes positions relative to the center of the control.
+            float xAxisPosFromCenter = _origin.Y - Height / 2;
+            float yAxisPosFromCenter = _origin.X - Width / 2;
+
+            // Calculate the change in positions.
+            float dY = ((xAxisPosFromCenter * yRatio) - xAxisPosFromCenter);
+            float dX = ((yAxisPosFromCenter * xRatio) - yAxisPosFromCenter);
+
+            // Set the new x and y origin positions.
+            _origin.Y = xAxisPosFromCenter + dY + Height / 2;
+            _origin.X = yAxisPosFromCenter + dX + Width / 2;
+
+            Invalidate();
+            Refresh();
         }
-        #endregion
     }
 }

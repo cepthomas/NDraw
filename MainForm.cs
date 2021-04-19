@@ -43,16 +43,13 @@ namespace NDraw
             canvas.Init(page);
 
             // Edit away....
-            // Collect changes
-            page.Save("page.json");
-
-            
 
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Clean up.
+            canvas.SavePage("page.json");
             UserSettings.TheSettings.Save();
             UserSettings.TheSettings.Dispose();
         }

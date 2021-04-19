@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 
 namespace NDraw
@@ -54,7 +54,8 @@ namespace NDraw
         /// <summary>Save object to file.</summary>
         public void Save(string fn)// = "")
         {
-            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            JsonSerializerOptions opts = new() { WriteIndented = true };
+            string json = JsonSerializer.Serialize(this, opts);
             File.WriteAllText(fn, json);
         }
 
@@ -65,7 +66,7 @@ namespace NDraw
             if (File.Exists(fn))
             {
                 string json = File.ReadAllText(fn);
-                page = JsonConvert.DeserializeObject<Page>(json);
+                page = JsonSerializer.Deserialize<Page>(json);
                 page._fn = fn;
             }
             return page;

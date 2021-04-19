@@ -7,7 +7,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using System.Drawing.Design;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 
 namespace NDraw
@@ -85,7 +86,8 @@ namespace NDraw
         /// <summary>Save object to file.</summary>
         public void Save()
         {
-            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            JsonSerializerOptions opts = new() { WriteIndented = true };
+            string json = JsonSerializer.Serialize(this, opts);
             File.WriteAllText(_fn, json);
         }
 
@@ -98,7 +100,7 @@ namespace NDraw
             if(File.Exists(fn))
             {
                 string json = File.ReadAllText(fn);
-                TheSettings = JsonConvert.DeserializeObject<UserSettings>(json);
+                TheSettings = JsonSerializer.Deserialize<UserSettings>(json);
 
                 // Clean up any bad file names.
                 TheSettings.RecentFiles.RemoveAll(f => !File.Exists(f));
