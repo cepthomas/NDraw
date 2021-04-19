@@ -39,6 +39,8 @@ namespace NDraw
         /// <summary>Current drawing.</summary>
         Page _page = new();
 
+        UserSettings _settings;
+
         /// <summary>The various shapes in _page converted to internal format.</summary>
         List<Shape> _shapes = new();
 
@@ -111,9 +113,10 @@ namespace NDraw
         /// Perform initialization. Convert page to internal format.
         /// </summary>
         /// <param name="page"></param>
-        public void Init(Page page)
+        public void Init(Page page, UserSettings settings)
         {
             _page = page;
+            _settings = settings;
 
             _zoomFactor = 1.0f;
 
@@ -121,7 +124,7 @@ namespace NDraw
             _shapes.AddRange(_page.Rects);
             _shapes.AddRange(_page.Lines);
 
-            _penGrid.Color = UserSettings.TheSettings.GridColor;
+            _penGrid.Color = _settings.GridColor;
             _penGrid.Width = GRID_LINE_WIDTH;
 
             Invalidate();
@@ -180,7 +183,7 @@ namespace NDraw
         /// <param name="e">The particular PaintEventArgs.</param>
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.Clear(UserSettings.TheSettings.BackColor);
+            e.Graphics.Clear(_settings.BackColor);
 
             // Draw the grid and axes.
             DrawGrid(e.Graphics);
@@ -205,11 +208,11 @@ namespace NDraw
                             break;
 
                         case LineShape l:
-                            e.Graphics.DrawLine(l.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, l.X1, l.Y1, l.X2, l.Y2);
+                            e.Graphics.DrawLine(l.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, l.Start, l.End);
 
                             if (l.State == ShapeState.Selected)
                             {
-                                e.Graphics.FillEllipse(_penShapeTemp.Brush, l.X1, l.Y1, marker, marker);
+                                e.Graphics.FillEllipse(_penShapeTemp.Brush, l.Start.X, l.Start.Y, marker, marker);
                             }
                             break;
                     }
@@ -230,7 +233,7 @@ namespace NDraw
                 e.Graphics.DrawRectangle(_penSelect, start.X, start.Y, width, height);
             }
 
-            DrawText(e.Graphics, 450, 150, "Hello!", UserSettings.TheSettings.DefaultFont, 45);
+            DrawText(e.Graphics, 450, 150, "Hello!", _settings.AllStyles[0].Font, 45);
         }
 
         /// <summary>

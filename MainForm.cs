@@ -15,6 +15,8 @@ namespace NDraw
 {
     public partial class MainForm : Form
     {
+        UserSettings _settings;
+
         public MainForm()
         {
             InitializeComponent();
@@ -25,22 +27,22 @@ namespace NDraw
             string appDir = NBagOfTricks.Utils.MiscUtils.GetAppDataDir("NDraw");
             DirectoryInfo di = new DirectoryInfo(appDir);
             di.Create();
-            UserSettings.Load(appDir);
+            _settings = UserSettings.Load(appDir);
 
             //var pp = Page.Load("page.json");
 
-            // Common stuff.
-            UserSettings.TheSettings.AllStyles.Add(new() { Id = "ST_1", LineColor = Color.Green, FillColor = Color.Pink });
-            UserSettings.TheSettings.AllStyles.Add(new() { Id = "ST_2", LineColor = Color.Purple, FillColor = Color.Pink });
+            // Test stuff.
+            _settings.AllStyles.Add(new() { Id = "ST_1", LineColor = Color.Green, FillColor = Color.Pink });
+            _settings.AllStyles.Add(new() { Id = "ST_2", LineColor = Color.Purple, FillColor = Color.Pink });
 
             // What to draw.
             Page page = new();
 
             page.Rects.Add(new RectShape() { Id = "R_1", Text = "foo", L = 50, T = 50, R = 100, B = 100 });
             page.Rects.Add(new RectShape() { Id = "R_2", Text = "bar", L = 160, T = 170, R = 200, B = 300 });
-            page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar", X1 = 250, Y1 = 250, X2 = 300, Y2 = 300 });
+            page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar",  Start = new PointF(250, 250), End = new PointF(300, 300) });
 
-            canvas.Init(page);
+            canvas.Init(page, _settings);
 
             // Edit away....
 
@@ -50,8 +52,8 @@ namespace NDraw
         {
             // Clean up.
             canvas.SavePage("page.json");
-            UserSettings.TheSettings.Save();
-            UserSettings.TheSettings.Dispose();
+            _settings.Save();
+            _settings.Dispose();
         }
     }
 }

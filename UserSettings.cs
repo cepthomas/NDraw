@@ -16,10 +16,7 @@ namespace NDraw
     [Serializable]
     public class UserSettings : IDisposable
     {
-
         #region Persisted editable properties
-        [DisplayName("Default Font"), Description("The font to use if not specified in a style."), Browsable(true)]
-        public Font DefaultFont { get; set; } = new Font("Consolas", 10);
 
         //public string BackColorName { get; set; } = "Pink";
         //public string GridColorName { get; set; } = "Red";
@@ -30,17 +27,21 @@ namespace NDraw
         /// <summary>Virtual - snap resolution</summary>
         public float Snap { get; set; } = 2;
 
-        /// <summary>All the styles</summary>
+        /// <summary>All the styles. The first one is considered the default.</summary>
         public List<Style> AllStyles { get; set; } = new();
 
-        //[JsonIgnore]
-        public Color BackColor { get; set; } = Color.LightGray;
 
-        //[JsonIgnore]
-        public Color GridColor { get; set; } = Color.Gray;
+        [Browsable(false)]
+        public string BackColorName { get; set; } = "LightGray";
 
-        //[DisplayName("Background Color"), Description("The color used for overall background."), Browsable(true)]
-        //public Color BackColor { get; set; } = Color.AliceBlue;
+        [JsonIgnore]
+        public Color BackColor { get; set; } = Color.White;
+
+        [Browsable(false)]
+        public string GridColorName { get; set; } = "Gray";
+
+        [JsonIgnore]
+        public Color GridColor { get; set; } = Color.Black;
 
         #endregion
 
@@ -79,42 +80,57 @@ namespace NDraw
         string _fn = "";
         #endregion
 
-        /// <summary>Current global user settings.</summary>
-        public static UserSettings TheSettings { get; set; } = new UserSettings();
-
         #region Persistence
-        /// <summary>Save object to file.</summary>
-        public void Save()
-        {
-            JsonSerializerOptions opts = new() { WriteIndented = true };
-            string json = JsonSerializer.Serialize(this, opts);
-            File.WriteAllText(_fn, json);
-        }
-
         /// <summary>Create object from file.</summary>
-        public static void Load(string appDir)
+        public static UserSettings Load(string appDir)
         {
-            TheSettings = null;
+            UserSettings set = null;
             string fn = Path.Combine(appDir, "settings.json");
 
-            if(File.Exists(fn))
+            if (File.Exists(fn))
             {
                 string json = File.ReadAllText(fn);
-                TheSettings = JsonSerializer.Deserialize<UserSettings>(json);
+                set = JsonSerializer.Deserialize<UserSettings>(json);
 
                 // Clean up any bad file names.
-                TheSettings.RecentFiles.RemoveAll(f => !File.Exists(f));
+                set.RecentFiles.RemoveAll(f => !File.Exists(f));
 
-                TheSettings._fn = fn;
+                set._fn = fn;
             }
             else
             {
                 // Doesn't exist, create a new one.
-                TheSettings = new UserSettings
+                set = new UserSettings
                 {
                     _fn = fn
                 };
             }
+
+            // Sanity check.
+            if(set.AllStyles.Count == 0)
+            {
+                set.AllStyles.Add(new Style());
+            }
+
+            // Fixups.
+            set.BackColor = Color.FromName(set.BackColorName);
+            set.GridColor = Color.FromName(set.GridColorName);
+
+            return set;
+        }
+
+        /// <summary>Save object to file.</summary>
+        public void Save()
+        {
+            // Fixups.
+            BackColorName = BackColor.Name;
+            GridColorName = GridColor.Name;
+
+            AllStyles.ForEach(s => s.Save());
+
+            JsonSerializerOptions opts = new() { WriteIndented = true };
+            string json = JsonSerializer.Serialize(this, opts);
+            File.WriteAllText(_fn, json);
         }
 
         /// <summary>Clean up.</summary>

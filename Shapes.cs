@@ -15,69 +15,9 @@ namespace NDraw
 {
     // All dimensions are in the same units as defined in the page.
 
-    // Replacement classes because the .NET serialize ugly.
-
     public enum ShapeState { Default, Highlighted, Selected };
 
-    /// <summary>
-    /// 
-    /// </summary>
-    //[Serializable]
-    //public class PointX
-    //{
-    //    #region Serialized properties
-    //    public float X { get; set; } = 0.0f;
-
-    //    public float Y { get; set; } = 0.0f;
-    //    #endregion
-
-    //    /// <summary>Constructor.</summary>
-    //    public PointX(float x, float y)
-    //    {
-    //        X = x;
-    //        Y = y;
-    //    }
-
-    //    ///// <summary>Copy onstructor.</summary>
-    //    //public PointX(PointX p)
-    //    //{
-    //    //    X = p.X;
-    //    //    Y = p.Y;
-    //    //}
-
-    //    /// <summary>For viewing pleasure.</summary>
-    //    public override string ToString() => string.Format($"X:{X} Y:{Y}");
-    //}
-
-
-    //[Serializable]
-    //public class LineX
-    //{
-    //    public float X1 { get; set; } = 0.0f;
-    //    public float Y1 { get; set; } = 0.0f;
-    //    public float X2 { get; set; } = 0.0f;
-    //    public float Y2 { get; set; } = 0.0f;
-
-    //    public LineX()
-    //    {
-    //    }
-
-    //    public LineX(float x1, float y1, float x2, float y2)
-    //    {
-    //        X1 = x1;
-    //        Y1 = y1;
-    //        X2 = x2;
-    //        Y2 = y2;
-    //    }
-
-    //    public RectangleF Expand(int range)
-    //    {
-    //        RectangleF r = new RectangleF(X1 - range, Y1 - range, Math.Abs(X2 - X1) + range * 2, Math.Abs(Y2 - Y1) + range * 2);
-    //        return r;
-    //    }
-    //}
-
-
+    /// <summary>Base/abstract class for all shape types.</summary>
     [Serializable]
     public abstract class Shape
     {
@@ -117,6 +57,7 @@ namespace NDraw
         #endregion
     }
 
+    /// <summary>Drawing rectangle.</summary>
     [Serializable]
     public class RectShape : Shape
     {
@@ -151,6 +92,7 @@ namespace NDraw
         //}
 
         /// <summary>
+        /// Gets list of lines defining rect edges.
         /// </summary>
         /// <returns></returns>
         public List<(PointF start, PointF end)> GetEdges()
@@ -182,12 +124,7 @@ namespace NDraw
             return ret;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rect"></param>
-        /// <param name="any">True if any part is contained, otherwise all must be.</param>
-        /// <returns></returns>
+        /// <summary>See base.</summary>
         public override bool ContainedIn(RectangleF rect, bool any)
         {
             bool contained = false;
@@ -211,12 +148,7 @@ namespace NDraw
             return contained;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pt">Display/mouse coordinates.</param>
-        /// <param name="range"></param>
-        /// <returns></returns>
+        /// <summary>See base.</summary>
         public override bool IsClose(PointF pt, int range)
         {
             bool close = false;
@@ -245,23 +177,23 @@ namespace NDraw
         public override string ToString() => string.Format($"L:{L} T:{T} R:{R} B:{B} W:{Width} H:{Height}");
     }
 
+    /// <summary>Drawing line.</summary>
     [Serializable]
     public class LineShape : Shape
     {
         #region Serialized properties
-        public float X1 { get; set; } = 0.0f;
+        //public float X1 { get; set; } = 0.0f;
 
-        public float Y1 { get; set; } = 0.0f;
+        //public float Y1 { get; set; } = 0.0f;
 
-        public float X2 { get; set; } = 0.0f;
-        
-        public float Y2 { get; set; } = 0.0f;
+        //public float X2 { get; set; } = 0.0f;
+
+        //public float Y2 { get; set; } = 0.0f;
         #endregion
 
-        //public PointF Start { get; set; } = new PointF(0, 0);
-        //public PointF End { get; set; } = new PointF(0, 0);
+        public PointF Start { get; set; } = new PointF(0, 0);
 
-
+        public PointF End { get; set; } = new PointF(0, 0);
 
         // TODO end arrows etc, multi-segment lines
 
@@ -270,19 +202,21 @@ namespace NDraw
         //    return new();
         //}
 
+        /// <summary>See base.</summary>
         public override bool IsClose(PointF pt, int range)
         {
-            var close = ShapeUtils.Expand(new PointF(X1, Y1), new PointF(X2, Y2), range).Contains(pt);
+            var close = ShapeUtils.Expand(Start, End, range).Contains(pt);
             return close;
         }
 
+        /// <summary>See base.</summary>
         public override bool ContainedIn(RectangleF rect, bool any)
         {
-            return rect.Contains(X1, Y1) || rect.Contains(X2, Y2);
+            return rect.Contains(Start) || rect.Contains(End);
         }
 
         /// <summary>For viewing pleasure.</summary>
-        public override string ToString() => string.Format($"X1:{X1} Y1:{Y1} X2:{X2} Y2:{Y2}");
+        public override string ToString() => string.Format($"Start:{Start} End:{End}");
     }
 
     public class ShapeUtils //TODO new home
