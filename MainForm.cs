@@ -11,6 +11,9 @@ using System.Windows.Forms;
 using NBagOfTricks;
 
 
+//TODO Undo/redo: insert, cut/copy/delete, move, resize, edit properties, ...
+
+
 namespace NDraw
 {
     public partial class MainForm : Form
@@ -36,11 +39,18 @@ namespace NDraw
             _settings.AllStyles.Add(new() { Id = "ST_2", LineColor = Color.Purple, FillColor = Color.Pink });
 
             // What to draw.
-            Page page = new();
+            Page page = new()
+            {
+                Width = 20.0f,
+                Height = 10.0f,
+                Units = "feet",
+                Grid = 0.5f,
+                Snap = 0.1f
+            };
 
-            page.Rects.Add(new RectShape() { Id = "R_1", Text = "foo", L = 50, T = 50, R = 100, B = 100 });
-            page.Rects.Add(new RectShape() { Id = "R_2", Text = "bar", L = 160, T = 170, R = 200, B = 300 });
-            page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar",  Start = new PointF(250, 250), End = new PointF(300, 300) });
+            page.Rects.Add(new RectShape() { Id = "R_1", Text = "foo", TL = new(50, 50), BR = new(100, 100) });
+            page.Rects.Add(new RectShape() { Id = "R_2", Text = "bar", TL = new(160, 170), BR = new(200, 300) });
+            page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar",  Start = new(250, 250), End = new(300, 300) });
 
             canvas.Init(page, _settings);
 

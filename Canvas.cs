@@ -14,44 +14,37 @@ using NBagOfTricks;
 
 
 
-//https://devblogs.microsoft.com/dotnet/whats-new-in-windows-forms-runtime-in-net-5-0/
-//In.NET 5.0 we’ve lifted the bar higher and optimised several painting paths. Historically Windows Forms relied on GDI+ (and some GDI)
-//for rendering operations. Whilst GDI + is easier to use than GDI because it abstracts the device context(a structure with information
-//about a particular display device, such as a monitor or a printer) via the Graphics object, it’s also slow due to the additional overhead.
-//In a number of situations where we deal with solid colours and brushes, we have opted to use GDI.
-//We have also extended a number rendering-related APIs(e.g.PaintEventArgs) with IDeviceContext interface, which whilst may not be available
-//to Windows Forms developers directly, allow us to bypass the GDI+ Graphics object, and thus reduce allocations and gain speed. These optimisations
-//have shown a significant reduction in memory consumptions in redraw paths, in some cases saving x10 in memory allocations).
-
-
-//If you are starting from scratch and you want to use Json then go for Utf8Json which is generic and very fast. Also the startup costs are
-//lower than from JIL because Utf8Json and MessagePackSharp (same author) seem to hit a fine spot by having most code already put into the
-//main library and generate only a small amount of code around that. DataContractSerializer generates only the de/serialize code depending
-//on the code path you actually hit on the fly.
-
-//System.Text.Json library (above this is labeled as “NetCoreJson”).
-
-
 namespace NDraw
 {
     public partial class Canvas : UserControl
     {
+        /// <summary>DOC</summary>
+
         /// <summary>Current drawing.</summary>
         Page _page = new();
 
-        UserSettings _settings;
+        Rectangle _drawArea = new();
+
+        /// <summary>The settings.</summary>
+        UserSettings _settings = new();
 
         /// <summary>The various shapes in _page converted to internal format.</summary>
-        List<Shape> _shapes = new();
+        readonly List<Shape> _shapesX = new();
 
-        /// <summary>The center of the display in pixels.</summary>
-        PointF _origin = new(0, 0);
+        /// <summary>The horizontal offset in pixels.</summary>
+        int _shiftX = 0;
+
+        /// <summary>The vertical offset in pixels.</summary>
+        int _shiftY = 0;
 
         /// <summary>Cosmetics.</summary>
         const float GRID_LINE_WIDTH = 1.0f;
 
         /// <summary>How close do you have to be to select a feature in pixels.</summary>
         const int SELECT_RANGE = 5;
+
+        // Around drawing area.
+        const int MARGIN = 50;
 
         #region Control states
         /// <summary>If control is pressed.</summary>
@@ -72,32 +65,66 @@ namespace NDraw
         Point _startPos = new();
 
         /// <summary>Mouse position when button unpressed.</summary>
-//        Point _endMousePos = new();
+        //Point _endMousePos = new();
 
         /// <summary>Current mouse position.</summary>
- //       Point _currentMousePos = new();
+        //Point _currentMousePos = new();
         #endregion
 
         #region Zoom
         /// <summary>Current zoom.</summary>
-        float _zoomFactor = 1.0F;
+        float _zoom = 1.0F;
 
         /// <summary>Maximum zoom in limit.</summary>
-        const float MAX_ZOOM_LIMIT = 10.0f;
+        const float MAX_ZOOM = 10.0f;
 
         /// <summary>Minimum zoom out limit.</summary>
-        const float MIN_ZOOM_LIMIT = 0.1f;
+        const float MIN_ZOOM = 0.1f;
+
+        /// <summary>Speed at which to zoom in/out.</summary>
+        const float ZOOM_SPEED = 1.25F;
+
         #endregion
 
         #region Drawing resources
         Pen _penGrid = new(Color.Gray);
 
-        // Temp pen.
+        // Temp pen. Will be from style.
         Pen _penShapeTemp = new(Color.Green, 2);
         Pen _penHighlightTemp = new(Color.Green, 4);
 
         Pen _penSelect = new(Color.Gray);
         #endregion
+
+
+
+
+
+
+        void CalcGeometry() // stuff on resize
+        {
+            _drawArea = new(ClientRectangle.X + MARGIN, ClientRectangle.Y + MARGIN, Width - MARGIN, Height - MARGIN);
+
+            //public float Grid { get; set; } = 2;
+            //public float Snap { get; set; } = 2;
+        }
+
+        void Reset() // initial state
+        {
+            _zoom = 1.0f;
+            _shiftX = 0;
+            _shiftY = 0;
+            //Invalidate();
+        }
+
+
+        void RecalcDisplayShapes()
+        {
+
+        }
+
+
+
 
         #region Lifecycle
         /// <summary>
@@ -118,11 +145,11 @@ namespace NDraw
             _page = page;
             _settings = settings;
 
-            _zoomFactor = 1.0f;
+            _zoom = 1.0f;
 
-            _shapes.Clear();
-            _shapes.AddRange(_page.Rects);
-            _shapes.AddRange(_page.Lines);
+            _shapesX.Clear();
+            _shapesX.AddRange(_page.Rects);
+            _shapesX.AddRange(_page.Lines);
 
             _penGrid.Color = _settings.GridColor;
             _penGrid.Width = GRID_LINE_WIDTH;
@@ -140,7 +167,7 @@ namespace NDraw
             _page.Lines.Clear();
             _page.Rects.Clear();
 
-            foreach(var sh in _shapes)
+            foreach(var sh in _shapesX)
             {
                 switch(sh)
                 {
@@ -199,11 +226,11 @@ namespace NDraw
                     switch (s)
                     {
                         case RectShape r:
-                            e.Graphics.DrawRectangle(r.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, r.L, r.T, r.Width, r.Height);
+                            e.Graphics.DrawRectangle(r.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, r.TL.X, r.TL.Y, r.Width, r.Height);
 
                             if (r.State == ShapeState.Selected)
                             {
-                                e.Graphics.FillEllipse(_penShapeTemp.Brush, r.L, r.T, marker, marker);
+                                e.Graphics.FillEllipse(_penShapeTemp.Brush, r.TL.X, r.TL.Y, marker, marker);
                             }
                             break;
 
@@ -261,15 +288,15 @@ namespace NDraw
         /// A label should be drawn using the specified transformations.
         /// </summary>
         /// <param name="g">The Graphics object to use.</param>
-        /// <param name="transformX">The X transform</param>
-        /// <param name="transformY">The Y transform</param>
-        /// <param name="labelText">The text of the label.</param>
-        /// <param name="rotationDegrees">The rotation of the axis.</param>
-        void DrawText(Graphics g, float transformX, float transformY, string labelText, Font font, int rotationDegrees)
+        /// <param name="x">The X transform</param>
+        /// <param name="y">The Y transform</param>
+        /// <param name="text">The text of the label.</param>
+        /// <param name="degrees">The rotation of the axis.</param>
+        void DrawText(Graphics g, float x, float y, string text, Font font, int degrees)
         {
-            g.TranslateTransform(transformX, transformY);
-            g.RotateTransform(rotationDegrees);
-            g.DrawString(labelText, font, Brushes.Black, 0, 0);
+            g.TranslateTransform(x, y);
+            g.RotateTransform(degrees);
+            g.DrawString(text, font, Brushes.Black, 0, 0);
             g.ResetTransform();
         }
         #endregion
@@ -305,7 +332,7 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            bool update = false;
+            bool redraw = false;
             switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
                 case (MouseButtons.Left, true, false): // if near a shape toggle selected
@@ -314,7 +341,7 @@ namespace NDraw
                     if (pt != null)
                     {
                         pt.State = pt.State == ShapeState.Selected ? ShapeState.Default : ShapeState.Selected;
-                        update = true;
+                        redraw = true;
                     }
                     break;
 
@@ -323,9 +350,9 @@ namespace NDraw
             };
 
             _startPos = new Point(e.X, e.Y);
-//            _mouseDown = true;
+            //_mouseDown = true;
 
-            if(update)
+            if (redraw)
             {
                 // TODO
                 Invalidate();
@@ -338,7 +365,7 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            bool update = false;
+            bool redraw = false;
             switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
                 case (MouseButtons.Left, false, false): // Select shapes within drag rectangle TODOX
@@ -354,16 +381,16 @@ namespace NDraw
                     //}
                     // }
 
-                    update = true;
+                    redraw = true;
                     break;
 
                 default:
                     break;
             };
 
-//            _mouseDown = false;
+            //_mouseDown = false;
 
-            if(update)
+            if (redraw)
             {
                 // TODO
                 Invalidate();
@@ -380,11 +407,37 @@ namespace NDraw
             //_lastMousePos.X = e.X;
             //_lastMousePos.Y = e.Y;
 
-            bool update = false;
+
+            //// If there is a change in x or y...
+            //if ((xChange + yChange) != 0)
+            //{
+            //    if (_dragCursor != null)
+            //    {
+            //        // Update the cursor position. Get mouse x and convert to x axis scaled value.
+            //        PointF pt = GetChartPoint(new PointF(newPos.X, newPos.Y));
+            //        _dragCursor.Position = pt.X;
+            //    }
+            //    else
+            //    {
+            //        // Adjust the axes
+            //        _origin.Y += yChange;
+            //        _origin.X += xChange;
+
+            //        FireScaleChange();
+            //    }
+
+            //    // Repaint
+            //    Invalidate();
+            //    Refresh();
+            //}
+
+            //bool recalc = false;
+            bool redraw = false;
+
             switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
                 //case (MouseButtons.Left, true, false): // toggle selecting shapes
-                //    update = true;
+                //    redraw = true;
                 //    break;
 
                 case (MouseButtons.Left, false, false): // drawing selection rect
@@ -396,8 +449,9 @@ namespace NDraw
                     {
 
                     }
-//                    _endMousePos = new Point(e.X, e.Y);
-                    update = true;
+                    
+                    //_endMousePos = new Point(e.X, e.Y);
+                    redraw = true;
                     break;
 
                 case (MouseButtons.None, false, false): // highlight any close shapes
@@ -408,7 +462,7 @@ namespace NDraw
                             if (shape.State == ShapeState.Default)
                             {
                                 shape.State = ShapeState.Highlighted;
-                                update = true;
+                                redraw = true;
                             }
                         }
                         else
@@ -416,7 +470,7 @@ namespace NDraw
                             if(shape.State == ShapeState.Highlighted)
                             {
                                 shape.State = ShapeState.Default;
-                                update = true;
+                                redraw = true;
                             }
                         }
                     }
@@ -426,9 +480,8 @@ namespace NDraw
                     break;
             };
 
-            if(update)
+            if(redraw)
             {
-                // TODO
                 Invalidate();
             }
         }
@@ -442,34 +495,43 @@ namespace NDraw
             var hme = e as HandledMouseEventArgs;
             hme.Handled = true; // This prevents the mouse wheel event from getting back to the parent. TODO???
 
-            bool update = false;
+            bool recalc = false;
+            bool redraw = false;
+
             switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
                 case (MouseButtons.Left, true, false): // Zoom in/out
-                    _zoomFactor *= e.Delta > 0 ? 1.1f : 0.9f;
-                    update = true;
+                    _zoom *= e.Delta > 0 ? 1.1f : 0.9f;
+                    //>>>> check limits TODOX
+                    //Gets a signed count of the number of detents the mouse wheel has rotated, multiplied
+                    //     by the WHEEL_DELTA constant. A detent is one notch of the mouse wheel.
+                    recalc = true;
+                    redraw = true;
                     break;
 
                 case (MouseButtons.Left, false, true): // Shift left/right
-                    _origin.X += e.Delta;
-                    update = true;
+                    _shiftX += e.Delta;
+                    recalc = true;
+                    redraw = true;
                     break;
 
                 case (MouseButtons.Left, false, false): // Shift up/down
-                    _origin.Y += e.Delta;
-                    update = true;
+                    _shiftY += e.Delta;
+                    recalc = true;
+                    redraw = true;
                     break;
 
                 default:
                     break;
             };
 
-            if(update)
+            if(recalc)
             {
-                // Check limits. TODOX
-                //Gets a signed count of the number of detents the mouse wheel has rotated, multiplied
-                //     by the WHEEL_DELTA constant. A detent is one notch of the mouse wheel.
+                RecalcDisplayShapes();
+            }
 
+            if(redraw)
+            {
                 Invalidate();
             }
         }
@@ -482,6 +544,9 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
+            //bool recalc = false;
+            bool redraw = false;
+
             switch (e.KeyCode)
             {
                 case Keys.ControlKey:
@@ -498,16 +563,25 @@ namespace NDraw
 
                 case Keys.H: // reset
                     Reset();
+                    redraw = true;
                     break;
 
                 case Keys.A: //TODO select all
+                    redraw = true;
                     break;
 
                 case Keys.C: //TODO copy/paste/cut
+                    redraw = true;
                     break;
 
                 case Keys.Escape: //TODO reset all selections
+                    redraw = true;
                     break;
+            }
+
+            if(redraw)
+            {
+                Invalidate();
             }
         }
 
@@ -517,6 +591,8 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnKeyUp(KeyEventArgs e)
         {
+            bool redraw = false;
+
             switch (e.KeyCode)
             {
                 case Keys.ControlKey:
@@ -529,7 +605,7 @@ namespace NDraw
                         Cursor = Cursors.Default;
 
                         //                       _dragCursor = null;
-                        Invalidate();
+                        redraw = true;
                         //Refresh();
                     }
 
@@ -541,19 +617,13 @@ namespace NDraw
                     _shiftPressed = false;
                     break;
             }
+
+            if(redraw)
+            {
+                Invalidate();
+            }
         }
         #endregion
-
-        /// <summary>
-        /// 
-        /// </summary>
-        void Reset()
-        {
-            _zoomFactor = 1.0f;
-            _origin.X = 0;
-            _origin.Y = 0;
-            Invalidate();
-        }
 
 
 
@@ -562,82 +632,28 @@ namespace NDraw
         ///////////////////////      mapping ////////////////////////////////
 
 
-        /// <summary>Obtain the point on the page based on a client/display position.</summary>
-        /// <param name="pdisp">The client/display point.</param>
-        /// <returns>The page point.</returns>
-        PointF DisplayToPage(PointF pdisp)
-        {
-            var ppageX = (pdisp.X - _origin.X) / _zoomFactor;
-            var ppageY = (_origin.Y - pdisp.Y) / _zoomFactor;
-            return new PointF(ppageX, ppageY);
-        }
-
         /// <summary>
-        /// 
+        /// Map an absolute point in page coordinates to the display.
         /// </summary>
         /// <param name="ppage"></param>
         /// <returns></returns>
         PointF PageToDisplay(PointF ppage)
         {
-            var pdispX = ppage.X * _zoomFactor + _origin.X;
-            var pdispY = - (ppage.Y * _zoomFactor - _origin.Y);
-
+            var pdispX = ppage.X * _zoom + _shiftX;
+            var pdispY = ppage.Y * _zoom + _shiftY;
             return new(pdispX, pdispY);
-
-
-            // C:\Dev\repos\NBagOfTricks\Source\Utils\MathUtils.cs:
-            //   109: public static double Map(double val, double start1, double stop1, double start2, double stop2)
-            //   123: public static int Map(int val, int start1, int stop1, int start2, int stop2)
-            // 
-            // for (int i = 0; i < _cpuBuff.Length; i++)
-            // {
-            //     int index = _buffIndex - i;
-            //     index = index < 0 ? index + _cpuBuff.Length : index;
-            // 
-            //     double val = _cpuBuff[index];
-            // 
-            //     // Draw data point.
-            //     double y = MathUtils.Map(val, _min, _max, Height, 0);
-            //     pe.Graphics.DrawLine(_pen, (float)i, (float)y, (float)i, Height);
-            // }
-
-            // NBagOfTricks.Utils.MathUtils.Map()
-
-
-
-            ///// <summary>Obtain a client point based on a point on the chart.</summary>
-            ///// <param name="p">The PointF to correct</param>
-            ///// <returns>A PointF corresponding to the proper raw client position of the given PointF.</returns>
-            //private PointF GetClientPoint(PointF p)
-            //{
-            //    bool xPos = (p.X > 0);
-            //    bool yPos = (p.Y > 0);
-            //    float x = p.X * _zoomFactor;
-            //    float y = p.Y * _zoomFactor;
-            //    PointF retPoint = new PointF(0F, 0F);
-
-            //    if (xPos && yPos) // Both Positive
-            //    {
-            //        retPoint = new PointF(x + _origin.X, _origin.Y - y);
-            //    }
-            //    else if (xPos && !yPos) // Y is negative
-            //    {
-            //        retPoint = new PointF(x + _origin.X, _origin.Y + Math.Abs(y));
-            //    }
-            //    else if (!xPos && yPos) // X is negative
-            //    {
-            //        retPoint = new PointF(_origin.X - Math.Abs(x), _origin.Y - y);
-            //    }
-            //    else // Both Negative
-            //    {
-            //        retPoint = new PointF(_origin.X - Math.Abs(x), _origin.Y + Math.Abs(y));
-            //    }
-
-            //    return retPoint;
-            //}
         }
 
 
+        /// <summary>Obtain the point on the page based on a client/display position.</summary>
+        /// <param name="pdisp">The client/display point.</param>
+        /// <returns>The page point.</returns>
+        PointF DisplayToPage(PointF pdisp)
+        {
+            var ppageX = (pdisp.X - _shiftX) / _zoom;
+            var ppageY = (pdisp.Y - _shiftY) / _zoom;
+            return new PointF(ppageX, ppageY);
+        }
 
         /// <summary>Get shape that is within range of point.</summary>
         /// <param name="point">Mouse point</param>
@@ -660,32 +676,32 @@ namespace NDraw
 
         /// <summary>Select multiple shapes.</summary>
         /// <returns>The shapes.</returns>
-        List<Shape> GetSelectedShapes()
+        List<Shape> GetSelectedShapes()//TODO
         {
             List<Shape> shapes = new();
 
             return shapes;
         }
 
-        /// <summary>Recenter the chart after zooming in or out.</summary>
-        /// <param name="xRatio">The change ratio for the x axis</param>
-        /// <param name="yRatio">The change ratio for the y axis</param>
-        private void Recenter(float xRatio, float yRatio)
-        {
-            // Get the axes positions relative to the center of the control.
-            float xAxisPosFromCenter = _origin.Y - Height / 2;
-            float yAxisPosFromCenter = _origin.X - Width / 2;
+        ///// <summary>Recenter the chart after zooming in or out.</summary>
+        ///// <param name="xRatio">The change ratio for the x axis</param>
+        ///// <param name="yRatio">The change ratio for the y axis</param>
+        //private void Recenter(float xRatio, float yRatio)
+        //{
+        //    // Get the axes positions relative to the center of the control.
+        //    float xAxisPosFromCenter = _shiftY - Height / 2;
+        //    float yAxisPosFromCenter = _shiftX - Width / 2;
 
-            // Calculate the change in positions.
-            float dY = ((xAxisPosFromCenter * yRatio) - xAxisPosFromCenter);
-            float dX = ((yAxisPosFromCenter * xRatio) - yAxisPosFromCenter);
+        //    // Calculate the change in positions.
+        //    float dY = ((xAxisPosFromCenter * yRatio) - xAxisPosFromCenter);
+        //    float dX = ((yAxisPosFromCenter * xRatio) - yAxisPosFromCenter);
 
-            // Set the new x and y origin positions.
-            _origin.Y = xAxisPosFromCenter + dY + Height / 2;
-            _origin.X = yAxisPosFromCenter + dX + Width / 2;
+        //    // Set the new x and y origin positions.
+        //    _shiftY = xAxisPosFromCenter + dY + Height / 2;
+        //    _shiftX = yAxisPosFromCenter + dX + Width / 2;
 
-            Invalidate();
-            Refresh();
-        }
+        //    Invalidate();
+        //    Refresh();
+        //}
     }
 }

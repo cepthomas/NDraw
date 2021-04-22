@@ -16,40 +16,38 @@ namespace NDraw
     [Serializable]
     public class UserSettings : IDisposable
     {
-        #region Persisted editable properties
-
-        //public string BackColorName { get; set; } = "Pink";
-        //public string GridColorName { get; set; } = "Red";
-
-        /// <summary>Virtual - grid lines</summary>
+        #region Properties
+        /// <summary>Display grid in Page units.</summary>
         public float Grid { get; set; } = 2;
 
-        /// <summary>Virtual - snap resolution</summary>
+        /// <summary>Display snap grid in Page units.</summary>
         public float Snap { get; set; } = 2;
 
         /// <summary>All the styles. The first one is considered the default.</summary>
         public List<Style> AllStyles { get; set; } = new();
 
-
-        [Browsable(false)]
+        /// <summary>DOC</summary>
+        [Browsable(false)] // Persisted non-editable
         public string BackColorName { get; set; } = "LightGray";
 
-        [JsonIgnore]
+        /// <summary>DOC</summary>
+        [JsonIgnore] // Editable non-persisted
         public Color BackColor { get; set; } = Color.White;
 
-        [Browsable(false)]
+        /// <summary>DOC</summary>
+        [Browsable(false)] // Persisted non-editable
         public string GridColorName { get; set; } = "Gray";
 
-        [JsonIgnore]
+        /// <summary>DOC</summary>
+        [JsonIgnore] // Editable non-persisted
         public Color GridColor { get; set; } = Color.Black;
 
-        #endregion
-
-        #region Persisted non-editable properties
-        [Browsable(false)]
+        /// <summary>DOC</summary>
+        [Browsable(false)] // Persisted non-editable
         public FormInfo MainFormInfo { get; set; } = new FormInfo();
 
-        [Browsable(false)]
+        /// <summary>DOC</summary>
+        [Browsable(false)] // Persisted non-editable
         public List<string> RecentFiles { get; set; } = new List<string>();
         #endregion
 
@@ -80,6 +78,20 @@ namespace NDraw
         string _fn = "";
         #endregion
 
+        #region Lifecycle
+        /// <summary>Constructor</summary>
+        public UserSettings()
+        {
+            if (AllStyles.Count == 0)
+            {
+                AllStyles.Add(new Style());
+            }
+        }
+
+        /// <summary>Clean up.</summary>
+        public void Dispose() => AllStyles.ForEach(s => s.Dispose());
+        #endregion
+
         #region Persistence
         /// <summary>Create object from file.</summary>
         public static UserSettings Load(string appDir)
@@ -106,7 +118,7 @@ namespace NDraw
                 };
             }
 
-            // Sanity check.
+            // Make sure at least the default.
             if(set.AllStyles.Count == 0)
             {
                 set.AllStyles.Add(new Style());
@@ -131,15 +143,6 @@ namespace NDraw
             JsonSerializerOptions opts = new() { WriteIndented = true };
             string json = JsonSerializer.Serialize(this, opts);
             File.WriteAllText(_fn, json);
-        }
-
-        /// <summary>Clean up.</summary>
-        public void Dispose()
-        {
-            foreach(Style style in AllStyles)
-            {
-                style.Dispose();
-            }
         }
         #endregion
     }
