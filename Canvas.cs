@@ -9,9 +9,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-using NStateMachine;
 using NBagOfTricks;
 
+
+// Deals exclusively in display units. Translation between display and virtual is done in XXXShape.
 
 
 namespace NDraw
@@ -23,28 +24,29 @@ namespace NDraw
         /// <summary>Current drawing.</summary>
         Page _page = new();
 
-        Rectangle _drawArea = new();
-
         /// <summary>The settings.</summary>
         UserSettings _settings = new();
 
         /// <summary>The various shapes in _page converted to internal format.</summary>
-        readonly List<Shape> _shapesX = new();
-
-        /// <summary>The horizontal offset in pixels.</summary>
-        int _shiftX = 0;
-
-        /// <summary>The vertical offset in pixels.</summary>
-        int _shiftY = 0;
+        readonly List<Shape> _shapes = new();
 
         /// <summary>Cosmetics.</summary>
         const float GRID_LINE_WIDTH = 1.0f;
 
-        /// <summary>How close do you have to be to select a feature in pixels.</summary>
+        /// <summary>How close do you have to be to select a shape in pixels.</summary>
         const int SELECT_RANGE = 5;
 
         // Around drawing area.
-        const int MARGIN = 50;
+        //const int MARGIN = 50;
+
+        /// <summary>Maximum zoom in limit.</summary>
+        const float MAX_ZOOM = 10.0f;
+
+        /// <summary>Minimum zoom out limit.</summary>
+        const float MIN_ZOOM = 0.1f;
+
+        /// <summary>Speed at which to zoom in/out.</summary>
+        const float ZOOM_SPEED = 1.25F;
 
         #region Control states
         /// <summary>If control is pressed.</summary>
@@ -54,7 +56,7 @@ namespace NDraw
         bool _shiftPressed = false;
 
         /// <summary>Saves state as to whether left button is down.</summary>
- //       bool _mouseDown = false;
+        //bool _mouseDown = false;
 
         /// <summary>The user is dragging the mouse.</summary>
         bool _dragging = false;
@@ -69,21 +71,6 @@ namespace NDraw
 
         /// <summary>Current mouse position.</summary>
         //Point _currentMousePos = new();
-        #endregion
-
-        #region Zoom
-        /// <summary>Current zoom.</summary>
-        float _zoom = 1.0F;
-
-        /// <summary>Maximum zoom in limit.</summary>
-        const float MAX_ZOOM = 10.0f;
-
-        /// <summary>Minimum zoom out limit.</summary>
-        const float MIN_ZOOM = 0.1f;
-
-        /// <summary>Speed at which to zoom in/out.</summary>
-        const float ZOOM_SPEED = 1.25F;
-
         #endregion
 
         #region Drawing resources
@@ -103,7 +90,8 @@ namespace NDraw
 
         void CalcGeometry() // stuff on resize
         {
-            _drawArea = new(ClientRectangle.X + MARGIN, ClientRectangle.Y + MARGIN, Width - MARGIN, Height - MARGIN);
+            //_drawArea = new(ClientRectangle.X + MARGIN, ClientRectangle.Y + MARGIN, Width - MARGIN, Height - MARGIN);
+            //_drawArea = ClientRectangle;
 
             //public float Grid { get; set; } = 2;
             //public float Snap { get; set; } = 2;
@@ -111,20 +99,9 @@ namespace NDraw
 
         void Reset() // initial state
         {
-            _zoom = 1.0f;
-            _shiftX = 0;
-            _shiftY = 0;
+            GeometryMap.Reset();
             //Invalidate();
         }
-
-
-        void RecalcDisplayShapes()
-        {
-
-        }
-
-
-
 
         #region Lifecycle
         /// <summary>
@@ -137,7 +114,7 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Perform initialization. Convert page to internal format.
+        /// Perform initialization.
         /// </summary>
         /// <param name="page"></param>
         public void Init(Page page, UserSettings settings)
@@ -145,20 +122,26 @@ namespace NDraw
             _page = page;
             _settings = settings;
 
-            _zoom = 1.0f;
+            GeometryMap.Zoom = 1.0f;
 
-            _shapesX.Clear();
-            _shapesX.AddRange(_page.Rects);
-            _shapesX.AddRange(_page.Lines);
+            _shapes.Clear();
+            _shapes.AddRange(_page.Rects);
+            _shapes.AddRange(_page.Lines);
 
             _penGrid.Color = _settings.GridColor;
             _penGrid.Width = GRID_LINE_WIDTH;
+
+            // Init geometry.
+            GeometryMap.Reset();
+            GeometryMap.DrawArea = ClientRectangle;
+
+            //CalcGeometry();
 
             Invalidate();
         }
 
         /// <summary>
-        /// Convert current shapes to Page and save to file.
+        /// Cleaan up and save to file.
         /// </summary>
         /// <returns></returns>
         public void SavePage(string fn)
@@ -167,7 +150,7 @@ namespace NDraw
             _page.Lines.Clear();
             _page.Rects.Clear();
 
-            foreach(var sh in _shapesX)
+            foreach(var sh in _shapes)
             {
                 switch(sh)
                 {
@@ -212,10 +195,25 @@ namespace NDraw
         {
             e.Graphics.Clear(_settings.BackColor);
 
-            // Draw the grid and axes.
-            DrawGrid(e.Graphics);
-                                 
-            // Draw the shapes.
+            ///// Draw the grid.
+            float spacing = 42.0f; //TODO calculate along with others
+
+            // Draw X-Axis
+            for (float tickPos = spacing; tickPos < Width; tickPos += spacing) //XXX spacing
+            {
+                e.Graphics.DrawLine(_penGrid, tickPos, 0, tickPos, Width);
+            }
+
+            // Draw Y-Axis
+            for (float tickPos = spacing; tickPos < Height; tickPos += spacing) //XXX spacing
+            {
+                e.Graphics.DrawLine(_penGrid, 0, tickPos, Right, tickPos);
+            }
+
+
+
+
+            ///// Draw the shapes.
             RectangleF cr = ClientRectangle;
             int marker = 3;
 
@@ -225,7 +223,7 @@ namespace NDraw
                 {
                     switch (s)
                     {
-                        case RectShape r:
+                        case RectShape r: //XXX adjust
                             e.Graphics.DrawRectangle(r.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, r.TL.X, r.TL.Y, r.Width, r.Height);
 
                             if (r.State == ShapeState.Selected)
@@ -234,7 +232,7 @@ namespace NDraw
                             }
                             break;
 
-                        case LineShape l:
+                        case LineShape l: //XXX adjust
                             e.Graphics.DrawLine(l.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, l.Start, l.End);
 
                             if (l.State == ShapeState.Selected)
@@ -263,26 +261,26 @@ namespace NDraw
             DrawText(e.Graphics, 450, 150, "Hello!", _settings.AllStyles[0].Font, 45);
         }
 
-        /// <summary>
-        /// Draw the grid.
-        /// </summary>
-        /// <param name="g">The Graphics object to use.</param>
-        void DrawGrid(Graphics g)
-        {
-            float spacing = 42.0f; //TODO calculate along with others
+        ///// <summary>
+        ///// Draw the grid.
+        ///// </summary>
+        ///// <param name="g">The Graphics object to use.</param>
+        //void DrawGrid(Graphics g)
+        //{
+        //    float spacing = 42.0f; //TODO calculate along with others
 
-            // Draw X-Axis Increments
-            for (float tickPos = spacing; tickPos < Width; tickPos += spacing)
-            {
-                g.DrawLine(_penGrid, tickPos, 0, tickPos, Width);
-            }
+        //    // Draw X-Axis
+        //    for (float tickPos = spacing; tickPos < Width; tickPos += spacing)
+        //    {
+        //        g.DrawLine(_penGrid, tickPos, 0, tickPos, Width);
+        //    }
 
-            // Draw Y-Axis Increments
-            for (float tickPos = spacing; tickPos < Height; tickPos += spacing)
-            {
-                g.DrawLine(_penGrid, 0, tickPos, Right, tickPos);
-            }
-        }
+        //    // Draw Y-Axis
+        //    for (float tickPos = spacing; tickPos < Height; tickPos += spacing)
+        //    {
+        //        g.DrawLine(_penGrid, 0, tickPos, Right, tickPos);
+        //    }
+        //}
 
         /// <summary>
         /// A label should be drawn using the specified transformations.
@@ -308,6 +306,8 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnResize(EventArgs e)
         {
+            GeometryMap.DrawArea = ClientRectangle;
+            //CalcGeometry();
             Invalidate();
         }
 
@@ -368,8 +368,8 @@ namespace NDraw
             bool redraw = false;
             switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
-                case (MouseButtons.Left, false, false): // Select shapes within drag rectangle TODOX
-                    
+                case (MouseButtons.Left, false, false): // Select shapes within drag rectangle TODOX  //XXX adjust
+
                     //List<DataPoint> tempPoints = GetSelectedPoints();
                     //foreach (DataPoint pt in tempPoints)
                     //{
@@ -501,7 +501,7 @@ namespace NDraw
             switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
                 case (MouseButtons.Left, true, false): // Zoom in/out
-                    _zoom *= e.Delta > 0 ? 1.1f : 0.9f;
+                    GeometryMap.Zoom *= e.Delta > 0 ? 1.1f : 0.9f;
                     //>>>> check limits TODOX
                     //Gets a signed count of the number of detents the mouse wheel has rotated, multiplied
                     //     by the WHEEL_DELTA constant. A detent is one notch of the mouse wheel.
@@ -510,13 +510,13 @@ namespace NDraw
                     break;
 
                 case (MouseButtons.Left, false, true): // Shift left/right
-                    _shiftX += e.Delta;
+                    GeometryMap.ShiftX += e.Delta;
                     recalc = true;
                     redraw = true;
                     break;
 
                 case (MouseButtons.Left, false, false): // Shift up/down
-                    _shiftY += e.Delta;
+                    GeometryMap.ShiftY += e.Delta;
                     recalc = true;
                     redraw = true;
                     break;
@@ -527,7 +527,7 @@ namespace NDraw
 
             if(recalc)
             {
-                RecalcDisplayShapes();
+//                RecalcDisplayShapes();
             }
 
             if(redraw)
@@ -626,39 +626,10 @@ namespace NDraw
         #endregion
 
 
-
-        /////////////////////// TODO mapping ////////////////////////////////
-        ///////////////////////      mapping ////////////////////////////////
-        ///////////////////////      mapping ////////////////////////////////
-
-
-        /// <summary>
-        /// Map an absolute point in page coordinates to the display.
-        /// </summary>
-        /// <param name="ppage"></param>
-        /// <returns></returns>
-        PointF PageToDisplay(PointF ppage)
-        {
-            var pdispX = ppage.X * _zoom + _shiftX;
-            var pdispY = ppage.Y * _zoom + _shiftY;
-            return new(pdispX, pdispY);
-        }
-
-
-        /// <summary>Obtain the point on the page based on a client/display position.</summary>
-        /// <param name="pdisp">The client/display point.</param>
-        /// <returns>The page point.</returns>
-        PointF DisplayToPage(PointF pdisp)
-        {
-            var ppageX = (pdisp.X - _shiftX) / _zoom;
-            var ppageY = (pdisp.Y - _shiftY) / _zoom;
-            return new PointF(ppageX, ppageY);
-        }
-
         /// <summary>Get shape that is within range of point.</summary>
         /// <param name="point">Mouse point</param>
         /// <returns>The closest DataPoint or null if none in range.</returns>
-        Shape GetCloseShape(PointF pt)
+        Shape GetCloseShape(PointF pt) //XXX adjust
         {
             Shape close = null;
 
@@ -676,7 +647,7 @@ namespace NDraw
 
         /// <summary>Select multiple shapes.</summary>
         /// <returns>The shapes.</returns>
-        List<Shape> GetSelectedShapes()//TODO
+        List<Shape> GetSelectedShapes() //TODO
         {
             List<Shape> shapes = new();
 

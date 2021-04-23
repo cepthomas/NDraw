@@ -48,10 +48,9 @@ namespace NDraw
             // 
             // canvas
             // 
-            this.canvas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.canvas.Location = new System.Drawing.Point(0, 0);
+            this.canvas.Location = new System.Drawing.Point(57, 29);
             this.canvas.Name = "canvas";
-            this.canvas.Size = new System.Drawing.Size(1115, 628);
+            this.canvas.Size = new System.Drawing.Size(1011, 559);
             this.canvas.TabIndex = 1;
             // 
             // splitContainer1

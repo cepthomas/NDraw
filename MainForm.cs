@@ -13,6 +13,8 @@ using NBagOfTricks;
 
 //TODO Undo/redo: insert, cut/copy/delete, move, resize, edit properties, ...
 
+//TODO main menu: file, settings,      status info
+//TODO context menu: insert, cut, copy, delete
 
 namespace NDraw
 {

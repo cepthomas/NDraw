@@ -23,9 +23,6 @@
     <Reference Include="NBagOfTricks">
       <HintPath>lib\NBagOfTricks.dll</HintPath>
     </Reference>
-    <Reference Include="NStateMachine">
-      <HintPath>lib\NStateMachine.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
