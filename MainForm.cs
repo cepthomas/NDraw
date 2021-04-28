@@ -11,10 +11,10 @@ using System.Windows.Forms;
 using NBagOfTricks;
 
 
-//TODO Undo/redo: insert, cut/copy/delete, move, resize, edit properties, ...
+// TODO main menu: file, settings, status info
 
-//TODO main menu: file, settings,      status info
-//TODO context menu: insert, cut, copy, delete
+// TODO context menu: insert, cut, copy, delete, move, resize, edit properties, ...
+
 
 namespace NDraw
 {
@@ -29,6 +29,9 @@ namespace NDraw
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            //KeyPreview = true;
+
+
             string appDir = NBagOfTricks.Utils.MiscUtils.GetAppDataDir("NDraw");
             DirectoryInfo di = new DirectoryInfo(appDir);
             di.Create();
@@ -38,7 +41,7 @@ namespace NDraw
 
             // Test stuff.
             _settings.AllStyles.Add(new() { Id = "ST_1", LineColor = Color.Green, FillColor = Color.Pink });
-            _settings.AllStyles.Add(new() { Id = "ST_2", LineColor = Color.Purple, FillColor = Color.Pink });
+            _settings.AllStyles.Add(new() { Id = "ST_2", LineColor = Color.Purple, FillColor = Color.Salmon });
 
             // What to draw.
             Page page = new()
@@ -66,6 +69,11 @@ namespace NDraw
             canvas.SavePage("page.json");
             _settings.Save();
             _settings.Dispose();
+        }
+
+        private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
     }
 }

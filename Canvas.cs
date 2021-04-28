@@ -12,12 +12,12 @@ using System.Diagnostics;
 using NBagOfTricks;
 
 
-// Deals exclusively in display units. Translation between display and virtual is done in XXXShape.
+// Deals exclusively in display units. Translation between display and virtual is done in GeometryMap.
 
 
 namespace NDraw
 {
-    public partial class Canvas : UserControl
+    public partial class Canvas : PictureBox // UserControl
     {
         /// <summary>DOC</summary>
 
@@ -48,6 +48,7 @@ namespace NDraw
         /// <summary>Speed at which to zoom in/out.</summary>
         const float ZOOM_SPEED = 1.25F;
 
+
         #region Control states
         /// <summary>If control is pressed.</summary>
         bool _ctrlPressed = false;
@@ -70,8 +71,13 @@ namespace NDraw
         //Point _endMousePos = new();
 
         /// <summary>Current mouse position.</summary>
-        //Point _currentMousePos = new();
+        Point _currentPos = new();
         #endregion
+
+        void ShowInfo()
+        {
+            lblInfo.Text = $"Mouse:{_currentPos} Ctrl:{(_ctrlPressed ? "D" : "U")} Shift:{(_shiftPressed ? "D" : "U")} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
+        }
 
         #region Drawing resources
         Pen _penGrid = new(Color.Gray);
@@ -111,6 +117,30 @@ namespace NDraw
         {
             InitializeComponent();
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
+        }
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void Canvas_Load(object sender, EventArgs e)
+        //{
+        //    //Override the protected ProcessKeyPreview function,
+        //    //If not, you can also override the protected ProcessCmdKey
+        //    //function - it is called before ProcessKeyPreview, for most
+        //    //keystrokes.
+
+        //}
+
+        protected override bool ProcessKeyPreview(ref Message m)
+        {
+            return base.ProcessKeyPreview(ref m);
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         /// <summary>
@@ -195,49 +225,37 @@ namespace NDraw
         {
             e.Graphics.Clear(_settings.BackColor);
 
-            ///// Draw the grid.
-            float spacing = 42.0f; //TODO calculate along with others
+            // Draw the grid.
+            DrawGrid(e.Graphics);
 
-            // Draw X-Axis
-            for (float tickPos = spacing; tickPos < Width; tickPos += spacing) //XXX spacing
-            {
-                e.Graphics.DrawLine(_penGrid, tickPos, 0, tickPos, Width);
-            }
-
-            // Draw Y-Axis
-            for (float tickPos = spacing; tickPos < Height; tickPos += spacing) //XXX spacing
-            {
-                e.Graphics.DrawLine(_penGrid, 0, tickPos, Right, tickPos);
-            }
-
-
-
-
-            ///// Draw the shapes.
-            RectangleF cr = ClientRectangle;
+            // Draw the shapes.
+            RectangleF rvirt = GeometryMap.DisplayToVirtual(ClientRectangle);
             int marker = 3;
 
             foreach (var s in _shapes)
             {
-                if (s.ContainedIn(cr, true))
+                if (s.ContainedIn(rvirt, true))
                 {
                     switch (s)
                     {
-                        case RectShape r: //XXX adjust
-                            e.Graphics.DrawRectangle(r.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, r.TL.X, r.TL.Y, r.Width, r.Height);
+                        case RectShape r:
+                            var rdisp = GeometryMap.VirtualToDisplay(r.TL, r.BR);
+                            e.Graphics.DrawRectangle(r.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, rdisp.X, rdisp.Y, rdisp.Width, rdisp.Height);
 
                             if (r.State == ShapeState.Selected)
                             {
-                                e.Graphics.FillEllipse(_penShapeTemp.Brush, r.TL.X, r.TL.Y, marker, marker);
+                                e.Graphics.FillEllipse(_penShapeTemp.Brush, rdisp.X, rdisp.Y, marker, marker);
                             }
                             break;
 
-                        case LineShape l: //XXX adjust
-                            e.Graphics.DrawLine(l.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, l.Start, l.End);
+                        case LineShape l:
+                            var dstart = GeometryMap.VirtualToDisplay(l.Start);
+                            var dend = GeometryMap.VirtualToDisplay(l.End);
+                            e.Graphics.DrawLine(l.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, dstart, dend);
 
                             if (l.State == ShapeState.Selected)
                             {
-                                e.Graphics.FillEllipse(_penShapeTemp.Brush, l.Start.X, l.Start.Y, marker, marker);
+                                e.Graphics.FillEllipse(_penShapeTemp.Brush, dstart.X, dstart.Y, marker, marker);
                             }
                             break;
                     }
@@ -257,30 +275,28 @@ namespace NDraw
 
                 e.Graphics.DrawRectangle(_penSelect, start.X, start.Y, width, height);
             }
-
-            DrawText(e.Graphics, 450, 150, "Hello!", _settings.AllStyles[0].Font, 45);
         }
 
-        ///// <summary>
-        ///// Draw the grid.
-        ///// </summary>
-        ///// <param name="g">The Graphics object to use.</param>
-        //void DrawGrid(Graphics g)
-        //{
-        //    float spacing = 42.0f; //TODO calculate along with others
+        /// <summary>
+        /// Draw the grid.
+        /// </summary>
+        /// <param name="g">The Graphics object to use.</param>
+        void DrawGrid(Graphics g)
+        {
+            float spacing = 42.0f;// XXX TODO calculate along with others
 
-        //    // Draw X-Axis
-        //    for (float tickPos = spacing; tickPos < Width; tickPos += spacing)
-        //    {
-        //        g.DrawLine(_penGrid, tickPos, 0, tickPos, Width);
-        //    }
+            // Draw X-Axis
+            for (float tickPos = spacing; tickPos < Width; tickPos += spacing)
+            {
+                g.DrawLine(_penGrid, tickPos, 0, tickPos, Width);
+            }
 
-        //    // Draw Y-Axis
-        //    for (float tickPos = spacing; tickPos < Height; tickPos += spacing)
-        //    {
-        //        g.DrawLine(_penGrid, 0, tickPos, Right, tickPos);
-        //    }
-        //}
+            // Draw Y-Axis
+            for (float tickPos = spacing; tickPos < Height; tickPos += spacing)
+            {
+                g.DrawLine(_penGrid, 0, tickPos, Right, tickPos);
+            }
+        }
 
         /// <summary>
         /// A label should be drawn using the specified transformations.
@@ -308,6 +324,7 @@ namespace NDraw
         {
             GeometryMap.DrawArea = ClientRectangle;
             //CalcGeometry();
+         //   lblInfo.
             Invalidate();
         }
 
@@ -332,11 +349,15 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            _startPos = e.Location;
+            _currentPos = e.Location;
+
             bool redraw = false;
+
             switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
                 case (MouseButtons.Left, true, false): // if near a shape toggle selected
-                    Shape pt = GetCloseShape(new PointF(e.X, e.Y));
+                    Shape pt = GetCloseShape(e.Location);
 
                     if (pt != null)
                     {
@@ -349,14 +370,14 @@ namespace NDraw
                     break;
             };
 
-            _startPos = new Point(e.X, e.Y);
             //_mouseDown = true;
 
             if (redraw)
             {
-                // TODO
                 Invalidate();
             }
+
+            ShowInfo();
         }
 
         /// <summary>
@@ -365,10 +386,13 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseUp(MouseEventArgs e)
         {
+            _currentPos = e.Location;
+            
             bool redraw = false;
+
             switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
-                case (MouseButtons.Left, false, false): // Select shapes within drag rectangle TODOX  //XXX adjust
+                case (MouseButtons.Left, false, false): // Select shapes within drag rectangle TODOX  XXX adjust
 
                     //List<DataPoint> tempPoints = GetSelectedPoints();
                     //foreach (DataPoint pt in tempPoints)
@@ -395,6 +419,8 @@ namespace NDraw
                 // TODO
                 Invalidate();
             }
+
+            ShowInfo();
         }
 
         /// <summary>
@@ -403,9 +429,9 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            //// Save position.
-            //_lastMousePos.X = e.X;
-            //_lastMousePos.Y = e.Y;
+            _currentPos = e.Location;
+
+            bool redraw = false;
 
 
             //// If there is a change in x or y...
@@ -432,7 +458,6 @@ namespace NDraw
             //}
 
             //bool recalc = false;
-            bool redraw = false;
 
             switch (e.Button, _ctrlPressed, _shiftPressed) 
             {
@@ -455,9 +480,10 @@ namespace NDraw
                     break;
 
                 case (MouseButtons.None, false, false): // highlight any close shapes
-                    foreach(Shape shape in _shapes)
+                    var vloc = GeometryMap.DisplayToVirtual(e.Location);
+                    foreach (Shape shape in _shapes)
                     {
-                        if(shape.IsClose(e.Location, SELECT_RANGE))
+                        if(shape.IsClose(vloc, SELECT_RANGE))
                         {
                             if (shape.State == ShapeState.Default)
                             {
@@ -484,6 +510,8 @@ namespace NDraw
             {
                 Invalidate();
             }
+
+            ShowInfo();
         }
 
         /// <summary>
@@ -510,13 +538,13 @@ namespace NDraw
                     break;
 
                 case (MouseButtons.Left, false, true): // Shift left/right
-                    GeometryMap.ShiftX += e.Delta;
+                    GeometryMap.OffsetX += e.Delta;
                     recalc = true;
                     redraw = true;
                     break;
 
                 case (MouseButtons.Left, false, false): // Shift up/down
-                    GeometryMap.ShiftY += e.Delta;
+                    GeometryMap.OffsetY += e.Delta;
                     recalc = true;
                     redraw = true;
                     break;
@@ -534,6 +562,8 @@ namespace NDraw
             {
                 Invalidate();
             }
+
+            ShowInfo();
         }
         #endregion
 
@@ -583,6 +613,8 @@ namespace NDraw
             {
                 Invalidate();
             }
+
+            ShowInfo();
         }
 
         /// <summary>
@@ -600,17 +632,17 @@ namespace NDraw
 
                     if (_dragging)
                     {
-                        GetSelectedShapes();
+ //TODO                       GetSelectedShapes();
                         _dragging = false;
                         Cursor = Cursors.Default;
 
-                        //                       _dragCursor = null;
+                        //_dragCursor = null;
                         redraw = true;
                         //Refresh();
                     }
 
                     _startPos = new Point();
- //                   _endMousePos = new Point();
+                    //_endMousePos = new Point();
                     break;
 
                 case Keys.ShiftKey:
@@ -622,6 +654,8 @@ namespace NDraw
             {
                 Invalidate();
             }
+
+            ShowInfo();
         }
         #endregion
 
@@ -629,13 +663,15 @@ namespace NDraw
         /// <summary>Get shape that is within range of point.</summary>
         /// <param name="point">Mouse point</param>
         /// <returns>The closest DataPoint or null if none in range.</returns>
-        Shape GetCloseShape(PointF pt) //XXX adjust
+        Shape GetCloseShape(Point pt)
         {
             Shape close = null;
 
-            foreach(var shape in _shapes)
+            var vpt = GeometryMap.DisplayToVirtual(pt);
+
+            foreach (var shape in _shapes)
             {
-                if(shape.IsClose(pt, SELECT_RANGE))
+                if(shape.IsClose(vpt, SELECT_RANGE))
                 {
                     close = shape;
                     break;

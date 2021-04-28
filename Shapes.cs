@@ -11,11 +11,14 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 
+// Deals exclusively in virtual (page) units. Translation between display and virtual is done in GeometryMap.
+
+//TODO don't serialize extra stuff in PointF. "TL": { "IsEmpty": false, "X": 50, "Y": 50 },  https://stackoverflow.com/q/62775694
+
+
+
 namespace NDraw
 {
-
-
-
 
     public enum ShapeState { Default, Highlighted, Selected };
 
@@ -39,8 +42,6 @@ namespace NDraw
         /// <summary>DOC</summary>
         public ShapeState State { get; set; } = ShapeState.Default;
         #endregion
-
-
 
         #region Abstract functions
         //        public abstract void RecalcDisplay(int shiftX, int shiftY, float zoom);
@@ -130,27 +131,27 @@ namespace NDraw
             return lines;
         }
 
-        ///// <summary>
-        ///// </summary>
-        ///// <returns></returns>
-        //public PointF Center()
-        //{
-        //    PointF center = new((BR.X - TL.X) / 2, (BR.Y - TL.Y) / 2);
-        //    return center;
-        //}
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        public PointF Center()
+        {
+           PointF center = new((BR.X - TL.X) / 2, (BR.Y - TL.Y) / 2);
+           return center;
+        }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <returns></returns>
-        //public bool Contains(PointF pf)
-        //{
-        //    bool ret = (pf.X <= BR.X) && (pf.X >= TL.X) && (pf.Y <= BR.Y) && (pf.Y >= TL.Y);
-        //    return ret;
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public bool Contains(PointF pf)
+        {
+           bool ret = (pf.X <= BR.X) && (pf.X >= TL.X) && (pf.Y <= BR.Y) && (pf.Y >= TL.Y);
+           return ret;
+        }
 
         /// <inheritdoc />
-        public override bool ContainedIn(RectangleF rect, bool any) //XXX adjust
+        public override bool ContainedIn(RectangleF rect, bool any)
         {
             bool contained = false;
 
@@ -174,7 +175,7 @@ namespace NDraw
         }
 
         /// <inheritdoc />
-        public override bool IsClose(PointF pt, int range) //XXX adjust
+        public override bool IsClose(PointF pt, int range)
         {
             bool close = false;
 
@@ -231,14 +232,14 @@ namespace NDraw
         //}
 
         /// <inheritdoc />
-        public override bool IsClose(PointF pt, int range) //XXX adjust
+        public override bool IsClose(PointF pt, int range)
         {
             var close = ShapeUtils.Expand(Start, End, range).Contains(pt);
             return close;
         }
 
         /// <inheritdoc />
-        public override bool ContainedIn(RectangleF rect, bool any) //XXX adjust
+        public override bool ContainedIn(RectangleF rect, bool any)
         {
             return rect.Contains(Start) || rect.Contains(End);
         }

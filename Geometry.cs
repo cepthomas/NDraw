@@ -18,13 +18,14 @@ namespace NDraw
     public class GeometryMap
     {
         /// <summary>The horizontal offset in pixels.</summary>
-        public static int ShiftX = 0;
+        public static int OffsetX = 0;
 
         /// <summary>The vertical offset in pixels.</summary>
-        public static int ShiftY = 0;
+        public static int OffsetY = 0;
 
         /// <summary>Current zoom.</summary>
         public static float Zoom = 1.0F;
+
 
 
         /// <summary>Available area.</summary>
@@ -35,31 +36,70 @@ namespace NDraw
         public static void Reset()
         {
             Zoom = 1.0f;
-            ShiftX = 0;
-            ShiftY = 0;
+            OffsetX = 0;
+            OffsetY = 0;
         }
 
         /// <summary>
-        /// Map an absolute point in virtual coordinates to the display.
+        /// Map a virtual point to the display.
         /// </summary>
-        /// <param name="pvirt"></param>
+        /// <param name="virt"></param>
         /// <returns></returns>
-        public static PointF VirtualToDisplay(PointF pvirt)
+        public static PointF VirtualToDisplay(PointF virt)
         {
-            var pdispX = pvirt.X * Zoom + ShiftX;
-            var pdispY = pvirt.Y * Zoom + ShiftY;
-            return new(pdispX, pdispY);
+            var dispX = virt.X * Zoom + OffsetX;
+            var dispY = virt.Y * Zoom + OffsetY;
+            return new(dispX, dispY);
         }
 
         /// <summary>Obtain the virtual point for a display position.</summary>
-        /// <param name="pdisp">The display point.</param>
+        /// <param name="disp">The display point.</param>
         /// <returns>The virtual point.</returns>
-        public static PointF DisplayToVirtual(PointF pdisp)
+        public static PointF DisplayToVirtual(Point disp)
         {
-            var pvirtX = (pdisp.X - ShiftX) / Zoom;
-            var pvirtY = (pdisp.Y - ShiftY) / Zoom;
-            return new PointF(pvirtX, pvirtY);
+            var virtX = (disp.X - OffsetX) / Zoom;
+            var virtY = (disp.Y - OffsetY) / Zoom;
+            return new PointF(virtX, virtY);
         }
+
+        /// <summary>
+        /// Map a virtual rectangle to the display.
+        /// </summary>
+        /// <param name="virt"></param>
+        /// <returns></returns>
+        public static RectangleF VirtualToDisplay(RectangleF virt)
+        {
+            var tl = VirtualToDisplay(virt.Location);
+            var br = VirtualToDisplay(new PointF(virt.Right, virt.Bottom));
+            var disp = new RectangleF(tl, new SizeF(br.X - tl.X, br.Y - tl.Y));
+            return disp;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vtl"></param>
+        /// <param name="vbr"></param>
+        /// <returns></returns>
+        public static RectangleF VirtualToDisplay(PointF vtl, PointF vbr)
+        {
+            var tl = VirtualToDisplay(vtl);
+            var br = VirtualToDisplay(vbr);
+            var disp = new RectangleF(tl, new SizeF(br.X - tl.X, br.Y - tl.Y));
+            return disp;
+        }
+
+        /// <summary>Obtain the virtual rect for a display rect.</summary>
+        /// <param name="disp">The display point.</param>
+        /// <returns>The virtual point.</returns>
+        public static RectangleF DisplayToVirtual(Rectangle disp)
+        {
+            var tl = DisplayToVirtual(disp.Location);
+            var br = DisplayToVirtual(new Point(disp.Right, disp.Bottom));
+            var virt = new RectangleF(tl, new SizeF(br.X - tl.X, br.Y - tl.Y));
+            return virt;
+        }
+
 
         //public static double Map(double val, double start1, double stop1, double start2, double stop2)
         //{
