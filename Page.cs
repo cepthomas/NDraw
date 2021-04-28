@@ -24,20 +24,20 @@ namespace NDraw
         ///// <summary>Physical - inches</summary>
         //public float Border { get; set; } = 0.75f;
 
-        /// <summary>Drawing area in Units.</summary>
+        /// <summary>Drawing area in virtual units.</summary>
         public float Width { get; set; } = 100.0f;
 
-        /// <summary>Drawing area in Units.</summary>
+        /// <summary>Drawing area in virtual units.</summary>
         public float Height { get; set; } = 50.0f;
 
-        /// <summary>In Units.</summary>
+        /// <summary>In virtual units.</summary>
         public float Grid { get; set; } = 5.0f;
 
-        /// <summary>In Units.</summary>
+        /// <summary>In virtual units.</summary>
         public float Snap { get; set; } = 1.0f;
 
         /// <summary>Real world.</summary>
-        public string Units { get; set; } = "feet";
+        public string UnitsName { get; set; } = "feet";
 
         /// <summary>All the shapes</summary>
         public List<RectShape> Rects { get; set; } = new();

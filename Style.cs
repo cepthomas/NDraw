@@ -52,7 +52,6 @@ namespace NDraw
         [JsonIgnore]
         public Color FillColor { get; set; } = Color.Black;
 
-
         /// <summary>DOC</summary>
         [JsonIgnore]
         public Font Font { get; set; } = null;// new Font("Consolas", 10);
@@ -76,7 +75,7 @@ namespace NDraw
             FillBrush.Color = FillColor;
         }
 
-        public void Save() //TODO make persistable
+        public void Save()
         {
             // Fixups.
             LineColorName = LineColor.Name;

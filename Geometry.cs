@@ -6,8 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//using Newtonsoft.Json;
-
 
 
 namespace NDraw
@@ -26,11 +24,8 @@ namespace NDraw
         /// <summary>Current zoom.</summary>
         public static float Zoom = 1.0F;
 
-
-
         /// <summary>Available area.</summary>
         public static Rectangle DrawArea = new();
-
 
 
         public static void Reset()
@@ -99,12 +94,5 @@ namespace NDraw
             var virt = new RectangleF(tl, new SizeF(br.X - tl.X, br.Y - tl.Y));
             return virt;
         }
-
-
-        //public static double Map(double val, double start1, double stop1, double start2, double stop2)
-        //{
-        //    return start2 + (stop2 - start2) * (val - start1) / (stop1 - start1);
-        //}
-
     }
 }

@@ -15,11 +15,8 @@ using System.Text.Json.Serialization;
 
 //TODO don't serialize extra stuff in PointF. "TL": { "IsEmpty": false, "X": 50, "Y": 50 },  https://stackoverflow.com/q/62775694
 
-
-
 namespace NDraw
 {
-
     public enum ShapeState { Default, Highlighted, Selected };
 
     /// <summary>Base/abstract class for all shape types.</summary>
@@ -44,8 +41,6 @@ namespace NDraw
         #endregion
 
         #region Abstract functions
-        //        public abstract void RecalcDisplay(int shiftX, int shiftY, float zoom);
-
         /// <summary>
         /// Determine if pt is within range of this.
         /// </summary>
@@ -120,14 +115,12 @@ namespace NDraw
         public List<(PointF start, PointF end)> GetEdges()
         {
             List<(PointF start, PointF end)> lines = new();
+
             lines.Add((TL, TR));
             lines.Add((TR, BR));
             lines.Add((BR, BL));
             lines.Add((BL, TL));
-            //lines.Add((new PointF(L, T), new PointF(R, T)));
-            //lines.Add((new PointF(R, T), new PointF(R, B)));
-            //lines.Add((new PointF(R, B), new PointF(L, B)));
-            //lines.Add((new PointF(L, B), new PointF(L, T)));
+
             return lines;
         }
 
@@ -194,11 +187,6 @@ namespace NDraw
             return close;
         }
 
-        //public RectShape Translate(PointF pt, float z)
-        //{
-        //    return new();
-        //}
-
         /// <summary>For viewing pleasure.</summary>
         public override string ToString() => string.Format($"TL:{TL} BR:{BR} W:{Width} H:{Height}");
         //public override string ToString() => string.Format($"L:{L} T:{T} R:{R} B:{B} W:{Width} H:{Height}");
@@ -209,14 +197,6 @@ namespace NDraw
     public class LineShape : Shape
     {
         #region Properties
-        //public float X1 { get; set; } = 0.0f;
-
-        //public float Y1 { get; set; } = 0.0f;
-
-        //public float X2 { get; set; } = 0.0f;
-
-        //public float Y2 { get; set; } = 0.0f;
-
         /// <summary>DOC</summary>
         public PointF Start { get; set; } = new PointF(0, 0);
 
@@ -225,11 +205,6 @@ namespace NDraw
         #endregion
 
         // TODO end arrows etc, multi-segment lines
-
-        //public LineShape Translate(PointF pt, float z) //or float?
-        //{
-        //    return new();
-        //}
 
         /// <inheritdoc />
         public override bool IsClose(PointF pt, int range)

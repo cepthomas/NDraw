@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,9 @@ namespace NDraw
     {
         UserSettings _settings;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public MainForm()
         {
             InitializeComponent();
@@ -29,13 +33,13 @@ namespace NDraw
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            //     Gets or sets a value indicating whether the form will receive key events before
-            //     the event is passed to the control that has focus.
+            //Gets or sets a value indicating whether the form will receive key events before
+            //the event is passed to the control that has focus.
             KeyPreview = true;
 
-            canvas.KeyDown += Canvas_KeyDown;
+            //canvas.KeyDown += Canvas_KeyDown;
             this.KeyDown += MainForm_KeyDown;
-
+            //this.KeyUp += MainForm_KeyUp;
 
             string appDir = NBagOfTricks.Utils.MiscUtils.GetAppDataDir("NDraw");
             DirectoryInfo di = new DirectoryInfo(appDir);
@@ -53,7 +57,7 @@ namespace NDraw
             {
                 Width = 20.0f,
                 Height = 10.0f,
-                Units = "feet",
+                UnitsName = "feet",
                 Grid = 0.5f,
                 Snap = 0.1f
             };
@@ -65,24 +69,26 @@ namespace NDraw
             canvas.Init(page, _settings);
 
             // Edit away....
-
         }
 
-        protected override bool ProcessKeyPreview(ref Message m)
-        {
-            return base.ProcessKeyPreview(ref m);
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
-            //throw new NotImplementedException();
+            if(canvas.DisplayRectangle.Contains(Control.MousePosition))
+            {
+                canvas.HandleKeyDown(e);
+            }
         }
 
-        private void Canvas_KeyDown(object sender, KeyEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Clean up.
@@ -91,7 +97,7 @@ namespace NDraw
             _settings.Dispose();
         }
 
-        private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void ToolStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
 
         }

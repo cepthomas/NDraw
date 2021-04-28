@@ -30,51 +30,30 @@ namespace NDraw
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.canvas = new NDraw.Canvas();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.ToolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStrip1.SuspendLayout();
+            this.canvas = new NDraw.Canvas();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.ToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // toolStrip1
+            // ToolStrip
             // 
-            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton1,
             this.toolStripButton2,
             this.toolStripTextBox1});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1391, 27);
-            this.toolStrip1.TabIndex = 0;
-            this.toolStrip1.Text = "toolStrip1";
-            this.toolStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolStrip1_ItemClicked);
-            // 
-            // canvas
-            // 
-            this.canvas.Location = new System.Drawing.Point(22, 21);
-            this.canvas.Name = "canvas";
-            this.canvas.Size = new System.Drawing.Size(894, 421);
-            this.canvas.TabIndex = 1;
-            // 
-            // splitContainer1
-            // 
-            this.splitContainer1.IsSplitterFixed = true;
-            this.splitContainer1.Location = new System.Drawing.Point(47, 130);
-            this.splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.canvas);
-            this.splitContainer1.Size = new System.Drawing.Size(1307, 467);
-            this.splitContainer1.SplitterDistance = 276;
-            this.splitContainer1.TabIndex = 2;
+            this.ToolStrip.Location = new System.Drawing.Point(0, 0);
+            this.ToolStrip.Name = "ToolStrip";
+            this.ToolStrip.Size = new System.Drawing.Size(1391, 27);
+            this.ToolStrip.TabIndex = 0;
+            this.ToolStrip.Text = "ToolStrip";
+            this.ToolStrip.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ToolStrip_ItemClicked);
             // 
             // toolStripButton1
             // 
@@ -101,20 +80,36 @@ namespace NDraw
             this.toolStripTextBox1.ReadOnly = true;
             this.toolStripTextBox1.Size = new System.Drawing.Size(500, 27);
             // 
+            // canvas
+            // 
+            this.canvas.Location = new System.Drawing.Point(461, 50);
+            this.canvas.Name = "canvas";
+            this.canvas.Size = new System.Drawing.Size(771, 547);
+            this.canvas.TabIndex = 1;
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.IsSplitterFixed = true;
+            this.splitContainer1.Location = new System.Drawing.Point(78, 383);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Size = new System.Drawing.Size(314, 214);
+            this.splitContainer1.SplitterDistance = 66;
+            this.splitContainer1.TabIndex = 2;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1391, 653);
+            this.Controls.Add(this.canvas);
             this.Controls.Add(this.splitContainer1);
-            this.Controls.Add(this.toolStrip1);
+            this.Controls.Add(this.ToolStrip);
             this.Name = "MainForm";
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
-            this.splitContainer1.Panel2.ResumeLayout(false);
+            this.ToolStrip.ResumeLayout(false);
+            this.ToolStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -124,7 +119,7 @@ namespace NDraw
 
         #endregion
 
-        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStrip ToolStrip;
         private Canvas canvas;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStripButton toolStripButton1;

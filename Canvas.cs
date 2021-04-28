@@ -19,8 +19,6 @@ namespace NDraw
 {
     public partial class Canvas : Control
     {
-        /// <summary>DOC</summary>
-
         /// <summary>Current drawing.</summary>
         Page _page = new();
 
@@ -48,22 +46,19 @@ namespace NDraw
         /// <summary>Speed at which to zoom in/out.</summary>
         const float ZOOM_SPEED = 1.25F;
 
+        #region Fields
+        ///// <summary>If control is pressed.</summary>
+        //bool _ctrlPressed = false;
 
-        #region Control states
-        /// <summary>If control is pressed.</summary>
-        bool _ctrlPressed = false;
-
-        /// <summary>If shift is pressed.</summary>
-        bool _shiftPressed = false;
+        ///// <summary>If shift is pressed.</summary>
+        //bool _shiftPressed = false;
 
         /// <summary>Saves state as to whether left button is down.</summary>
         //bool _mouseDown = false;
 
         /// <summary>The user is dragging the mouse.</summary>
         bool _dragging = false;
-        #endregion
 
-        #region Memories
         /// <summary>Mouse position when button pressed.</summary>
         Point _startPos = new();
 
@@ -73,11 +68,6 @@ namespace NDraw
         /// <summary>Current mouse position.</summary>
         Point _currentPos = new();
         #endregion
-
-        void ShowInfo()
-        {
-//>>>            lblInfo.Text = $"Mouse:{_currentPos} Ctrl:{(_ctrlPressed ? "D" : "U")} Shift:{(_shiftPressed ? "D" : "U")} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
-        }
 
         #region Drawing resources
         Pen _penGrid = new(Color.Gray);
@@ -89,49 +79,18 @@ namespace NDraw
         Pen _penSelect = new(Color.Gray);
         #endregion
 
-
-
-
-        //Override the protected ProcessKeyPreview function, If not, you can also override the protected ProcessCmdKey
-        //function - it is called before ProcessKeyPreview, for most keystrokes.
-
-        protected override bool ProcessKeyPreview(ref Message m)
+        /// <summary>
+        /// 
+        /// </summary>
+        void ShowInfo()
         {
-            throw new NotImplementedException();
+            lblInfo.Text = $"Mouse:{_currentPos} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
+            //lblInfo.Text = $"Mouse:{_currentPos} Ctrl:{(_ctrlPressed ? "D" : "U")} Shift:{(_shiftPressed ? "D" : "U")} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
         }
 
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Canvas_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Canvas_KeyUp(object sender, KeyEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Canvas_KeyDown(object sender, KeyEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-
-
-
-
-
+        /// <summary>
+        /// 
+        /// </summary>
         void CalcGeometry() // stuff on resize
         {
             //_drawArea = new(ClientRectangle.X + MARGIN, ClientRectangle.Y + MARGIN, Width - MARGIN, Height - MARGIN);
@@ -141,6 +100,9 @@ namespace NDraw
             //public float Snap { get; set; } = 2;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         void Reset() // initial state
         {
             GeometryMap.Reset();
@@ -164,11 +126,9 @@ namespace NDraw
         /// <param name="e"></param>
         private void Canvas_Load(object sender, EventArgs e)
         {
-            
-            this.KeyDown += Canvas_KeyDown;
-            this.KeyUp += Canvas_KeyUp;
-            this.KeyPress += Canvas_KeyPress;
-
+            //this.KeyDown += Canvas_KeyDown;
+            //this.KeyUp += Canvas_KeyUp;
+            //this.KeyPress += Canvas_KeyPress;
         }
 
         /// <summary>
@@ -351,8 +311,6 @@ namespace NDraw
         protected override void OnResize(EventArgs e)
         {
             GeometryMap.DrawArea = ClientRectangle;
-            //CalcGeometry();
-         //   lblInfo.
             Invalidate();
         }
 
@@ -363,12 +321,30 @@ namespace NDraw
         /// <param name="e">Event Arguments</param>
         protected override void OnLostFocus(EventArgs e)
         {
-            _ctrlPressed = false;
-            _shiftPressed = false;
+            //_ctrlPressed = false;
+            //_shiftPressed = false;
             _dragging = false;
             Invalidate();
         }
         #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        bool ControlPressed()
+        {
+            return (ModifierKeys & Keys.Control) > 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        bool ShiftPressed()
+        {
+            return (ModifierKeys & Keys.Shift) > 0;
+        }
 
         #region Mouse events
         /// <summary>
@@ -380,29 +356,15 @@ namespace NDraw
             _startPos = e.Location;
             _currentPos = e.Location;
 
-            bool redraw = false;
-
-            switch (e.Button, _ctrlPressed, _shiftPressed) 
+            if(e.Button == MouseButtons.Left && ControlPressed()) // if near a shape toggle selected
             {
-                case (MouseButtons.Left, true, false): // if near a shape toggle selected
-                    Shape pt = GetCloseShape(e.Location);
+                Shape pt = GetCloseShape(e.Location);
 
-                    if (pt != null)
-                    {
-                        pt.State = pt.State == ShapeState.Selected ? ShapeState.Default : ShapeState.Selected;
-                        redraw = true;
-                    }
-                    break;
-
-                default:
-                    break;
-            };
-
-            //_mouseDown = true;
-
-            if (redraw)
-            {
-                Invalidate();
+                if (pt != null)
+                {
+                    pt.State = pt.State == ShapeState.Selected ? ShapeState.Default : ShapeState.Selected;
+                    Invalidate();
+                }
             }
 
             ShowInfo();
@@ -415,37 +377,19 @@ namespace NDraw
         protected override void OnMouseUp(MouseEventArgs e)
         {
             _currentPos = e.Location;
-            
-            bool redraw = false;
 
-            switch (e.Button, _ctrlPressed, _shiftPressed) 
+            if (e.Button == MouseButtons.Left && ControlPressed()) // Select shapes within drag rectangle TODO  XXX adjust
             {
-                case (MouseButtons.Left, false, false): // Select shapes within drag rectangle TODOX  XXX adjust
-
-                    //List<DataPoint> tempPoints = GetSelectedPoints();
-                    //foreach (DataPoint pt in tempPoints)
-                    //{
-                    //    if (!SelectedPoints.Contains(pt))
-                    //    {
-                    //        SelectedPoints.Add(pt);
-                    //        pt.Selected = true;
-                    //    }
-                    //}
-                    // }
-
-                    redraw = true;
-                    break;
-
-                default:
-                    break;
-            };
-
-            //_mouseDown = false;
-
-            if (redraw)
-            {
-                // TODO
-                Invalidate();
+                //List<DataPoint> tempPoints = GetSelectedPoints();
+                //foreach (DataPoint pt in tempPoints)
+                //{
+                //    if (!SelectedPoints.Contains(pt))
+                //    {
+                //        SelectedPoints.Add(pt);
+                //        pt.Selected = true;
+                //    }
+                //}
+                // }
             }
 
             ShowInfo();
@@ -461,39 +405,9 @@ namespace NDraw
 
             bool redraw = false;
 
-
-            //// If there is a change in x or y...
-            //if ((xChange + yChange) != 0)
-            //{
-            //    if (_dragCursor != null)
-            //    {
-            //        // Update the cursor position. Get mouse x and convert to x axis scaled value.
-            //        PointF pt = GetChartPoint(new PointF(newPos.X, newPos.Y));
-            //        _dragCursor.Position = pt.X;
-            //    }
-            //    else
-            //    {
-            //        // Adjust the axes
-            //        _origin.Y += yChange;
-            //        _origin.X += xChange;
-
-            //        FireScaleChange();
-            //    }
-
-            //    // Repaint
-            //    Invalidate();
-            //    Refresh();
-            //}
-
-            //bool recalc = false;
-
-            switch (e.Button, _ctrlPressed, _shiftPressed) 
+            switch (e.Button, ControlPressed())
             {
-                //case (MouseButtons.Left, true, false): // toggle selecting shapes
-                //    redraw = true;
-                //    break;
-
-                case (MouseButtons.Left, false, false): // drawing selection rect
+                case (MouseButtons.Left, false): // drawing selection rect
                     if(!_dragging)
                     {
                         _dragging = true;
@@ -507,7 +421,7 @@ namespace NDraw
                     redraw = true;
                     break;
 
-                case (MouseButtons.None, false, false): // highlight any close shapes
+                case (MouseButtons.None, false): // highlight any close shapes
                     var vloc = GeometryMap.DisplayToVirtual(e.Location);
                     foreach (Shape shape in _shapes)
                     {
@@ -551,40 +465,31 @@ namespace NDraw
             var hme = e as HandledMouseEventArgs;
             hme.Handled = true; // This prevents the mouse wheel event from getting back to the parent. TODO???
 
-            bool recalc = false;
             bool redraw = false;
 
-            switch (e.Button, _ctrlPressed, _shiftPressed) 
+            switch (e.Button, ControlPressed(), ShiftPressed())
             {
-                case (MouseButtons.Left, true, false): // Zoom in/out
+                case (MouseButtons.None, true, false): // Zoom in/out
                     GeometryMap.Zoom *= e.Delta > 0 ? 1.1f : 0.9f;
-                    //>>>> check limits TODOX
+                    //>>>> check limits TODO
                     //Gets a signed count of the number of detents the mouse wheel has rotated, multiplied
                     //     by the WHEEL_DELTA constant. A detent is one notch of the mouse wheel.
-                    recalc = true;
                     redraw = true;
                     break;
 
-                case (MouseButtons.Left, false, true): // Shift left/right
+                case (MouseButtons.None, false, true): // Shift left/right
                     GeometryMap.OffsetX += e.Delta;
-                    recalc = true;
                     redraw = true;
                     break;
 
-                case (MouseButtons.Left, false, false): // Shift up/down
+                case (MouseButtons.None, false, false): // Shift up/down
                     GeometryMap.OffsetY += e.Delta;
-                    recalc = true;
                     redraw = true;
                     break;
 
                 default:
                     break;
             };
-
-            if(recalc)
-            {
-//                RecalcDisplayShapes();
-            }
 
             if(redraw)
             {
@@ -600,24 +505,24 @@ namespace NDraw
         /// 
         /// </summary>
         /// <param name="e"></param>
-        protected override void OnKeyDown(KeyEventArgs e)
+        public void HandleKeyDown(KeyEventArgs e)  //protected override void OnKeyDown(KeyEventArgs e)
         {
             //bool recalc = false;
             bool redraw = false;
 
             switch (e.KeyCode)
             {
-                case Keys.ControlKey:
-                    if (!_ctrlPressed)
-                    {
-                        _startPos = Cursor.Position;
-                        _ctrlPressed = true;
-                    }
-                    break;
+                //case Keys.ControlKey:
+                //    if (!_ctrlPressed)
+                //    {
+                //        _startPos = Cursor.Position;
+                //        _ctrlPressed = true;
+                //    }
+                //    break;
 
-                case Keys.ShiftKey:
-                    _shiftPressed = true;
-                    break;
+                //case Keys.ShiftKey:
+                //    _shiftPressed = true;
+                //    break;
 
                 case Keys.H: // reset
                     Reset();
@@ -649,42 +554,42 @@ namespace NDraw
         /// 
         /// </summary>
         /// <param name="e"></param>
-        protected override void OnKeyUp(KeyEventArgs e)
-        {
-            bool redraw = false;
+        //public void Handle_KeyUp(KeyEventArgs e)  //protected override void OnKeyUp(KeyEventArgs e)
+        //{
+        //    bool redraw = false;
 
-            switch (e.KeyCode)
-            {
-                case Keys.ControlKey:
-                    _ctrlPressed = false;
+        //    switch (e.KeyCode)
+        //    {
+        //        case Keys.ControlKey:
+        //            _ctrlPressed = false;
 
-                    if (_dragging)
-                    {
- //TODO                       GetSelectedShapes();
-                        _dragging = false;
-                        Cursor = Cursors.Default;
+        //            if (_dragging)
+        //            {
+        //                GetSelectedShapes();
+        //                _dragging = false;
+        //                Cursor = Cursors.Default;
 
-                        //_dragCursor = null;
-                        redraw = true;
-                        //Refresh();
-                    }
+        //                //_dragCursor = null;
+        //                redraw = true;
+        //                //Refresh();
+        //            }
 
-                    _startPos = new Point();
-                    //_endMousePos = new Point();
-                    break;
+        //            _startPos = new Point();
+        //            //_endMousePos = new Point();
+        //            break;
 
-                case Keys.ShiftKey:
-                    _shiftPressed = false;
-                    break;
-            }
+        //        case Keys.ShiftKey:
+        //            _shiftPressed = false;
+        //            break;
+        //    }
 
-            if(redraw)
-            {
-                Invalidate();
-            }
+        //    if(redraw)
+        //    {
+        //        Invalidate();
+        //    }
 
-            ShowInfo();
-        }
+        //    ShowInfo();
+        //}
         #endregion
 
 
@@ -717,26 +622,5 @@ namespace NDraw
 
             return shapes;
         }
-
-        ///// <summary>Recenter the chart after zooming in or out.</summary>
-        ///// <param name="xRatio">The change ratio for the x axis</param>
-        ///// <param name="yRatio">The change ratio for the y axis</param>
-        //private void Recenter(float xRatio, float yRatio)
-        //{
-        //    // Get the axes positions relative to the center of the control.
-        //    float xAxisPosFromCenter = _shiftY - Height / 2;
-        //    float yAxisPosFromCenter = _shiftX - Width / 2;
-
-        //    // Calculate the change in positions.
-        //    float dY = ((xAxisPosFromCenter * yRatio) - xAxisPosFromCenter);
-        //    float dX = ((yAxisPosFromCenter * xRatio) - yAxisPosFromCenter);
-
-        //    // Set the new x and y origin positions.
-        //    _shiftY = xAxisPosFromCenter + dY + Height / 2;
-        //    _shiftX = yAxisPosFromCenter + dX + Width / 2;
-
-        //    Invalidate();
-        //    Refresh();
-        //}
     }
 }
