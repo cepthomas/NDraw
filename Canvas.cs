@@ -17,7 +17,7 @@ using NBagOfTricks;
 
 namespace NDraw
 {
-    public partial class Canvas : PictureBox // UserControl
+    public partial class Canvas : Control
     {
         /// <summary>DOC</summary>
 
@@ -76,7 +76,7 @@ namespace NDraw
 
         void ShowInfo()
         {
-            lblInfo.Text = $"Mouse:{_currentPos} Ctrl:{(_ctrlPressed ? "D" : "U")} Shift:{(_shiftPressed ? "D" : "U")} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
+//>>>            lblInfo.Text = $"Mouse:{_currentPos} Ctrl:{(_ctrlPressed ? "D" : "U")} Shift:{(_shiftPressed ? "D" : "U")} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
         }
 
         #region Drawing resources
@@ -88,6 +88,44 @@ namespace NDraw
 
         Pen _penSelect = new(Color.Gray);
         #endregion
+
+
+
+
+        //Override the protected ProcessKeyPreview function, If not, you can also override the protected ProcessCmdKey
+        //function - it is called before ProcessKeyPreview, for most keystrokes.
+
+        protected override bool ProcessKeyPreview(ref Message m)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Canvas_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Canvas_KeyUp(object sender, KeyEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Canvas_KeyDown(object sender, KeyEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+
 
 
 
@@ -119,28 +157,18 @@ namespace NDraw
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void Canvas_Load(object sender, EventArgs e)
-        //{
-        //    //Override the protected ProcessKeyPreview function,
-        //    //If not, you can also override the protected ProcessCmdKey
-        //    //function - it is called before ProcessKeyPreview, for most
-        //    //keystrokes.
-
-        //}
-
-        protected override bool ProcessKeyPreview(ref Message m)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Canvas_Load(object sender, EventArgs e)
         {
-            return base.ProcessKeyPreview(ref m);
-        }
+            
+            this.KeyDown += Canvas_KeyDown;
+            this.KeyUp += Canvas_KeyUp;
+            this.KeyPress += Canvas_KeyPress;
 
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         /// <summary>

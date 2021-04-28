@@ -29,7 +29,12 @@ namespace NDraw
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            //KeyPreview = true;
+            //     Gets or sets a value indicating whether the form will receive key events before
+            //     the event is passed to the control that has focus.
+            KeyPreview = true;
+
+            canvas.KeyDown += Canvas_KeyDown;
+            this.KeyDown += MainForm_KeyDown;
 
 
             string appDir = NBagOfTricks.Utils.MiscUtils.GetAppDataDir("NDraw");
@@ -61,6 +66,21 @@ namespace NDraw
 
             // Edit away....
 
+        }
+
+        protected override bool ProcessKeyPreview(ref Message m)
+        {
+            return base.ProcessKeyPreview(ref m);
+        }
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void Canvas_KeyDown(object sender, KeyEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
