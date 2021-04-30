@@ -17,8 +17,9 @@ using NBagOfTricks;
 
 namespace NDraw
 {
-    public partial class Canvas : Control
+    public partial class Canvas : UserControl // Should be Control but breaks in designer
     {
+        #region Fields
         /// <summary>Current drawing.</summary>
         Page _page = new();
 
@@ -37,6 +38,9 @@ namespace NDraw
         // Around drawing area.
         //const int MARGIN = 50;
 
+        /// <summary>How fast the mouse wheel goes.</summary>
+        const int WHEEL_RESOLUTION = 4;
+
         /// <summary>Maximum zoom in limit.</summary>
         const float MAX_ZOOM = 10.0f;
 
@@ -44,9 +48,8 @@ namespace NDraw
         const float MIN_ZOOM = 0.1f;
 
         /// <summary>Speed at which to zoom in/out.</summary>
-        const float ZOOM_SPEED = 1.25F;
+        const float ZOOM_SPEED = 0.1F;
 
-        #region Fields
         ///// <summary>If control is pressed.</summary>
         //bool _ctrlPressed = false;
 
@@ -69,6 +72,14 @@ namespace NDraw
         Point _currentPos = new();
         #endregion
 
+
+        public void Log(string s)
+        {
+            rtb.AppendText(s + Environment.NewLine);
+            rtb.ScrollToCaret();
+        }
+
+
         #region Drawing resources
         Pen _penGrid = new(Color.Gray);
 
@@ -78,36 +89,6 @@ namespace NDraw
 
         Pen _penSelect = new(Color.Gray);
         #endregion
-
-        /// <summary>
-        /// 
-        /// </summary>
-        void ShowInfo()
-        {
-            lblInfo.Text = $"Mouse:{_currentPos} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
-            //lblInfo.Text = $"Mouse:{_currentPos} Ctrl:{(_ctrlPressed ? "D" : "U")} Shift:{(_shiftPressed ? "D" : "U")} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        void CalcGeometry() // stuff on resize
-        {
-            //_drawArea = new(ClientRectangle.X + MARGIN, ClientRectangle.Y + MARGIN, Width - MARGIN, Height - MARGIN);
-            //_drawArea = ClientRectangle;
-
-            //public float Grid { get; set; } = 2;
-            //public float Snap { get; set; } = 2;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        void Reset() // initial state
-        {
-            GeometryMap.Reset();
-            //Invalidate();
-        }
 
         #region Lifecycle
         /// <summary>
@@ -119,17 +100,20 @@ namespace NDraw
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Canvas_Load(object sender, EventArgs e)
-        {
-            //this.KeyDown += Canvas_KeyDown;
-            //this.KeyUp += Canvas_KeyUp;
-            //this.KeyPress += Canvas_KeyPress;
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="e"></param>
+        //protected override void OnLoad(EventArgs e)
+        //{
+        //    //this.KeyDown += Canvas_KeyDown;
+        //    //this.KeyUp += Canvas_KeyUp;
+        //    //this.KeyPress += Canvas_KeyPress;
+        //
+        //    lblInfo.Text = "!!!!!!!!!!!!!!!";
+        //
+        //    base.OnLoad(e);
+        //}
 
         /// <summary>
         /// Perform initialization.
@@ -140,7 +124,7 @@ namespace NDraw
             _page = page;
             _settings = settings;
 
-            GeometryMap.Zoom = 1.0f;
+            Geometry.Reset();
 
             _shapes.Clear();
             _shapes.AddRange(_page.Rects);
@@ -150,8 +134,8 @@ namespace NDraw
             _penGrid.Width = GRID_LINE_WIDTH;
 
             // Init geometry.
-            GeometryMap.Reset();
-            GeometryMap.DrawArea = ClientRectangle;
+            Geometry.Reset();
+            Geometry.DrawArea = ClientRectangle;
 
             //CalcGeometry();
 
@@ -217,7 +201,7 @@ namespace NDraw
             DrawGrid(e.Graphics);
 
             // Draw the shapes.
-            RectangleF rvirt = GeometryMap.DisplayToVirtual(ClientRectangle);
+            RectangleF rvirt = Geometry.DisplayToVirtual(ClientRectangle);
             int marker = 3;
 
             foreach (var s in _shapes)
@@ -227,8 +211,9 @@ namespace NDraw
                     switch (s)
                     {
                         case RectShape r:
-                            var rdisp = GeometryMap.VirtualToDisplay(r.TL, r.BR);
+                            var rdisp = Geometry.VirtualToDisplay(r.TL, r.BR);
                             e.Graphics.DrawRectangle(r.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, rdisp.X, rdisp.Y, rdisp.Width, rdisp.Height);
+                            e.Graphics.DrawString(r.Text, _settings.AllStyles[0].Font, Brushes.Black, rdisp.X + 2, rdisp.Y + 2);
 
                             if (r.State == ShapeState.Selected)
                             {
@@ -237,9 +222,10 @@ namespace NDraw
                             break;
 
                         case LineShape l:
-                            var dstart = GeometryMap.VirtualToDisplay(l.Start);
-                            var dend = GeometryMap.VirtualToDisplay(l.End);
+                            var dstart = Geometry.VirtualToDisplay(l.Start);
+                            var dend = Geometry.VirtualToDisplay(l.End);
                             e.Graphics.DrawLine(l.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, dstart, dend);
+                            e.Graphics.DrawString(l.Text, _settings.AllStyles[0].Font, Brushes.Black, dstart.X + 2, dstart.Y + 2);
 
                             if (l.State == ShapeState.Selected)
                             {
@@ -271,7 +257,7 @@ namespace NDraw
         /// <param name="g">The Graphics object to use.</param>
         void DrawGrid(Graphics g)
         {
-            float spacing = 42.0f;// XXX TODO calculate along with others
+            float spacing = 42.0f;// XXX TODO1 calculate along with others
 
             // Draw X-Axis
             for (float tickPos = spacing; tickPos < Width; tickPos += spacing)
@@ -310,7 +296,11 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnResize(EventArgs e)
         {
-            GeometryMap.DrawArea = ClientRectangle;
+            Geometry.DrawArea = ClientRectangle;
+
+            lblInfo.Location = new(10, Bottom - lblInfo.Height - 10);
+            rtb.Location = new(500, Bottom - rtb.Height - 10);
+
             Invalidate();
         }
 
@@ -327,24 +317,6 @@ namespace NDraw
             Invalidate();
         }
         #endregion
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        bool ControlPressed()
-        {
-            return (ModifierKeys & Keys.Control) > 0;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        bool ShiftPressed()
-        {
-            return (ModifierKeys & Keys.Shift) > 0;
-        }
 
         #region Mouse events
         /// <summary>
@@ -378,7 +350,7 @@ namespace NDraw
         {
             _currentPos = e.Location;
 
-            if (e.Button == MouseButtons.Left && ControlPressed()) // Select shapes within drag rectangle TODO  XXX adjust
+            if (e.Button == MouseButtons.Left && ControlPressed()) // Select shapes within drag rectangle TODO2  XXX adjust
             {
                 //List<DataPoint> tempPoints = GetSelectedPoints();
                 //foreach (DataPoint pt in tempPoints)
@@ -422,7 +394,7 @@ namespace NDraw
                     break;
 
                 case (MouseButtons.None, false): // highlight any close shapes
-                    var vloc = GeometryMap.DisplayToVirtual(e.Location);
+                    var vloc = Geometry.DisplayToVirtual(e.Location);
                     foreach (Shape shape in _shapes)
                     {
                         if(shape.IsClose(vloc, SELECT_RANGE))
@@ -463,27 +435,44 @@ namespace NDraw
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             var hme = e as HandledMouseEventArgs;
-            hme.Handled = true; // This prevents the mouse wheel event from getting back to the parent. TODO???
+            hme.Handled = true; // This prevents the mouse wheel event from getting back to the parent. TODO2???
 
             bool redraw = false;
 
+            // Number of detents the mouse wheel has rotated, multiplied by the WHEEL_DELTA constant.
+            int delta = WHEEL_RESOLUTION * e.Delta / SystemInformation.MouseWheelScrollDelta;
+
             switch (e.Button, ControlPressed(), ShiftPressed())
             {
-                case (MouseButtons.None, true, false): // Zoom in/out
-                    GeometryMap.Zoom *= e.Delta > 0 ? 1.1f : 0.9f;
-                    //>>>> check limits TODO
-                    //Gets a signed count of the number of detents the mouse wheel has rotated, multiplied
-                    //     by the WHEEL_DELTA constant. A detent is one notch of the mouse wheel.
-                    redraw = true;
+                case (MouseButtons.None, true, false): // Zoom in/out at mouse position
+                    var zoomfactor = delta > 0 ? ZOOM_SPEED : -ZOOM_SPEED;
+                    //var newzoom = Geometry.Zoom * (1.0f + zoomfactor);
+                    var newzoom = Geometry.Zoom + zoomfactor;
+
+                    if (newzoom > MIN_ZOOM && newzoom < MAX_ZOOM)
+                    {
+                        Geometry.Zoom = newzoom;
+
+                        // Adjust offsets to center zoom at mouse.
+                        float offx = e.X * zoomfactor;// / 2;
+                        float offy = e.Y * zoomfactor;// / 2;
+
+                        Geometry.OffsetX += (int)-offx;
+                        Geometry.OffsetY += (int)-offy;
+
+                        //Log($"offx:{offx} offy:{offy} Zoom:{Geometry.Zoom} GeoX:{Geometry.OffsetX} GeoY:{Geometry.OffsetY}");
+
+                        redraw = true;
+                    }
                     break;
 
                 case (MouseButtons.None, false, true): // Shift left/right
-                    GeometryMap.OffsetX += e.Delta;
+                    Geometry.OffsetX += delta;
                     redraw = true;
                     break;
 
                 case (MouseButtons.None, false, false): // Shift up/down
-                    GeometryMap.OffsetY += e.Delta;
+                    Geometry.OffsetY += delta;
                     redraw = true;
                     break;
 
@@ -505,7 +494,7 @@ namespace NDraw
         /// 
         /// </summary>
         /// <param name="e"></param>
-        public void HandleKeyDown(KeyEventArgs e)  //protected override void OnKeyDown(KeyEventArgs e)
+        public void HandleKeyDown(KeyEventArgs e)
         {
             //bool recalc = false;
             bool redraw = false;
@@ -525,19 +514,20 @@ namespace NDraw
                 //    break;
 
                 case Keys.H: // reset
+                    //Log("Got H");
                     Reset();
                     redraw = true;
                     break;
 
-                case Keys.A: //TODO select all
+                case Keys.A: //TODO2 select all
                     redraw = true;
                     break;
 
-                case Keys.C: //TODO copy/paste/cut
+                case Keys.C: //TODO2 copy/paste/cut
                     redraw = true;
                     break;
 
-                case Keys.Escape: //TODO reset all selections
+                case Keys.Escape: //TODO2 reset all selections
                     redraw = true;
                     break;
             }
@@ -554,7 +544,7 @@ namespace NDraw
         /// 
         /// </summary>
         /// <param name="e"></param>
-        //public void Handle_KeyUp(KeyEventArgs e)  //protected override void OnKeyUp(KeyEventArgs e)
+        //public void Handle_KeyUp(KeyEventArgs e)
         //{
         //    bool redraw = false;
 
@@ -592,6 +582,54 @@ namespace NDraw
         //}
         #endregion
 
+        #region Private helpers
+        /// <summary>
+        /// Debug helper.
+        /// </summary>
+        void ShowInfo()
+        {
+            lblInfo.Text = $"Mouse:{_currentPos} OffsetX:{Geometry.OffsetX} OffsetY:{Geometry.OffsetY} Zoom:{Geometry.Zoom}";
+            //lblInfo.Text = $"Mouse:{_currentPos} Ctrl:{(_ctrlPressed ? "D" : "U")} Shift:{(_shiftPressed ? "D" : "U")} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        void CalcGeometry() // stuff on resize
+        {
+            //_drawArea = new(ClientRectangle.X + MARGIN, ClientRectangle.Y + MARGIN, Width - MARGIN, Height - MARGIN);
+            //_drawArea = ClientRectangle;
+
+            //public float Grid { get; set; } = 2;
+            //public float Snap { get; set; } = 2;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        void Reset() // initial state
+        {
+            Geometry.Reset();
+            //Invalidate();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        bool ControlPressed()
+        {
+            return (ModifierKeys & Keys.Control) > 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        bool ShiftPressed()
+        {
+            return (ModifierKeys & Keys.Shift) > 0;
+        }
 
         /// <summary>Get shape that is within range of point.</summary>
         /// <param name="point">Mouse point</param>
@@ -600,7 +638,7 @@ namespace NDraw
         {
             Shape close = null;
 
-            var vpt = GeometryMap.DisplayToVirtual(pt);
+            var vpt = Geometry.DisplayToVirtual(pt);
 
             foreach (var shape in _shapes)
             {
@@ -616,11 +654,12 @@ namespace NDraw
 
         /// <summary>Select multiple shapes.</summary>
         /// <returns>The shapes.</returns>
-        List<Shape> GetSelectedShapes() //TODO
+        List<Shape> GetSelectedShapes() //TODO2
         {
             List<Shape> shapes = new();
 
             return shapes;
         }
+        #endregion
     }
 }

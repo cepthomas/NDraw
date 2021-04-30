@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 
 // Deals exclusively in virtual (page) units. Translation between display and virtual is done in GeometryMap.
 
-//TODO don't serialize extra stuff in PointF. "TL": { "IsEmpty": false, "X": 50, "Y": 50 },  https://stackoverflow.com/q/62775694
+//TODO1 don't serialize extra stuff in PointF. "TL": { "IsEmpty": false, "X": 50, "Y": 50 },  https://stackoverflow.com/q/62775694
 
 namespace NDraw
 {
@@ -24,17 +24,17 @@ namespace NDraw
     public abstract class Shape
     {
         #region Properties
-        /// <summary>TODO</summary>
+        /// <summary>TODO2</summary>
         public string Id { get; set; } = "";
 
-        /// <summary>TODO</summary>
+        /// <summary>TODO2</summary>
         public string StyleId { get; set; } = "";
 
-        /// <summary>TODO</summary>
+        /// <summary>TODO2</summary>
         public int Layer { get; set; } = 0;
 
-        /// <summary>TODO</summary>
-        public string Text { get; set; } = ""; // also Text position TODO
+        /// <summary>TODO1</summary>
+        public string Text { get; set; } = ""; // also Text position TODO1
 
         /// <summary>DOC</summary>
         public ShapeState State { get; set; } = ShapeState.Default;
@@ -204,7 +204,7 @@ namespace NDraw
         public PointF End { get; set; } = new PointF(0, 0);
         #endregion
 
-        // TODO end arrows etc, multi-segment lines
+        // TODO1 end arrows etc, multi-segment lines
 
         /// <inheritdoc />
         public override bool IsClose(PointF pt, int range)
@@ -223,7 +223,7 @@ namespace NDraw
         public override string ToString() => string.Format($"Start:{Start} End:{End}");
     }
 
-    public class ShapeUtils //TODO new home
+    public class ShapeUtils //TODO1 new home
     {
         /// <summary>
         /// Make a rectangle from the line start/end.

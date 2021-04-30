@@ -13,28 +13,23 @@ namespace NDraw
     /// <summary>
     /// Performs all mapping ops between the virtual and the displayed.
     /// </summary>
-    public class GeometryMap
+    public class Geometry
     {
+        #region Properties
         /// <summary>The horizontal offset in pixels.</summary>
         public static int OffsetX = 0;
 
         /// <summary>The vertical offset in pixels.</summary>
         public static int OffsetY = 0;
 
-        /// <summary>Current zoom.</summary>
+        /// <summary>Current zoom level.</summary>
         public static float Zoom = 1.0F;
 
         /// <summary>Available area.</summary>
         public static Rectangle DrawArea = new();
+        #endregion
 
-
-        public static void Reset()
-        {
-            Zoom = 1.0f;
-            OffsetX = 0;
-            OffsetY = 0;
-        }
-
+        #region Functions for display to/from virtual
         /// <summary>
         /// Map a virtual point to the display.
         /// </summary>
@@ -45,16 +40,6 @@ namespace NDraw
             var dispX = virt.X * Zoom + OffsetX;
             var dispY = virt.Y * Zoom + OffsetY;
             return new(dispX, dispY);
-        }
-
-        /// <summary>Obtain the virtual point for a display position.</summary>
-        /// <param name="disp">The display point.</param>
-        /// <returns>The virtual point.</returns>
-        public static PointF DisplayToVirtual(Point disp)
-        {
-            var virtX = (disp.X - OffsetX) / Zoom;
-            var virtY = (disp.Y - OffsetY) / Zoom;
-            return new PointF(virtX, virtY);
         }
 
         /// <summary>
@@ -84,7 +69,19 @@ namespace NDraw
             return disp;
         }
 
-        /// <summary>Obtain the virtual rect for a display rect.</summary>
+        /// <summary>Obtain the virtual point for a display position.</summary>
+        /// <param name="disp">The display point.</param>
+        /// <returns>The virtual point.</returns>
+        public static PointF DisplayToVirtual(Point disp)
+        {
+            var virtX = (disp.X - OffsetX) / Zoom;
+            var virtY = (disp.Y - OffsetY) / Zoom;
+            return new PointF(virtX, virtY);
+        }
+
+        /// <summary>
+        /// Obtain the virtual rect for a display rect.
+        /// </summary>
         /// <param name="disp">The display point.</param>
         /// <returns>The virtual point.</returns>
         public static RectangleF DisplayToVirtual(Rectangle disp)
@@ -94,5 +91,18 @@ namespace NDraw
             var virt = new RectangleF(tl, new SizeF(br.X - tl.X, br.Y - tl.Y));
             return virt;
         }
+        #endregion
+
+        #region Misc functions
+        /// <summary>
+        /// Defaults.
+        /// </summary>
+        public static void Reset()
+        {
+            Zoom = 1.0f;
+            OffsetX = 0;
+            OffsetY = 0;
+        }
+        #endregion
     }
 }

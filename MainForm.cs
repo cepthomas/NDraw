@@ -12,9 +12,9 @@ using System.Windows.Forms;
 using NBagOfTricks;
 
 
-// TODO main menu: file, settings, status info
+// TODO1 main menu: file, settings, status info
 
-// TODO context menu: insert, cut, copy, delete, move, resize, edit properties, ...
+// TODO2 context menu: insert, cut, copy, delete, move, resize, edit properties, ...
 
 
 namespace NDraw
@@ -24,7 +24,7 @@ namespace NDraw
         UserSettings _settings;
 
         /// <summary>
-        /// 
+        /// Constructor.
         /// </summary>
         public MainForm()
         {
@@ -37,12 +37,11 @@ namespace NDraw
             //the event is passed to the control that has focus.
             KeyPreview = true;
 
-            //canvas.KeyDown += Canvas_KeyDown;
-            this.KeyDown += MainForm_KeyDown;
-            //this.KeyUp += MainForm_KeyUp;
+            KeyDown += MainForm_KeyDown;
+            //KeyUp += MainForm_KeyUp;
 
             string appDir = NBagOfTricks.Utils.MiscUtils.GetAppDataDir("NDraw");
-            DirectoryInfo di = new DirectoryInfo(appDir);
+            DirectoryInfo di = new(appDir);
             di.Create();
             _settings = UserSettings.Load(appDir);
 
@@ -62,9 +61,23 @@ namespace NDraw
                 Snap = 0.1f
             };
 
-            page.Rects.Add(new RectShape() { Id = "R_1", Text = "foo", TL = new(50, 50), BR = new(100, 100) });
-            page.Rects.Add(new RectShape() { Id = "R_2", Text = "bar", TL = new(160, 170), BR = new(200, 300) });
-            page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar",  Start = new(250, 250), End = new(300, 300) });
+            //page.Rects.Add(new RectShape() { Id = "R_1", Text = "foo", TL = new(50, 50),   BR = new(100, 100) });
+            //page.Rects.Add(new RectShape() { Id = "R_2", Text = "bar", TL = new(160, 170), BR = new(200, 300) });
+            //page.Rects.Add(new RectShape() { Id = "R_3", Text = "abc", TL = new(300, 250), BR = new(330, 300) });
+            //page.Rects.Add(new RectShape() { Id = "R_4", Text = "def", TL = new(400, 300), BR = new(550, 350) });
+            //page.Rects.Add(new RectShape() { Id = "R_5", Text = "ggg", TL = new(450, 250), BR = new(460, 550) });
+            //page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar",  Start = new(250, 250), End = new(275, 455) });
+
+
+            int RECT_SIZE = 20;
+            int RECT_SPACE = 100;
+            for (int x = -70; x < 1500; x += RECT_SPACE)
+            {
+                for (int y = -50; y < 1000; y += RECT_SPACE)
+                {
+                    page.Rects.Add(new RectShape() { Id = $"R_{x}_{y}", Text = $"{x}_{y}", TL = new(x, y), BR = new(x + RECT_SIZE, y + RECT_SIZE) });
+                }
+            }
 
             canvas.Init(page, _settings);
 
@@ -78,8 +91,10 @@ namespace NDraw
         /// <param name="e"></param>
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if(canvas.DisplayRectangle.Contains(Control.MousePosition))
+            Point pt = canvas.PointToClient(MousePosition);
+            if (canvas.Bounds.Contains(pt))
             {
+                //canvas.Log($"Hit!!!");
                 canvas.HandleKeyDown(e);
             }
         }

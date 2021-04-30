@@ -38,6 +38,7 @@ namespace NDraw
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.ToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,7 +51,7 @@ namespace NDraw
             this.toolStripTextBox1});
             this.ToolStrip.Location = new System.Drawing.Point(0, 0);
             this.ToolStrip.Name = "ToolStrip";
-            this.ToolStrip.Size = new System.Drawing.Size(1391, 27);
+            this.ToolStrip.Size = new System.Drawing.Size(1293, 27);
             this.ToolStrip.TabIndex = 0;
             this.ToolStrip.Text = "ToolStrip";
             this.ToolStrip.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ToolStrip_ItemClicked);
@@ -82,34 +83,41 @@ namespace NDraw
             // 
             // canvas
             // 
-            this.canvas.Location = new System.Drawing.Point(461, 50);
+            this.canvas.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.canvas.Location = new System.Drawing.Point(0, 0);
             this.canvas.Name = "canvas";
-            this.canvas.Size = new System.Drawing.Size(771, 547);
+            this.canvas.Size = new System.Drawing.Size(1018, 626);
             this.canvas.TabIndex = 1;
             // 
             // splitContainer1
             // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.IsSplitterFixed = true;
-            this.splitContainer1.Location = new System.Drawing.Point(78, 383);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 27);
             this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Size = new System.Drawing.Size(314, 214);
-            this.splitContainer1.SplitterDistance = 66;
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.canvas);
+            this.splitContainer1.Size = new System.Drawing.Size(1293, 626);
+            this.splitContainer1.SplitterDistance = 271;
             this.splitContainer1.TabIndex = 2;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1391, 653);
-            this.Controls.Add(this.canvas);
+            this.ClientSize = new System.Drawing.Size(1293, 653);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.ToolStrip);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ToolStrip.ResumeLayout(false);
             this.ToolStrip.PerformLayout();
+            this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);

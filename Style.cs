@@ -42,7 +42,7 @@ namespace NDraw
         [Browsable(false)]
         public float EmSize { get; set; } = 10;
 
-        // TODO style  enum FontStyle { Regular = 0, Bold = 1, Italic = 2, Underline = 4, Strikeout = 8 }
+        // TODO2 style  enum FontStyle { Regular = 0, Bold = 1, Italic = 2, Underline = 4, Strikeout = 8 }
 
         /// <summary>DOC</summary>
         [JsonIgnore]
