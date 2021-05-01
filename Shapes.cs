@@ -13,7 +13,6 @@ using System.Text.Json.Serialization;
 
 // Deals exclusively in virtual (page) units. Translation between display and virtual is done in GeometryMap.
 
-// TODO1 don't serialize extra stuff in PointF. "TL": { "IsEmpty": false, "X": 50, "Y": 50 },  https://stackoverflow.com/q/62775694
 
 namespace NDraw
 {
@@ -40,7 +39,6 @@ namespace NDraw
         public ShapeState State { get; set; } = ShapeState.Default;
         #endregion
 
-
         /// <summary>
         /// Make a rectangle from the line start/end.
         /// </summary>
@@ -50,10 +48,9 @@ namespace NDraw
         /// <returns></returns>
         protected RectangleF Expand(PointF start, PointF end, int range)
         {
-            RectangleF r = new RectangleF(start.X - range, start.Y - range, Math.Abs(end.X - start.X) + range * 2, Math.Abs(end.Y - start.Y) + range * 2);
+            RectangleF r = new(start.X - range, start.Y - range, Math.Abs(end.X - start.X) + range * 2, Math.Abs(end.Y - start.Y) + range * 2);
             return r;
         }
-
 
         #region Abstract functions
         /// <summary>
@@ -74,74 +71,18 @@ namespace NDraw
         #endregion
     }
 
-
-    /*
-    public sealed class FrozenClass
-    {
-        // [JsonIgnore] <- cannot apply because I don't own this class
-        public int InternalId { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-    }
-
-    A possible workaround is to create another exportable class and setup a mapper between them
-
-    public class MyFrozenClass
-    {
-        public MyFrozenClass(FrozenClass frozen)
-        {
-            this.FirstName = frozen.FirstName;
-            this.LastName = frozen.LastName;
-        }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-    }
-    var jsonString = System.Text.Json.JsonSerializer.Serialize(new MyFrozenClass(person));
-    */
-
-
-    //[Serializable]
-    //public class PointP
-    //{
-    //    public float X { get; set; } = 0;
-    //    public float Y { get; set; } = 0;
-
-    //    public PointP()
-    //    {
-    //    }
-
-    //    public PointP(PointF pf)
-    //    {
-    //        X = pf.X;
-    //        Y = pf.Y;
-    //    }
-
-    //    public static PointF From(PointP pf)
-    //    {
-    //        return new PointF() { X = pf.X, Y = pf.Y };
-    //    }
-    //}
-
-
-
     /// <summary>Drawing rectangle.</summary>
     [Serializable]
     public class RectShape : Shape
     {
         #region Properties
         /// <summary>DOC</summary>
-        //   [JsonIgnore]
         [JsonConverter(typeof(PointFConverter))]
         public PointF TL { get; set; } = new(0, 0);
-        //[Browsable(false)]
-        //public PointP TLp { get => new(TL); set => TL = PointP.From(value); }
 
         /// <summary>DOC</summary>
-        //[JsonIgnore]
         [JsonConverter(typeof(PointFConverter))]
         public PointF BR { get; set; } = new(0, 0);
-        //[Browsable(false)]
-        //public PointP BRp { get => new(BR); set => BR = PointP.From(value); }
 
         /// <summary>DOC</summary>
         [JsonIgnore, Browsable(false)]
@@ -249,19 +190,12 @@ namespace NDraw
     {
         #region Properties
         /// <summary>DOC</summary>
-        //[JsonIgnore]
         [JsonConverter(typeof(PointFConverter))]
         public PointF Start { get; set; } = new(0, 0);
-        //[Browsable(false)]
-        //public PointP Startp { get => new(Start); set => Start = PointP.From(value); }
 
         /// <summary>DOC</summary>
-        //[JsonIgnore]
         [JsonConverter(typeof(PointFConverter))]
         public PointF End { get; set; } = new(0, 0);
-        //[Browsable(false)]
-        //public PointP Endp { get => new(End); set => End = PointP.From(value); }
-
         #endregion
 
         // TODO1 end arrows etc, multi-segment lines

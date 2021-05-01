@@ -45,8 +45,6 @@ namespace NDraw
             di.Create();
             _settings = UserSettings.Load(appDir);
 
-//            var pp = Page.Load("page.json");
-
             // Test stuff.
             _settings.AllStyles.Add(new() { Id = "ST_1", LineColor = Color.Green, FillColor = Color.Pink });
             _settings.AllStyles.Add(new() { Id = "ST_2", LineColor = Color.Purple, FillColor = Color.Salmon });
@@ -78,6 +76,8 @@ namespace NDraw
                     page.Rects.Add(new RectShape() { Text = $"R_{x}_{y}", TL = new(x, y), BR = new(x + RECT_SIZE, y + RECT_SIZE) });
                 }
             }
+
+            //page = Page.Load("page.json");
 
             canvas.Init(page, _settings);
 

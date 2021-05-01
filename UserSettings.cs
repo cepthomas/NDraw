@@ -35,24 +35,11 @@ namespace NDraw
         /// <summary>All the styles. The first one is considered the default.</summary>
         public List<Style> AllStyles { get; set; } = new();
 
-        ///// <summary>Persisted non-editable</summary>
-        //[Browsable(false)]
-        //public string BackColorName { get; set; } = "LightGray";
-
-        /// <summary>Editable non-persisted</summary>
-     //   [JsonIgnore]
+        /// <summary>DOC</summary>
         [JsonConverter(typeof(ColorConverter))]
         public Color BackColor { get; set; } = Color.White;
 
-
-
-
-        ///// <summary>Persisted non-editable</summary>
-        //[Browsable(false)]
-        //public string GridColorName { get; set; } = "Gray";
-
-        ///// <summary>Editable non-persisted</summary>
-        //[JsonIgnore]
+        /// <summary>DOC</summary>
         [JsonConverter(typeof(ColorConverter))]
         public Color GridColor { get; set; } = Color.Black;
 
@@ -128,20 +115,12 @@ namespace NDraw
                 set.AllStyles.Add(new Style());
             }
 
-            //// Fixups.
-            //set.BackColor = Color.FromName(set.BackColorName);
-            //set.GridColor = Color.FromName(set.GridColorName);
-
             return set;
         }
 
         /// <summary>Save object to file.</summary>
         public void Save()
         {
-            //// Fixups.
-            //BackColorName = BackColor.Name;
-            //GridColorName = GridColor.Name;
-
             AllStyles.ForEach(s => s.Save());
 
             JsonSerializerOptions opts = new() { WriteIndented = true };
