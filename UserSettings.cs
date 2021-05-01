@@ -16,15 +16,6 @@ namespace NDraw
     [Serializable]
     public class UserSettings : IDisposable
     {
-        [JsonConverter(typeof(PointFConverter))]
-        public PointF XXXPoint { get; set; } = new(123, 456);
-
-        [JsonConverter(typeof(ColorConverter))]
-        public Color XXXColor { get; set; } = Color.Red;
-        [JsonConverter(typeof(FontConverter))]
-        public Font XXXFont { get; set; } = new Font("Consolas", 20);
-
-
         #region Properties
         /// <summary>Display grid in Page units.</summary>
         public float Grid { get; set; } = 2;
@@ -32,16 +23,17 @@ namespace NDraw
         /// <summary>Display snap grid in Page units.</summary>
         public float Snap { get; set; } = 2;
 
-        /// <summary>All the styles. The first one is considered the default.</summary>
-        public List<Style> AllStyles { get; set; } = new();
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(FontConverter))]
+        public Font Font { get; set; } = new Font("Consolas", 10);
 
         /// <summary>DOC</summary>
         [JsonConverter(typeof(ColorConverter))]
-        public Color BackColor { get; set; } = Color.White;
+        public Color BackColor { get; set; } = Color.LightGray;
 
         /// <summary>DOC</summary>
         [JsonConverter(typeof(ColorConverter))]
-        public Color GridColor { get; set; } = Color.Black;
+        public Color GridColor { get; set; } = Color.Gray;
 
         /// <summary>DOC</summary>
         [Browsable(false)] // Persisted non-editable
@@ -73,14 +65,10 @@ namespace NDraw
         /// <summary>Constructor</summary>
         public UserSettings()
         {
-            if (AllStyles.Count == 0)
-            {
-                AllStyles.Add(new Style());
-            }
         }
 
         /// <summary>Clean up.</summary>
-        public void Dispose() => AllStyles.ForEach(s => s.Dispose());
+        public void Dispose() => Font?.Dispose();
         #endregion
 
         #region Persistence
@@ -109,20 +97,12 @@ namespace NDraw
                 };
             }
 
-            // Make sure at least the default exists.
-            if(set.AllStyles.Count == 0)
-            {
-                set.AllStyles.Add(new Style());
-            }
-
             return set;
         }
 
         /// <summary>Save object to file.</summary>
         public void Save()
         {
-            AllStyles.ForEach(s => s.Save());
-
             JsonSerializerOptions opts = new() { WriteIndented = true };
             string json = JsonSerializer.Serialize(this, opts);
             File.WriteAllText(_fn, json);

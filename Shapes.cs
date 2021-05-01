@@ -27,18 +27,34 @@ namespace NDraw
         //public string Id { get; set; } = "";
 
         /// <summary>TODO2</summary>
-        public string StyleId { get; set; } = "";
-
-        /// <summary>TODO2</summary>
         public int Layer { get; set; } = 0;
 
-        /// <summary>TODO1</summary>
-        public string Text { get; set; } = ""; // also Text position TODO1
+        /// <summary>DOC</summary>
+        [JsonIgnore]
+        public ShapeState State { get; set; } = ShapeState.Default;
+
+        /// <summary>Text to display.</summary>
+        public string Text { get; set; } = "";
+
+        /// <summary>Text to display.</summary>
+        public ContentAlignment Alignment { get; set; } = ContentAlignment.TopLeft;
 
         /// <summary>DOC</summary>
-        public ShapeState State { get; set; } = ShapeState.Default;
+        public float LineThickness { get; set; } = 2.0f;
+
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(ColorConverter))]
+        public Color LineColor { get; set; } = Color.Green;
+
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(ColorConverter))]
+        public Color FillColor { get; set; } = Color.Black;
+
+        /// <summary>DOC</summary>
+        public string FillStyle { get; set; } = "None"; // TODO1 enum like OARS?
         #endregion
 
+        #region Common functions
         /// <summary>
         /// Make a rectangle from the line start/end.
         /// </summary>
@@ -51,6 +67,7 @@ namespace NDraw
             RectangleF r = new(start.X - range, start.Y - range, Math.Abs(end.X - start.X) + range * 2, Math.Abs(end.Y - start.Y) + range * 2);
             return r;
         }
+        #endregion
 
         #region Abstract functions
         /// <summary>
@@ -198,7 +215,7 @@ namespace NDraw
         public PointF End { get; set; } = new(0, 0);
         #endregion
 
-        // TODO1 end arrows etc, multi-segment lines
+        // TODO1 end arrows etc, multi-segment lines - see OARS
 
         /// <inheritdoc />
         public override bool IsClose(PointF pt, int range)

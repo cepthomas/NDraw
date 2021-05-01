@@ -29,14 +29,20 @@ namespace NDraw
         /// <summary>The various shapes in _page converted to internal format.</summary>
         readonly List<Shape> _shapes = new();
 
+        /// <summary>The user is dragging the mouse.</summary>
+        bool _dragging = false;
+
+        /// <summary>Mouse position when button pressed.</summary>
+        Point _startPos = new();
+
+        /// <summary>Current mouse position.</summary>
+        Point _currentPos = new();
+
         /// <summary>Cosmetics.</summary>
         const float GRID_LINE_WIDTH = 1.0f;
 
         /// <summary>How close do you have to be to select a shape in pixels.</summary>
         const int SELECT_RANGE = 5;
-
-        // Around drawing area.
-        //const int MARGIN = 50;
 
         /// <summary>How fast the mouse wheel goes.</summary>
         const int WHEEL_RESOLUTION = 4;
@@ -50,6 +56,7 @@ namespace NDraw
         /// <summary>Speed at which to zoom in/out.</summary>
         const float ZOOM_SPEED = 0.1F;
 
+
         ///// <summary>If control is pressed.</summary>
         //bool _ctrlPressed = false;
 
@@ -59,17 +66,8 @@ namespace NDraw
         /// <summary>Saves state as to whether left button is down.</summary>
         //bool _mouseDown = false;
 
-        /// <summary>The user is dragging the mouse.</summary>
-        bool _dragging = false;
-
-        /// <summary>Mouse position when button pressed.</summary>
-        Point _startPos = new();
-
         /// <summary>Mouse position when button unpressed.</summary>
         //Point _endMousePos = new();
-
-        /// <summary>Current mouse position.</summary>
-        Point _currentPos = new();
         #endregion
 
 
@@ -83,10 +81,6 @@ namespace NDraw
         #region Drawing resources
         Pen _penGrid = new(Color.Gray);
 
-        // Temp pen. Will be from style.
-        Pen _penShapeTemp = new(Color.Green, 2);
-        Pen _penHighlightTemp = new(Color.Green, 4);
-
         Pen _penSelect = new(Color.Gray);
         #endregion
 
@@ -99,21 +93,6 @@ namespace NDraw
             InitializeComponent();
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
         }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="e"></param>
-        //protected override void OnLoad(EventArgs e)
-        //{
-        //    //this.KeyDown += Canvas_KeyDown;
-        //    //this.KeyUp += Canvas_KeyUp;
-        //    //this.KeyPress += Canvas_KeyPress;
-        //
-        //    lblInfo.Text = "!!!!!!!!!!!!!!!";
-        //
-        //    base.OnLoad(e);
-        //}
 
         /// <summary>
         /// Perform initialization.
@@ -136,8 +115,6 @@ namespace NDraw
             // Init geometry.
             Geometry.Reset();
             Geometry.DrawArea = ClientRectangle;
-
-            //CalcGeometry();
 
             Invalidate();
         }
@@ -182,7 +159,6 @@ namespace NDraw
             base.Dispose(disposing);
 
             _penGrid?.Dispose();
-            _penShapeTemp?.Dispose();
             _penSelect?.Dispose();
         }
         #endregion
@@ -204,34 +180,38 @@ namespace NDraw
             RectangleF rvirt = Geometry.DisplayToVirtual(ClientRectangle);
             int marker = 3;
 
-            foreach (var s in _shapes)
+            foreach (var shape in _shapes)
             {
-                if (s.ContainedIn(rvirt, true))
+                if (shape.ContainedIn(rvirt, true))
                 {
-                    switch (s)
+                    using (Pen penLine = new(shape.LineColor, shape.LineThickness))
+                    using (Pen penHighlight = new(shape.LineColor, shape.LineThickness + 2))
                     {
-                        case RectShape r:
-                            var rdisp = Geometry.VirtualToDisplay(r.TL, r.BR);
-                            e.Graphics.DrawRectangle(r.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, rdisp.X, rdisp.Y, rdisp.Width, rdisp.Height);
-                            e.Graphics.DrawString(r.Text, _settings.AllStyles[0].Font, Brushes.Black, rdisp.X + 2, rdisp.Y + 2);
+                        switch (shape)
+                        {
+                            case RectShape r:
+                                var rdisp = Geometry.VirtualToDisplay(r.TL, r.BR);
+                                e.Graphics.DrawRectangle(r.State == ShapeState.Highlighted ? penHighlight : penLine, rdisp.X, rdisp.Y, rdisp.Width, rdisp.Height);
+                                e.Graphics.DrawString(r.Text, _settings.Font, Brushes.Black, rdisp.X + 2, rdisp.Y + 2);
 
-                            if (r.State == ShapeState.Selected)
-                            {
-                                e.Graphics.FillEllipse(_penShapeTemp.Brush, rdisp.X, rdisp.Y, marker, marker);
-                            }
-                            break;
+                                if (r.State == ShapeState.Selected)
+                                {
+                                    e.Graphics.FillEllipse(penLine.Brush, rdisp.X, rdisp.Y, marker, marker);
+                                }
+                                break;
 
-                        case LineShape l:
-                            var dstart = Geometry.VirtualToDisplay(l.Start);
-                            var dend = Geometry.VirtualToDisplay(l.End);
-                            e.Graphics.DrawLine(l.State == ShapeState.Highlighted ? _penHighlightTemp : _penShapeTemp, dstart, dend);
-                            e.Graphics.DrawString(l.Text, _settings.AllStyles[0].Font, Brushes.Black, dstart.X + 2, dstart.Y + 2);
+                            case LineShape l:
+                                var dstart = Geometry.VirtualToDisplay(l.Start);
+                                var dend = Geometry.VirtualToDisplay(l.End);
+                                e.Graphics.DrawLine(l.State == ShapeState.Highlighted ? penHighlight : penLine, dstart, dend);
+                                e.Graphics.DrawString(l.Text, _settings.Font, Brushes.Black, dstart.X + 2, dstart.Y + 2);
 
-                            if (l.State == ShapeState.Selected)
-                            {
-                                e.Graphics.FillEllipse(_penShapeTemp.Brush, dstart.X, dstart.Y, marker, marker);
-                            }
-                            break;
+                                if (l.State == ShapeState.Selected)
+                                {
+                                    e.Graphics.FillEllipse(penLine.Brush, dstart.X, dstart.Y, marker, marker);
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -593,21 +573,9 @@ namespace NDraw
         }
 
         /// <summary>
-        /// 
+        /// To initial state.
         /// </summary>
-        void CalcGeometry() // stuff on resize
-        {
-            //_drawArea = new(ClientRectangle.X + MARGIN, ClientRectangle.Y + MARGIN, Width - MARGIN, Height - MARGIN);
-            //_drawArea = ClientRectangle;
-
-            //public float Grid { get; set; } = 2;
-            //public float Snap { get; set; } = 2;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        void Reset() // initial state
+        void Reset()
         {
             Geometry.Reset();
             //Invalidate();

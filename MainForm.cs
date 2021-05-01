@@ -33,8 +33,7 @@ namespace NDraw
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            //Gets or sets a value indicating whether the form will receive key events before
-            //the event is passed to the control that has focus.
+            // Receive key events before the event is passed to the control that has focus.
             KeyPreview = true;
 
             KeyDown += MainForm_KeyDown;
@@ -45,11 +44,7 @@ namespace NDraw
             di.Create();
             _settings = UserSettings.Load(appDir);
 
-            // Test stuff.
-            _settings.AllStyles.Add(new() { Id = "ST_1", LineColor = Color.Green, FillColor = Color.Pink });
-            _settings.AllStyles.Add(new() { Id = "ST_2", LineColor = Color.Purple, FillColor = Color.Salmon });
-
-            // What to draw.
+            //// Test stuff.
             Page page = new()
             {
                 Width = 20.0f,
@@ -66,7 +61,6 @@ namespace NDraw
             //page.Rects.Add(new RectShape() { Id = "R_5", Text = "ggg", TL = new(450, 250), BR = new(460, 550) });
             //page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar",  Start = new(250, 250), End = new(275, 455) });
 
-
             int RECT_SIZE = 20;
             int RECT_SPACE = 100;
             for (int x = -70; x < 1500; x += RECT_SPACE)
@@ -80,8 +74,6 @@ namespace NDraw
             //page = Page.Load("page.json");
 
             canvas.Init(page, _settings);
-
-            // Edit away....
         }
 
         /// <summary>
