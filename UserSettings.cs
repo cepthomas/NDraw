@@ -16,6 +16,15 @@ namespace NDraw
     [Serializable]
     public class UserSettings : IDisposable
     {
+        [JsonConverter(typeof(PointFConverter))]
+        public PointF XXXPoint { get; set; } = new(123, 456);
+
+        [JsonConverter(typeof(ColorConverter))]
+        public Color XXXColor { get; set; } = Color.Red;
+        [JsonConverter(typeof(FontConverter))]
+        public Font XXXFont { get; set; } = new Font("Consolas", 20);
+
+
         #region Properties
         /// <summary>Display grid in Page units.</summary>
         public float Grid { get; set; } = 2;
@@ -26,51 +35,46 @@ namespace NDraw
         /// <summary>All the styles. The first one is considered the default.</summary>
         public List<Style> AllStyles { get; set; } = new();
 
-        /// <summary>DOC</summary>
-        [Browsable(false)] // Persisted non-editable
-        public string BackColorName { get; set; } = "LightGray";
+        ///// <summary>Persisted non-editable</summary>
+        //[Browsable(false)]
+        //public string BackColorName { get; set; } = "LightGray";
 
-        /// <summary>DOC</summary>
-        [JsonIgnore] // Editable non-persisted
+        /// <summary>Editable non-persisted</summary>
+     //   [JsonIgnore]
+        [JsonConverter(typeof(ColorConverter))]
         public Color BackColor { get; set; } = Color.White;
 
-        /// <summary>DOC</summary>
-        [Browsable(false)] // Persisted non-editable
-        public string GridColorName { get; set; } = "Gray";
 
-        /// <summary>DOC</summary>
-        [JsonIgnore] // Editable non-persisted
+
+
+        ///// <summary>Persisted non-editable</summary>
+        //[Browsable(false)]
+        //public string GridColorName { get; set; } = "Gray";
+
+        ///// <summary>Editable non-persisted</summary>
+        //[JsonIgnore]
+        [JsonConverter(typeof(ColorConverter))]
         public Color GridColor { get; set; } = Color.Black;
 
         /// <summary>DOC</summary>
         [Browsable(false)] // Persisted non-editable
-        public FormInfo MainFormInfo { get; set; } = new FormInfo();
-
-        /// <summary>DOC</summary>
-        [Browsable(false)] // Persisted non-editable
         public List<string> RecentFiles { get; set; } = new List<string>();
-        #endregion
 
-        #region Classes
-        /// <summary>
-        /// General purpose container for persistence.
-        /// </summary>
-        [Serializable]
-        public class FormInfo
-        {
-            public int X { get; set; } = 50;
-            public int Y { get; set; } = 50;
-            public int Width { get; set; } = 1000;
-            public int Height { get; set; } = 700;
+        /// <summary>Form geometry</summary>
+        [Browsable(false)]
+        public int FormX { get; set; } = 50;
 
-            public void FromForm(Form f)
-            {
-                X = f.Location.X;
-                Y = f.Location.Y;
-                Width = f.Width;
-                Height = f.Height;
-            }
-        }
+        /// <summary>Form geometry</summary>
+        [Browsable(false)]
+        public int FormY { get; set; } = 50;
+
+        /// <summary>Form geometry</summary>
+        [Browsable(false)]
+        public int FormWidth { get; set; } = 1000;
+
+        /// <summary>Form geometry</summary>
+        [Browsable(false)]
+        public int FormHeight { get; set; } = 700;
         #endregion
 
         #region Fields
@@ -118,15 +122,15 @@ namespace NDraw
                 };
             }
 
-            // Make sure at least the default.
+            // Make sure at least the default exists.
             if(set.AllStyles.Count == 0)
             {
                 set.AllStyles.Add(new Style());
             }
 
-            // Fixups.
-            set.BackColor = Color.FromName(set.BackColorName);
-            set.GridColor = Color.FromName(set.GridColorName);
+            //// Fixups.
+            //set.BackColor = Color.FromName(set.BackColorName);
+            //set.GridColor = Color.FromName(set.GridColorName);
 
             return set;
         }
@@ -134,9 +138,9 @@ namespace NDraw
         /// <summary>Save object to file.</summary>
         public void Save()
         {
-            // Fixups.
-            BackColorName = BackColor.Name;
-            GridColorName = GridColor.Name;
+            //// Fixups.
+            //BackColorName = BackColor.Name;
+            //GridColorName = GridColor.Name;
 
             AllStyles.ForEach(s => s.Save());
 

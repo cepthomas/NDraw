@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 
 // Deals exclusively in virtual (page) units. Translation between display and virtual is done in GeometryMap.
 
-//TODO1 don't serialize extra stuff in PointF. "TL": { "IsEmpty": false, "X": 50, "Y": 50 },  https://stackoverflow.com/q/62775694
+// TODO1 don't serialize extra stuff in PointF. "TL": { "IsEmpty": false, "X": 50, "Y": 50 },  https://stackoverflow.com/q/62775694
 
 namespace NDraw
 {
@@ -24,8 +24,8 @@ namespace NDraw
     public abstract class Shape
     {
         #region Properties
-        /// <summary>TODO2</summary>
-        public string Id { get; set; } = "";
+        ///// <summary>TODO2</summary>
+        //public string Id { get; set; } = "";
 
         /// <summary>TODO2</summary>
         public string StyleId { get; set; } = "";
@@ -39,6 +39,21 @@ namespace NDraw
         /// <summary>DOC</summary>
         public ShapeState State { get; set; } = ShapeState.Default;
         #endregion
+
+
+        /// <summary>
+        /// Make a rectangle from the line start/end.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        protected RectangleF Expand(PointF start, PointF end, int range)
+        {
+            RectangleF r = new RectangleF(start.X - range, start.Y - range, Math.Abs(end.X - start.X) + range * 2, Math.Abs(end.Y - start.Y) + range * 2);
+            return r;
+        }
+
 
         #region Abstract functions
         /// <summary>
@@ -59,54 +74,91 @@ namespace NDraw
         #endregion
     }
 
+
+    /*
+    public sealed class FrozenClass
+    {
+        // [JsonIgnore] <- cannot apply because I don't own this class
+        public int InternalId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+
+    A possible workaround is to create another exportable class and setup a mapper between them
+
+    public class MyFrozenClass
+    {
+        public MyFrozenClass(FrozenClass frozen)
+        {
+            this.FirstName = frozen.FirstName;
+            this.LastName = frozen.LastName;
+        }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+    var jsonString = System.Text.Json.JsonSerializer.Serialize(new MyFrozenClass(person));
+    */
+
+
+    //[Serializable]
+    //public class PointP
+    //{
+    //    public float X { get; set; } = 0;
+    //    public float Y { get; set; } = 0;
+
+    //    public PointP()
+    //    {
+    //    }
+
+    //    public PointP(PointF pf)
+    //    {
+    //        X = pf.X;
+    //        Y = pf.Y;
+    //    }
+
+    //    public static PointF From(PointP pf)
+    //    {
+    //        return new PointF() { X = pf.X, Y = pf.Y };
+    //    }
+    //}
+
+
+
     /// <summary>Drawing rectangle.</summary>
     [Serializable]
     public class RectShape : Shape
     {
         #region Properties
         /// <summary>DOC</summary>
+        //   [JsonIgnore]
+        [JsonConverter(typeof(PointFConverter))]
         public PointF TL { get; set; } = new(0, 0);
+        //[Browsable(false)]
+        //public PointP TLp { get => new(TL); set => TL = PointP.From(value); }
 
         /// <summary>DOC</summary>
+        //[JsonIgnore]
+        [JsonConverter(typeof(PointFConverter))]
         public PointF BR { get; set; } = new(0, 0);
+        //[Browsable(false)]
+        //public PointP BRp { get => new(BR); set => BR = PointP.From(value); }
 
         /// <summary>DOC</summary>
         [JsonIgnore, Browsable(false)]
-        public PointF TR { get { return new(BR.X, TL.Y); } }
+        public PointF TR => new(BR.X, TL.Y);
 
         /// <summary>DOC</summary>
         [JsonIgnore, Browsable(false)]
-        public PointF BL { get { return new(TL.X, BR.Y); } }
-
-        //public float L { get { return TL.X; } }
-        //public float T { get { return TL.Y; } }
-        //public float R { get { return BR.X; } }
-        //public float B { get { return BR.Y; } }
-        //public float L { get; set; } = 0.0f;
-        //public float T { get; set; } = 0.0f;
-        //public float R { get; set; } = 0.0f;
-        //public float B { get; set; } = 0.0f;
+        public PointF BL => new(TL.X, BR.Y);
 
         /// <summary>DOC</summary>
         [JsonIgnore, Browsable(false)]
-        public float Width { get { return BR.X - TL.X; } }
+        public float Width => BR.X - TL.X;
 
         /// <summary>DOC</summary>
         [JsonIgnore, Browsable(false)]
-        public float Height { get { return BR.Y - TL.Y; } }
+        public float Height => BR.Y - TL.Y;
         #endregion
-
-        //public RectShape()
-        //{
-        //}
-
-        //public RectShape(float left, float top, float right, float bottom)
-        //{
-        //    L = left;
-        //    T = top;
-        //    R = right;
-        //    B = bottom;
-        //}
 
         /// <summary>
         /// Gets list of lines defining rect edges. Clockwise from top left.
@@ -177,7 +229,7 @@ namespace NDraw
             foreach (var (start, end) in edges)
             {
                 // Make rectangles out of each side and test for point contained.
-                if (ShapeUtils.Expand(start, end, range).Contains(pt))
+                if (Expand(start, end, range).Contains(pt))
                 {
                     close = true;
                     break;
@@ -189,7 +241,6 @@ namespace NDraw
 
         /// <summary>For viewing pleasure.</summary>
         public override string ToString() => string.Format($"TL:{TL} BR:{BR} W:{Width} H:{Height}");
-        //public override string ToString() => string.Format($"L:{L} T:{T} R:{R} B:{B} W:{Width} H:{Height}");
     }
 
     /// <summary>Drawing line.</summary>
@@ -198,10 +249,19 @@ namespace NDraw
     {
         #region Properties
         /// <summary>DOC</summary>
-        public PointF Start { get; set; } = new PointF(0, 0);
+        //[JsonIgnore]
+        [JsonConverter(typeof(PointFConverter))]
+        public PointF Start { get; set; } = new(0, 0);
+        //[Browsable(false)]
+        //public PointP Startp { get => new(Start); set => Start = PointP.From(value); }
 
         /// <summary>DOC</summary>
-        public PointF End { get; set; } = new PointF(0, 0);
+        //[JsonIgnore]
+        [JsonConverter(typeof(PointFConverter))]
+        public PointF End { get; set; } = new(0, 0);
+        //[Browsable(false)]
+        //public PointP Endp { get => new(End); set => End = PointP.From(value); }
+
         #endregion
 
         // TODO1 end arrows etc, multi-segment lines
@@ -209,7 +269,7 @@ namespace NDraw
         /// <inheritdoc />
         public override bool IsClose(PointF pt, int range)
         {
-            var close = ShapeUtils.Expand(Start, End, range).Contains(pt);
+            var close = Expand(Start, End, range).Contains(pt);
             return close;
         }
 
@@ -221,21 +281,5 @@ namespace NDraw
 
         /// <summary>For viewing pleasure.</summary>
         public override string ToString() => string.Format($"Start:{Start} End:{End}");
-    }
-
-    public class ShapeUtils //TODO1 new home
-    {
-        /// <summary>
-        /// Make a rectangle from the line start/end.
-        /// </summary>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        /// <param name="range"></param>
-        /// <returns></returns>
-        public static RectangleF Expand(PointF start, PointF end, int range)
-        {
-            RectangleF r = new RectangleF(start.X - range, start.Y - range, Math.Abs(end.X - start.X) + range * 2, Math.Abs(end.Y - start.Y) + range * 2);
-            return r;
-        }
     }
 }

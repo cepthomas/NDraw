@@ -25,14 +25,21 @@ namespace NDraw
         /// <summary>DOC</summary>
         [Browsable(false)]
         public string LineColorName { get; set; } = "Green";
+        [JsonIgnore]
+        public Color LineColor { get; set; } = Color.Black;
 
         /// <summary>DOC</summary>
         [Browsable(false)]
         public string FillColorName { get; set; } = "Salmon";
+        [JsonIgnore]
+        public Color FillColor { get; set; } = Color.Black;
 
         /// <summary>DOC</summary>
         public string FillStyle { get; set; } = "None";
 
+        /// <summary>DOC</summary>
+        [JsonIgnore]
+        public Font Font { get; set; } = null;// new Font("Consolas", 10);
 
         /// <summary>DOC</summary>
         [Browsable(false)]
@@ -44,17 +51,7 @@ namespace NDraw
 
         // TODO2 style  enum FontStyle { Regular = 0, Bold = 1, Italic = 2, Underline = 4, Strikeout = 8 }
 
-        /// <summary>DOC</summary>
-        [JsonIgnore]
-        public Color LineColor { get; set; } = Color.Black;
 
-        /// <summary>DOC</summary>
-        [JsonIgnore]
-        public Color FillColor { get; set; } = Color.Black;
-
-        /// <summary>DOC</summary>
-        [JsonIgnore]
-        public Font Font { get; set; } = null;// new Font("Consolas", 10);
 
         /// <summary>DOC</summary>
         [JsonIgnore]

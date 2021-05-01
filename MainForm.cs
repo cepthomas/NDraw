@@ -12,7 +12,7 @@ using System.Windows.Forms;
 using NBagOfTricks;
 
 
-// TODO1 main menu: file, settings, status info
+// TODO2 main menu: file, settings, status info
 
 // TODO2 context menu: insert, cut, copy, delete, move, resize, edit properties, ...
 
@@ -45,7 +45,7 @@ namespace NDraw
             di.Create();
             _settings = UserSettings.Load(appDir);
 
-            //var pp = Page.Load("page.json");
+//            var pp = Page.Load("page.json");
 
             // Test stuff.
             _settings.AllStyles.Add(new() { Id = "ST_1", LineColor = Color.Green, FillColor = Color.Pink });
@@ -75,7 +75,7 @@ namespace NDraw
             {
                 for (int y = -50; y < 1000; y += RECT_SPACE)
                 {
-                    page.Rects.Add(new RectShape() { Id = $"R_{x}_{y}", Text = $"{x}_{y}", TL = new(x, y), BR = new(x + RECT_SIZE, y + RECT_SIZE) });
+                    page.Rects.Add(new RectShape() { Text = $"R_{x}_{y}", TL = new(x, y), BR = new(x + RECT_SIZE, y + RECT_SIZE) });
                 }
             }
 
