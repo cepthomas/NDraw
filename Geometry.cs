@@ -13,7 +13,7 @@ namespace NDraw
     /// <summary>
     /// Performs all mapping ops between the virtual and the displayed.
     /// </summary>
-    public class Geometry
+    public class GeometryX
     {
         #region Properties
         /// <summary>The horizontal offset in pixels.</summary>
@@ -25,8 +25,8 @@ namespace NDraw
         /// <summary>Current zoom level.</summary>
         public static float Zoom = 1.0F;
 
-        /// <summary>Available area.</summary>
-        public static Rectangle DrawArea = new();
+        ///// <summary>Available area.</summary>
+        //public static Rectangle DrawArea = new();
         #endregion
 
         #region Functions for display to/from virtual
@@ -104,5 +104,54 @@ namespace NDraw
             OffsetY = 0;
         }
         #endregion
+
+        /// <summary>
+        /// Make a rectangle from the line start/end.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static RectangleF Expand(PointF start, PointF end, int range)
+        {
+            float width = end.X - start.X;
+            float height = end.Y - start.Y;
+
+            // Normalize. TODO2 generic rect function?
+            if (width < 0)
+            {
+                float f = end.X;
+                end.X = start.X;
+                start.X = f;
+                width = -width;
+            }
+
+            if (height < 0)
+            {
+                float f = end.Y;
+                end.Y = start.Y;
+                start.Y = f;
+                height = -height;
+            }
+
+            RectangleF r = new(start.X - range, start.Y - range, width + range * 2, height + range * 2);
+            return r;
+        }
+
+        /// <summary>
+        /// Gets list of lines defining rect edges. Clockwise from top left.
+        /// </summary>
+        /// <returns></returns>
+        public static List<(PointF start, PointF end)> GetEdges(RectangleF rect) // TODO2 ext method?
+        {
+            List<(PointF start, PointF end)> lines = new();
+
+            lines.Add((new(rect.Left, rect.Top), new(rect.Right, rect.Top)));
+            lines.Add((new(rect.Right, rect.Top), new(rect.Right, rect.Bottom)));
+            lines.Add((new(rect.Right, rect.Bottom), new(rect.Left, rect.Bottom)));
+            lines.Add((new(rect.Left, rect.Bottom), new(rect.Left, rect.Top)));
+
+            return lines;
+        }
     }
 }

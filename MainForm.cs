@@ -13,6 +13,7 @@ using NBagOfTricks;
 
 
 // TODO2 main menu: file, settings, status info
+// Undo, redo
 
 // TODO2 context menu: insert, cut, copy, delete, move, resize, edit properties, ...
 
@@ -104,6 +105,11 @@ namespace NDraw
             _settings.Dispose();
         }
 
+        /// <summary>
+        /// General toolbar handler.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ToolStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
 

@@ -52,7 +52,7 @@ namespace NDraw
 
         #region Persistence
         /// <summary>Save object to file.</summary>
-        public void Save(string fn)// = "")
+        public void Save(string fn)
         {
             JsonSerializerOptions opts = new() { WriteIndented = true };
             string json = JsonSerializer.Serialize(this, opts);

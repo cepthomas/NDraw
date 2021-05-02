@@ -16,7 +16,12 @@ using System.Text.Json.Serialization;
 
 namespace NDraw
 {
+    /// <summary>DOC</summary>
     public enum ShapeState { Default, Highlighted, Selected };
+
+    /// <summary>DOC</summary>
+    public enum PointStyle { None, Circle, CircleFilled, Square, Arrow, ArrowFilled };
+
 
     /// <summary>Base/abstract class for all shape types.</summary>
     [Serializable]
@@ -37,6 +42,7 @@ namespace NDraw
         public string Text { get; set; } = "";
 
         /// <summary>Text to display.</summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ContentAlignment Alignment { get; set; } = ContentAlignment.TopLeft;
 
         /// <summary>DOC</summary>
@@ -50,23 +56,12 @@ namespace NDraw
         [JsonConverter(typeof(ColorConverter))]
         public Color FillColor { get; set; } = Color.Black;
 
-        /// <summary>DOC</summary>
-        public string FillStyle { get; set; } = "None"; // TODO1 enum like OARS?
+        ///// <summary>DOC</summary>
+        // [JsonConverter(typeof(StringEnumConverter))]
+        // public string FillStyle { get; set; } = "None"; // TODO2?
         #endregion
 
         #region Common functions
-        /// <summary>
-        /// Make a rectangle from the line start/end.
-        /// </summary>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        /// <param name="range"></param>
-        /// <returns></returns>
-        protected RectangleF Expand(PointF start, PointF end, int range)
-        {
-            RectangleF r = new(start.X - range, start.Y - range, Math.Abs(end.X - start.X) + range * 2, Math.Abs(end.Y - start.Y) + range * 2);
-            return r;
-        }
         #endregion
 
         #region Abstract functions
@@ -119,28 +114,12 @@ namespace NDraw
         #endregion
 
         /// <summary>
-        /// Gets list of lines defining rect edges. Clockwise from top left.
-        /// </summary>
-        /// <returns></returns>
-        public List<(PointF start, PointF end)> GetEdges()
-        {
-            List<(PointF start, PointF end)> lines = new();
-
-            lines.Add((TL, TR));
-            lines.Add((TR, BR));
-            lines.Add((BR, BL));
-            lines.Add((BL, TL));
-
-            return lines;
-        }
-
-        /// <summary>
         /// </summary>
         /// <returns></returns>
         public PointF Center()
         {
-           PointF center = new((BR.X - TL.X) / 2, (BR.Y - TL.Y) / 2);
-           return center;
+            PointF center = new((BR.X - TL.X) / 2, (BR.Y - TL.Y) / 2);
+            return center;
         }
 
         /// <summary>
@@ -149,8 +128,8 @@ namespace NDraw
         /// <returns></returns>
         public bool Contains(PointF pf)
         {
-           bool ret = (pf.X <= BR.X) && (pf.X >= TL.X) && (pf.Y <= BR.Y) && (pf.Y >= TL.Y);
-           return ret;
+            bool ret = (pf.X <= BR.X) && (pf.X >= TL.X) && (pf.Y <= BR.Y) && (pf.Y >= TL.Y);
+            return ret;
         }
 
         /// <inheritdoc />
@@ -177,17 +156,25 @@ namespace NDraw
             return contained;
         }
 
+        /// <summary>
+        /// Gets list of lines defining rect edges. Clockwise from top left.
+        /// </summary>
+        /// <returns></returns>
+        public List<(PointF start, PointF end)> GetEdges()
+        {
+            List<(PointF start, PointF end)> lines = new() { (TL, TR), (TR, BR), (BR, BL), (BL, TL) };
+            return lines;
+        }
+
         /// <inheritdoc />
         public override bool IsClose(PointF pt, int range)
         {
             bool close = false;
 
-            var edges = GetEdges();
-
-            foreach (var (start, end) in edges)
+            foreach(var (start, end) in GetEdges())
             {
                 // Make rectangles out of each side and test for point contained.
-                if (Expand(start, end, range).Contains(pt))
+                if (GeometryX.Expand(start, end, range).Contains(pt))
                 {
                     close = true;
                     break;
@@ -213,14 +200,20 @@ namespace NDraw
         /// <summary>DOC</summary>
         [JsonConverter(typeof(PointFConverter))]
         public PointF End { get; set; } = new(0, 0);
-        #endregion
 
-        // TODO1 end arrows etc, multi-segment lines - see OARS
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public PointStyle StartStyle { get; set; } = PointStyle.None;
+
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public PointStyle EndStyle { get; set; } = PointStyle.None;
+        #endregion
 
         /// <inheritdoc />
         public override bool IsClose(PointF pt, int range)
         {
-            var close = Expand(Start, End, range).Contains(pt);
+            var close = GeometryX.Expand(Start, End, range).Contains(pt);
             return close;
         }
 

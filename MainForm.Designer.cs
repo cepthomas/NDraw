@@ -36,6 +36,9 @@ namespace NDraw
             this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
             this.canvas = new NDraw.Canvas();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.fileDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.recentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -46,6 +49,7 @@ namespace NDraw
             // 
             this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileDropDownButton,
             this.toolStripButton1,
             this.toolStripButton2,
             this.toolStripTextBox1});
@@ -103,6 +107,30 @@ namespace NDraw
             this.splitContainer1.SplitterDistance = 271;
             this.splitContainer1.TabIndex = 2;
             // 
+            // fileDropDownButton
+            // 
+            this.fileDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.fileDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openToolStripMenuItem,
+            this.recentToolStripMenuItem});
+            this.fileDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("fileDropDownButton.Image")));
+            this.fileDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.fileDropDownButton.Name = "fileDropDownButton";
+            this.fileDropDownButton.Size = new System.Drawing.Size(34, 24);
+            this.fileDropDownButton.Text = "File";
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
+            this.openToolStripMenuItem.Text = "Open...";
+            // 
+            // recentToolStripMenuItem
+            // 
+            this.recentToolStripMenuItem.Name = "recentToolStripMenuItem";
+            this.recentToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
+            this.recentToolStripMenuItem.Text = "Recent...";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -133,6 +161,9 @@ namespace NDraw
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
+        private System.Windows.Forms.ToolStripDropDownButton fileDropDownButton;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem recentToolStripMenuItem;
     }
 }
 
