@@ -13,8 +13,7 @@ using NBagOfTricks;
 
 
 // TODO2 main menu: file, settings, status info
-// Undo, redo
-
+// TODO2 Undo, redo
 // TODO2 context menu: insert, cut, copy, delete, move, resize, edit properties, ...
 
 

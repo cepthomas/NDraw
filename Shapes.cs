@@ -28,11 +28,11 @@ namespace NDraw
     public abstract class Shape
     {
         #region Properties
-        ///// <summary>TODO2</summary>
-        //public string Id { get; set; } = "";
+        ///// <summary></summary>
+        //public string Id { get; set; } = ""; //TODO2
 
-        /// <summary>TODO2</summary>
-        public int Layer { get; set; } = 0;
+        /// <summary></summary>
+        public int Layer { get; set; } = 0; //TODO2
 
         /// <summary>DOC</summary>
         [JsonIgnore]
@@ -71,7 +71,7 @@ namespace NDraw
         /// <param name="pt"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-        public abstract bool IsClose(PointF pt, int range);
+        public abstract bool IsClose(PointF pt, float range);
 
         /// <summary>
         /// Determine if this is within rect.
@@ -167,14 +167,14 @@ namespace NDraw
         }
 
         /// <inheritdoc />
-        public override bool IsClose(PointF pt, int range)
+        public override bool IsClose(PointF pt, float range)
         {
             bool close = false;
 
             foreach(var (start, end) in GetEdges())
             {
                 // Make rectangles out of each side and test for point contained.
-                if (GeometryX.Expand(start, end, range).Contains(pt))
+                if (Geometry.Expand(start, end, range).Contains(pt))
                 {
                     close = true;
                     break;
@@ -211,9 +211,9 @@ namespace NDraw
         #endregion
 
         /// <inheritdoc />
-        public override bool IsClose(PointF pt, int range)
+        public override bool IsClose(PointF pt, float range)
         {
-            var close = GeometryX.Expand(Start, End, range).Contains(pt);
+            var close = Geometry.Expand(Start, End, range).Contains(pt);
             return close;
         }
 

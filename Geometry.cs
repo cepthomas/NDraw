@@ -13,7 +13,7 @@ namespace NDraw
     /// <summary>
     /// Performs all mapping ops between the virtual and the displayed.
     /// </summary>
-    public class GeometryX
+    public class Geometry
     {
         #region Properties
         /// <summary>The horizontal offset in pixels.</summary>
@@ -112,12 +112,12 @@ namespace NDraw
         /// <param name="end"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-        public static RectangleF Expand(PointF start, PointF end, int range)
+        public static RectangleF Expand(PointF start, PointF end, float range)
         {
             float width = end.X - start.X;
             float height = end.Y - start.Y;
 
-            // Normalize. TODO2 generic rect function?
+            // Normalize. TODO1 generic rect function?
             if (width < 0)
             {
                 float f = end.X;
@@ -142,7 +142,7 @@ namespace NDraw
         /// Gets list of lines defining rect edges. Clockwise from top left.
         /// </summary>
         /// <returns></returns>
-        public static List<(PointF start, PointF end)> GetEdges(RectangleF rect) // TODO2 ext method?
+        public static List<(PointF start, PointF end)> GetEdges(RectangleF rect) // TODO1 ext method?
         {
             List<(PointF start, PointF end)> lines = new();
 
