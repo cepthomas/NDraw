@@ -31,6 +31,11 @@ namespace NDraw
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Go!
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainForm_Load(object sender, EventArgs e)
         {
             // Receive key events before the event is passed to the control that has focus.

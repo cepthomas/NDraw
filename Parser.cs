@@ -24,130 +24,39 @@ namespace NDraw
 
     public class Parser
     {
-        //// Key: sticky special names Value: current value as string.
-        //Dictionary<string, object> _defs = new()
-        //{
-        //    //{ "id", "ID???" }, // identifier
-        //    //{ "ly", 0 }, // layer
-        //    //{ "sz", new SizeF(100, 100) }, // size
-        //    //{ "lo", new PointF(10, 10) }, // location
-        //    { "ht", 100 }, // height
-        //    { "wd", 100 }, // width
-        //    //{ "st", new PointF(20, 20) }, // start
-        //    //{ "en", new PointF(30, 30) }, // end
-        //    { "fc", Color.LightBlue }, // fill color
-        //    { "lc", Color.Red }, // line color
-        //    { "lt", 2.5 }, // line thickness
-        //    //{ "tx", "NO TEXT" }, // text
-        //    { "tp", ContentAlignment.MiddleCenter }, // text position
-        //    { "ss", PointStyle.None }, // start style
-        //    { "es", PointStyle.None }, // end style
-        //};
+        #region Defaults
+        Color _fc = Color.LightBlue;
+        Color _lc = Color.Red;
+        float _lt = 2.5f;
+        ContentAlignment _tp = ContentAlignment.MiddleCenter;
+        PointStyle _ss = PointStyle.None;
+        PointStyle _es = PointStyle.None;
+        #endregion
 
-
-
-        // Defaults this way.
-
-
-        //SizeF _sz = new(100, 100);//, // size
-        //PointF _lo = new(10, 10);// }, // location
-        //float _ht = 100;// }, // height
-        //float _wd = 100;// }, // width
-        //PointF _st = new (20, 20);// }, // start
-        //PointF _en = new (30, 30);// }, // end
-        Color _fc = Color.LightBlue;// }, // fill color
-        Color _lc = Color.Red;// }, // line color
-        float _lt = 2.5f;// }, // line thickness
-        ContentAlignment _tp = ContentAlignment.MiddleCenter;// }, // text position TL, TC, TR, CL, ...
-        PointStyle _ss = PointStyle.None;// }, // line start style
-        PointStyle _es = PointStyle.None;// }, // line end style
-
-
-
-        // Key: User assigned value name Value: string, float, PointF
-        Dictionary<string, object> _vals = new();
-
-
-        PointStyle ParsePointStyle(string s)
+        #region Enum mappings
+        readonly Dictionary<string, PointStyle> _pointStyle = new()
         {
-            //    public enum PointStyle { None, CircleHollow, CircleFilled, SquareHollow, SquareFilled, ArrowHollow, ArrowFilled };
-            var ps = s switch
-            {
-                "NO" => PointStyle.None,
-                "CH" => PointStyle.CircleHollow,
-                "CF" => PointStyle.CircleFilled,
-                "SH" => PointStyle.SquareHollow,
-                "SF" => PointStyle.SquareFilled,
-                "AH" => PointStyle.ArrowHollow,
-                "AF" => PointStyle.ArrowFilled,
-                _ => throw new ParseException($"Invalid point style: {s}"),
-            };
-            return ps;
-        }
+            { "NO", PointStyle.None },
+            { "CH", PointStyle.CircleHollow }, { "CF", PointStyle.CircleFilled }, { "SH", PointStyle.SquareHollow },
+            { "SF", PointStyle.SquareFilled }, { "AH", PointStyle.ArrowHollow },  { "AF", PointStyle.ArrowFilled },
+        };
 
-
-        ContentAlignment ParseAlignment(string s)
+        readonly Dictionary<string, ContentAlignment> _alignment = new()
         {
-            var cal = s switch
-            {
-                "TL" => ContentAlignment.TopLeft,
-                "TC" => ContentAlignment.TopCenter,
-                "TR" => ContentAlignment.TopRight,
-                "CL" => ContentAlignment.MiddleLeft,
-                "CC" => ContentAlignment.MiddleCenter,
-                "CR" => ContentAlignment.MiddleRight,
-                "BL" => ContentAlignment.BottomLeft,
-                "BC" => ContentAlignment.BottomCenter,
-                "BR" => ContentAlignment.BottomRight,
-                _ => throw new ParseException($"Invalid alignment: {s}"),
-            };
-            return cal;
-        }
+            { "TL", ContentAlignment.TopLeft },    { "TC", ContentAlignment.TopCenter },    { "TR", ContentAlignment.TopRight },
+            { "CL", ContentAlignment.MiddleLeft }, { "CC", ContentAlignment.MiddleCenter }, { "CR", ContentAlignment.MiddleRight },
+            { "BL", ContentAlignment.BottomLeft }, { "BC", ContentAlignment.BottomCenter }, { "BR", ContentAlignment.BottomRight },
+        };
+        #endregion
 
-        // Single value. TODO
-        float ParseNumber(string s)
-        {
-            float v = float.NaN;
+        /// <summary>Key: User assigned value name Value: float</summary>
+        Dictionary<string, float> _vals = new();
 
-            // Try parse float.
-
-            // Try parse expression.
-
-            return v;
-        }
-
-        // x/y location. TODO
-        PointF ParsePoint(string sx, string sy)
-        {
-            float x = float.NaN;
-            float y = float.NaN;
-
-            // Try parse float.
-
-            // Try parse expression.
-
-            return new PointF(x, y);
-        }
-
-
-        (string lhs, string rhs) SplitParam(string p)
-        {
-            var pp = p.SplitByToken("=");
-            //TODO check for valid name?
-            return pp.Count > 1 ? (pp[0], pp[1]) : (null, pp[0]);
-        }
-
-        void InitShapeCommon(Shape shape, Dictionary<string, string> elemParams)
-        {
-            // Common.
-            shape.Layer = elemParams.ContainsKey("ly") ? int.Parse(elemParams["ly"]) : 0;
-            shape.Text = elemParams.ContainsKey("tx") ? elemParams["tx"] : null;
-            shape.LineThickness = elemParams.ContainsKey("lt") ? float.Parse(elemParams["lt"]) : _lt;
-            shape.LineColor = elemParams.ContainsKey("lc") ? Color.FromName(elemParams["lc"]) : _lc;
-            shape.FillColor = elemParams.ContainsKey("fc") ? Color.FromName(elemParams["fc"]) : _fc;
-            shape.TextAlignment = elemParams.ContainsKey("tp") ? ParseAlignment(elemParams["tp"]) : _tp;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fn"></param>
+        /// <returns></returns>
         public Page ParseFile(string fn)
         {
             Page page = new();
@@ -189,24 +98,24 @@ namespace NDraw
                     }
 
                     ///// Section parsers.
-                    switch(first.lhs)
+                    switch (first.rhs)
                     {
                         case "page":
-                            // page=pg_1, un=feet, wd=100, ht=50, gr=2
+                            // pg_1=page, un=feet, w=100, h=50, gr=2
                             page.UnitsName = elemParams.ContainsKey("un") ? elemParams["un"] : "";
-                            page.Width = elemParams.ContainsKey("wd") ? float.Parse(elemParams["wd"]) : 20.0f;
-                            page.Height = elemParams.ContainsKey("ht") ? float.Parse(elemParams["ht"]) : 20.0f;
+                            page.Width = elemParams.ContainsKey("w") ? float.Parse(elemParams["w"]) : 20.0f;
+                            page.Height = elemParams.ContainsKey("h") ? float.Parse(elemParams["h"]) : 20.0f;
                             page.Grid = elemParams.ContainsKey("gr") ? float.Parse(elemParams["gr"]) : 1.0f;
                             break;
 
                         case "line":
-                            // line=my_line1, ly=2, st=loc_1, en=my_rect1.2, lt=2, lc=red, tx=Hoohaa, tp=TL, es=CH, ss=AF
-                            LineShape line = new() { Id = first.rhs };
+                            // my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=my_rect2_x, ey=my_rect3_y, lt=2, tx=Hoohaa, tp=TL, es=CH, ss=AF
+                            LineShape line = new() { Id = first.lhs };
                             InitShapeCommon(line, elemParams);
-                            line.Start = ParsePoint(elemParams["st"]); // required
-                            line.End = ParsePoint(elemParams["en"]); // required
-                            line.StartStyle = elemParams.ContainsKey("ss") ? ParsePointStyle("ss") : _ss;
-                            line.EndStyle = elemParams.ContainsKey("es") ? ParsePointStyle("es") : _es;
+                            line.Start = new PointF(ParseNumber(elemParams["sx"]), ParseNumber(elemParams["sy"])); // required
+                            line.End = new PointF(ParseNumber(elemParams["sx"]), ParseNumber(elemParams["sy"])); // required
+                            line.StartStyle = elemParams.ContainsKey("ss") ? _pointStyle[elemParams["ss"]] : _ss;
+                            line.EndStyle = elemParams.ContainsKey("es") ? _pointStyle[elemParams["es"]] : _es;
 
                             // Do sanity check on start and end. TODO
 
@@ -214,7 +123,7 @@ namespace NDraw
                             break;
 
                         case "rect":
-                            // rect=my_rect1, ly=1, lo=loc_2, sz=size_1, lc=green, fc=lightgreen, tx=Nice day, tp=TL
+                            // my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w, h=size_1_h, lc=green, fc=lightgreen, tx=Nice day, tp=TL
 
                             // Init some defaults from _defs.
 
@@ -231,32 +140,10 @@ namespace NDraw
 
                             break;
 
-                        case "val":
-                            // one of:
-                            //val=pabc, 23.5 // something
-                            //val=sdog, "a big brown dog" // string
-                            //val=loc_1, pabc-5, 84.12 // x,y
-                            var pval = elemParams["1"];
-
-                            switch (elemParams.Count)
-                            {
-                                case 1: // scalar: string or number
-                                    _vals[first.rhs] = pval.Contains("\"") ? pval.Replace("\"", "") : ParseNumber(pval);
-                                    break;
-
-                                case 2: // x/y point
-                                    _vals[first.rhs] = ParsePoint(pval, elemParams["2"]);
-                                    break;
-
-                                default:
-                                    throw new ParseException($"Invalid param: {first.lhs}") { Row = row };
-                            }
-
-                            break;
-
                         default:
                             if(first.lhs.StartsWith("$"))
                             {
+                                // special
                                 //$lt=4
                                 //$lc=salmon
 
@@ -270,8 +157,9 @@ namespace NDraw
                             }
                             else
                             {
-                                throw new ParseException($"Invalid param: {first.lhs}") { Row = row };
-
+                                // user scalar
+                                _vals[first.lhs] = ParseNumber(first.rhs);
+                                // _vals[first.lhs] = pval.Contains("\"") ? pval.Replace("\"", "") : ParseNumber(pval);
                             }
                             break;
                     }
@@ -282,11 +170,55 @@ namespace NDraw
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Fail: {ex}");
+                    MessageBox.Show($"Some other exception: {ex}");
                 }
             }
 
             return page;
+        }
+
+        /// <summary>
+        /// Parse a single number - scalar or simple expression. TODO
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        float ParseNumber(string s)
+        {
+            float v = float.NaN;
+
+            // Try parse float.
+
+            // Try parse expression.
+
+            return v;
+        }
+
+        /// <summary>
+        /// Utility to chop up named params.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        (string lhs, string rhs) SplitParam(string p)
+        {
+            var pp = p.SplitByToken("=");
+            //TODO check for valid name?
+            return pp.Count > 1 ? (pp[0], pp[1]) : (null, pp[0]);
+        }
+
+        /// <summary>
+        /// Populates column elements of shapes.
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <param name="elemParams"></param>
+        void InitShapeCommon(Shape shape, Dictionary<string, string> elemParams)
+        {
+            // Common.
+            shape.Layer = elemParams.ContainsKey("lr") ? int.Parse(elemParams["lr"]) : 0;
+            shape.Text = elemParams.ContainsKey("tx") ? elemParams["tx"] : null;
+            shape.LineThickness = elemParams.ContainsKey("lt") ? float.Parse(elemParams["lt"]) : _lt;
+            shape.LineColor = elemParams.ContainsKey("lc") ? Color.FromName(elemParams["lc"]) : _lc;
+            shape.FillColor = elemParams.ContainsKey("fc") ? Color.FromName(elemParams["fc"]) : _fc;
+            shape.TextAlignment = elemParams.ContainsKey("tp") ? _alignment[elemParams["tp"]] : _tp;
         }
     }
 }
