@@ -20,7 +20,7 @@ namespace NDraw
     public enum ShapeState { Default, Highlighted, Selected };
 
     /// <summary>DOC</summary>
-    public enum PointStyle { None, Circle, CircleFilled, Square, Arrow, ArrowFilled };
+    public enum PointStyle { None, CircleHollow, CircleFilled, SquareHollow, SquareFilled, ArrowHollow, ArrowFilled };
 
 
     /// <summary>Base/abstract class for all shape types.</summary>
@@ -28,11 +28,11 @@ namespace NDraw
     public abstract class Shape
     {
         #region Properties
-        ///// <summary></summary>
-        //public string Id { get; set; } = ""; //TODO2
-
         /// <summary></summary>
-        public int Layer { get; set; } = 0; //TODO2
+        public string Id { get; set; } = "???";
+
+        /// <summary>Layer - 0 means all.</summary>
+        public int Layer { get; set; } = 0;
 
         /// <summary>DOC</summary>
         [JsonIgnore]
@@ -43,7 +43,7 @@ namespace NDraw
 
         /// <summary>Text to display.</summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public ContentAlignment Alignment { get; set; } = ContentAlignment.TopLeft;
+        public ContentAlignment TextAlignment { get; set; } = ContentAlignment.TopLeft;
 
         /// <summary>DOC</summary>
         public float LineThickness { get; set; } = 2.0f;
@@ -55,10 +55,6 @@ namespace NDraw
         /// <summary>DOC</summary>
         [JsonConverter(typeof(ColorConverter))]
         public Color FillColor { get; set; } = Color.Black;
-
-        ///// <summary>DOC</summary>
-        // [JsonConverter(typeof(StringEnumConverter))]
-        // public string FillStyle { get; set; } = "None"; // TODO2?
         #endregion
 
         #region Common functions
@@ -81,6 +77,45 @@ namespace NDraw
         /// <returns></returns>
         public abstract bool ContainedIn(RectangleF rect, bool any);
         #endregion
+    }
+
+    /// <summary>Drawing line.</summary>
+    [Serializable]
+    public class LineShape : Shape
+    {
+        #region Properties
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(PointFConverter))]
+        public PointF Start { get; set; } = new(0, 0);
+
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(PointFConverter))]
+        public PointF End { get; set; } = new(0, 0);
+
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public PointStyle StartStyle { get; set; } = PointStyle.None;
+
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public PointStyle EndStyle { get; set; } = PointStyle.None;
+        #endregion
+
+        /// <inheritdoc />
+        public override bool IsClose(PointF pt, float range)
+        {
+            var close = Geometry.Expand(Start, End, range).Contains(pt);
+            return close;
+        }
+
+        /// <inheritdoc />
+        public override bool ContainedIn(RectangleF rect, bool any)
+        {
+            return rect.Contains(Start) || rect.Contains(End);
+        }
+
+        /// <summary>For viewing pleasure.</summary>
+        public override string ToString() => string.Format($"Start:{Start} End:{End}");
     }
 
     /// <summary>Drawing rectangle.</summary>
@@ -186,44 +221,5 @@ namespace NDraw
 
         /// <summary>For viewing pleasure.</summary>
         public override string ToString() => string.Format($"TL:{TL} BR:{BR} W:{Width} H:{Height}");
-    }
-
-    /// <summary>Drawing line.</summary>
-    [Serializable]
-    public class LineShape : Shape
-    {
-        #region Properties
-        /// <summary>DOC</summary>
-        [JsonConverter(typeof(PointFConverter))]
-        public PointF Start { get; set; } = new(0, 0);
-
-        /// <summary>DOC</summary>
-        [JsonConverter(typeof(PointFConverter))]
-        public PointF End { get; set; } = new(0, 0);
-
-        /// <summary>DOC</summary>
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public PointStyle StartStyle { get; set; } = PointStyle.None;
-
-        /// <summary>DOC</summary>
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public PointStyle EndStyle { get; set; } = PointStyle.None;
-        #endregion
-
-        /// <inheritdoc />
-        public override bool IsClose(PointF pt, float range)
-        {
-            var close = Geometry.Expand(Start, End, range).Contains(pt);
-            return close;
-        }
-
-        /// <inheritdoc />
-        public override bool ContainedIn(RectangleF rect, bool any)
-        {
-            return rect.Contains(Start) || rect.Contains(End);
-        }
-
-        /// <summary>For viewing pleasure.</summary>
-        public override string ToString() => string.Format($"Start:{Start} End:{End}");
     }
 }
