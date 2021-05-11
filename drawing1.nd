@@ -1,0 +1,28 @@
+
+
+// page: units width height grid
+page, pg_1, un=feet, wd=100, ht=50, gr=2
+
+// defined/global values: can be changed any time
+//lt, 4
+//lc, salmon
+$lt=4
+$lc=salmon
+
+
+// define user values: id, value1, value2, value3,...
+// value can be string, float, float pair, simple expression
+val=pabc, 23.5 // something
+val=sdog, "a big brown dog" // string
+val=loc_1, pabc-5, 84.12 // x,y
+val=loc_2, pabc+1, loc_1.1 + 2  // x,y
+val=loc_3, 12.7, loc_1.2 + 13 // x,y
+val=size_1, 10, 15 // wd,ht
+val=size_2, size_1.1*2, 45 // wd,ht
+
+
+// shapes: type, id, params,.....
+rect=my_rect1, ly=1, lo=loc_2, sz=size_1, lc=green, fc=lightgreen, tx=Nice day, tp=TL
+line=my_line1, ly=2, st=loc_1, en=my_rect1.2, lt=2, lc=red, tx=Hoohaa, tp=TL, es=CH, ss=AF
+// TODO poly, ...
+
