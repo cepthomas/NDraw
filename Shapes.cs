@@ -17,7 +17,7 @@ using System.Text.Json.Serialization;
 namespace NDraw
 {
     /// <summary>DOC</summary>
-    public enum ShapeState { Default, Highlighted, Selected };
+    public enum ShapeState { Default, Highlighted };//, Selected };
 
     /// <summary>DOC</summary>
     public enum PointStyle { None, CircleHollow, CircleFilled, SquareHollow, SquareFilled, ArrowHollow, ArrowFilled };
@@ -46,7 +46,7 @@ namespace NDraw
         public ContentAlignment TextAlignment { get; set; } = ContentAlignment.TopLeft;
 
         /// <summary>DOC</summary>
-        public float LineThickness { get; set; } = 2.0f;
+        public float LineThickness { get; set; } = 1.0f;
 
         /// <summary>DOC</summary>
         [JsonConverter(typeof(ColorConverter))]
@@ -67,7 +67,15 @@ namespace NDraw
         /// <param name="pt"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-        public abstract bool IsClose(PointF pt, float range);
+       // public abstract bool IsClose(PointF pt, float range);
+
+        /// <summary>
+        /// Determine if pt is within range of this.
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public abstract int KeyPoint(PointF pt, float range);
 
         /// <summary>
         /// Determine if this is within rect.
@@ -101,11 +109,28 @@ namespace NDraw
         public PointStyle EndStyle { get; set; } = PointStyle.None;
         #endregion
 
+        ///// <inheritdoc />
+        //public override bool IsClose(PointF pt, float range)
+        //{
+        //    var close = Geometry.Expand(Start, End, range).Contains(pt);
+        //    return close;
+        //}
+
         /// <inheritdoc />
-        public override bool IsClose(PointF pt, float range)
+        public override int KeyPoint(PointF pt, float range)
         {
-            var close = Geometry.Expand(Start, End, range).Contains(pt);
-            return close;
+            int which = 0;
+
+            if (Geometry.Expand(Start, range).Contains(pt))
+            {
+                which = 1;
+            }
+            else if (Geometry.Expand(End, range).Contains(pt))
+            {
+                which = 2;
+            }
+
+            return which;
         }
 
         /// <inheritdoc />
@@ -201,22 +226,47 @@ namespace NDraw
             return lines;
         }
 
-        /// <inheritdoc />
-        public override bool IsClose(PointF pt, float range)
-        {
-            bool close = false;
+        ///// <inheritdoc />
+        //public override bool IsClose(PointF pt, float range)
+        //{
+        //    bool close = false;
 
-            foreach(var (start, end) in GetEdges())
+        //    foreach(var (start, end) in GetEdges())
+        //    {
+        //        // Make rectangles out of each side and test for point contained.
+        //        if (Geometry.Expand(start, end, range).Contains(pt))
+        //        {
+        //            close = true;
+        //            break;
+        //        }
+        //    }
+
+        //    return close;
+        //}
+
+        /// <inheritdoc />
+        public override int KeyPoint(PointF pt, float range)
+        {
+            int which = 0;
+
+            if (Geometry.Expand(TL, range).Contains(pt))
             {
-                // Make rectangles out of each side and test for point contained.
-                if (Geometry.Expand(start, end, range).Contains(pt))
-                {
-                    close = true;
-                    break;
-                }
+                which = 1;
+            }
+            else if (Geometry.Expand(TR, range).Contains(pt))
+            {
+                which = 2;
+            }
+            else if (Geometry.Expand(BL, range).Contains(pt))
+            {
+                which = 3;
+            }
+            else if (Geometry.Expand(BR, range).Contains(pt))
+            {
+                which = 4;
             }
 
-            return close;
+            return which;
         }
 
         /// <summary>For viewing pleasure.</summary>

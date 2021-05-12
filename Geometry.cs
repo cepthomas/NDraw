@@ -106,6 +106,26 @@ namespace NDraw
         #endregion
 
         /// <summary>
+        /// Make a square with the point at the center.
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static RectangleF Expand(PointF pt, float range)
+        {
+            RectangleF r = new(pt.X - range, pt.Y - range, range * 2, range * 2);
+            return r;
+        }
+
+
+        public static RectangleF Expand(float x, float y, float range)
+        {
+            RectangleF r = new(x - range, y - range, range * 2, range * 2);
+            return r;
+        }
+
+
+        /// <summary>
         /// Make a rectangle from the line start/end.
         /// </summary>
         /// <param name="start"></param>
@@ -117,7 +137,7 @@ namespace NDraw
             float width = end.X - start.X;
             float height = end.Y - start.Y;
 
-            // Normalize. TODO1 generic rect function?
+            // Normalize. TODO generic rect function?
             if (width < 0)
             {
                 float f = end.X;
@@ -135,23 +155,24 @@ namespace NDraw
             }
 
             RectangleF r = new(start.X - range, start.Y - range, width + range * 2, height + range * 2);
+
             return r;
         }
 
-        /// <summary>
-        /// Gets list of lines defining rect edges. Clockwise from top left.
-        /// </summary>
-        /// <returns></returns>
-        public static List<(PointF start, PointF end)> GetEdges(RectangleF rect) // TODO1 ext method?
-        {
-            List<(PointF start, PointF end)> lines = new();
+        ///// <summary>
+        ///// Gets list of lines defining rect edges. Clockwise from top left.
+        ///// </summary>
+        ///// <returns></returns>
+        //public static List<(PointF start, PointF end)> GetEdges(RectangleF rect) // TODO ext method?
+        //{
+        //    List<(PointF start, PointF end)> lines = new();
 
-            lines.Add((new(rect.Left, rect.Top), new(rect.Right, rect.Top)));
-            lines.Add((new(rect.Right, rect.Top), new(rect.Right, rect.Bottom)));
-            lines.Add((new(rect.Right, rect.Bottom), new(rect.Left, rect.Bottom)));
-            lines.Add((new(rect.Left, rect.Bottom), new(rect.Left, rect.Top)));
+        //    lines.Add((new(rect.Left, rect.Top), new(rect.Right, rect.Top)));
+        //    lines.Add((new(rect.Right, rect.Top), new(rect.Right, rect.Bottom)));
+        //    lines.Add((new(rect.Right, rect.Bottom), new(rect.Left, rect.Bottom)));
+        //    lines.Add((new(rect.Left, rect.Bottom), new(rect.Left, rect.Top)));
 
-            return lines;
-        }
+        //    return lines;
+        //}
     }
 }

@@ -30,7 +30,9 @@ namespace NDraw
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.lblInfo = new System.Windows.Forms.Label();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // lblInfo
@@ -42,6 +44,12 @@ namespace NDraw
             this.lblInfo.Size = new System.Drawing.Size(50, 20);
             this.lblInfo.TabIndex = 0;
             this.lblInfo.Text = "label1";
+            // 
+            // toolTip
+            // 
+            this.toolTip.AutomaticDelay = 0;
+            this.toolTip.UseAnimation = false;
+            this.toolTip.UseFading = false;
             // 
             // Canvas
             // 
@@ -56,5 +64,6 @@ namespace NDraw
         #endregion
 
         private System.Windows.Forms.Label lblInfo;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

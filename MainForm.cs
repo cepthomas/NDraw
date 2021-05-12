@@ -49,7 +49,7 @@ namespace NDraw
                 Parser p = new();
                 p.ParseFile(@"C:\Dev\repos\NDraw\Test\drawing1.nd");
 
-                if(p.Errors.Count > 0) // TODO
+                if(p.Errors.Count > 0) // TO-DO
                 {
                     foreach(var err in p.Errors)
                     {
@@ -90,7 +90,7 @@ namespace NDraw
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Clean up.
-            canvas.SavePage("page.json");
+            //canvas.SavePage("page.json");
             _settings.Save();
             _settings.Dispose();
         }

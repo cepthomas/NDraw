@@ -29,14 +29,14 @@ namespace NDraw
         /// <summary>The various shapes in _page converted to internal format.</summary>
         readonly List<Shape> _shapes = new();
 
-        /// <summary>The user is dragging the mouse.</summary>
-        bool _dragging = false;
+        ///// <summary>The user is dragging the mouse.</summary>
+        //bool _dragging = false;
 
-        /// <summary>Mouse position when button pressed.</summary>
-        Point _startPos = new();
+        ///// <summary>Mouse position when button pressed.</summary>
+        //Point _startPos = new();
 
-        /// <summary>Current mouse position.</summary>
-        Point _currentPos = new();
+        ///// <summary>Current mouse position.</summary>
+        //Point _currentPos = new();
 
         ///// <summary>If control is pressed.</summary>
         //bool _ctrlPressed = false;
@@ -71,7 +71,7 @@ namespace NDraw
         const float ZOOM_SPEED = 0.1F;
 
         /// <summary>Cosmetics.</summary>
-        const int HIGHLIGHT_SIZE = 3;
+        const int HIGHLIGHT_SIZE = 4;
         #endregion
 
         #region Lifecycle
@@ -104,32 +104,32 @@ namespace NDraw
             Invalidate();
         }
 
-        /// <summary>
-        /// Cleaan up and save to file.
-        /// </summary>
-        /// <returns></returns>
-        public void SavePage(string fn)
-        {
-            // Collect changes.
-            _page.Lines.Clear();
-            _page.Rects.Clear();
+        ///// <summary>
+        ///// Cleaan up and save to file.
+        ///// </summary>
+        ///// <returns></returns>
+        //public void SavePage(string fn)
+        //{
+        //    // Collect changes.
+        //    _page.Lines.Clear();
+        //    _page.Rects.Clear();
 
-            foreach(var sh in _shapes)
-            {
-                switch(sh)
-                {
-                    case LineShape ls:
-                        _page.Lines.Add(ls);
-                        break;
+        //    foreach(var sh in _shapes)
+        //    {
+        //        switch(sh)
+        //        {
+        //            case LineShape ls:
+        //                _page.Lines.Add(ls);
+        //                break;
 
-                    case RectShape rs:
-                        _page.Rects.Add(rs);
-                        break;
-                }
-            }
+        //            case RectShape rs:
+        //                _page.Rects.Add(rs);
+        //                break;
+        //        }
+        //    }
 
-            _page.Save(fn);
-        }
+        //    _page.Save(fn);
+        //}
         #endregion
 
         #region Misc window events
@@ -144,18 +144,18 @@ namespace NDraw
             Invalidate();
         }
 
-        /// <summary>
-        /// Resets key states when control loses focus.
-        /// </summary>
-        /// <param name="sender">Sender</param>
-        /// <param name="e">Event Arguments</param>
-        protected override void OnLostFocus(EventArgs e)
-        {
-            //_ctrlPressed = false;
-            //_shiftPressed = false;
-            _dragging = false;
-            Invalidate();
-        }
+        ///// <summary>
+        ///// Resets key states when control loses focus.
+        ///// </summary>
+        ///// <param name="sender">Sender</param>
+        ///// <param name="e">Event Arguments</param>
+        //protected override void OnLostFocus(EventArgs e)
+        //{
+        //    //_ctrlPressed = false;
+        //    //_shiftPressed = false;
+        //    _dragging = false;
+        //    Invalidate();
+        //}
         #endregion
 
         #region Painting
@@ -180,68 +180,75 @@ namespace NDraw
                 if (shape.ContainedIn(virtVisible, true))
                 {
                     using Pen penLine = new(shape.LineColor, shape.LineThickness);
-                    using Pen penHighlight = new(shape.LineColor, shape.LineThickness + 2);
+                    //using Pen penHighlight = new(shape.LineColor, shape.LineThickness + 2);
 
                     switch (shape)
                     {
                         case RectShape shapeRect:
                             var dispRect = Geometry.VirtualToDisplay(shapeRect.TL, shapeRect.BR);
-                            e.Graphics.DrawRectangle(shapeRect.State == ShapeState.Highlighted ? penHighlight : penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
+                            e.Graphics.DrawRectangle(penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
+                            //e.Graphics.DrawRectangle(shapeRect.State == ShapeState.Highlighted ? penHighlight : penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
                             e.Graphics.DrawString(shapeRect.Text, _settings.Font, Brushes.Black, dispRect.X + 2, dispRect.Y + 2);
 
                             //// test code......
+                            //if (shapeRect.State == ShapeState.Highlighted)
+                            //{
+                            //    var edges = shapeRect.GetEdges();
+                            //    int i = 1;
+                            //    foreach (var (start, end) in edges)
+                            //    {
+                            //        var edgeRect = Geometry.Expand(start, end, 5 / Geometry.Zoom);//TOD-O1 this doesn't work for angled lines
+
+                            //        var dispEdge = Geometry.VirtualToDisplay(edgeRect);
+
+                            //        e.Graphics.DrawRectangle(penLine, dispEdge.X, dispEdge.Y, dispEdge.Width, dispEdge.Height);
+                            //        e.Graphics.DrawString($"{i}", _settings.Font, Brushes.Black, dispEdge.X + 1, dispEdge.Y + 1);
+                            //        i++;
+                            //    }
+                            //}
+
                             if (shapeRect.State == ShapeState.Highlighted)
                             {
-                                var edges = shapeRect.GetEdges();
-                                int i = 1;
-                                foreach (var (start, end) in edges)
-                                {
-                                    var edgeRect = Geometry.Expand(start, end, 5 / Geometry.Zoom);//TODO1 this doesn't work for angled lines
-
-                                    var dispEdge = Geometry.VirtualToDisplay(edgeRect);
-
-                                    e.Graphics.DrawRectangle(penLine, dispEdge.X, dispEdge.Y, dispEdge.Width, dispEdge.Height);
-                                    e.Graphics.DrawString($"{i}", _settings.Font, Brushes.Black, dispEdge.X + 1, dispEdge.Y + 1);
-                                    i++;
-                                }
-                            }
-
-                            if (shapeRect.State == ShapeState.Selected)
-                            {
-                                e.Graphics.FillEllipse(penLine.Brush, dispRect.X, dispRect.Y, HIGHLIGHT_SIZE, HIGHLIGHT_SIZE);
+                                //e.Graphics.FillEllipse(penLine.Brush, dispRect.Left, dispRect.Top, HIGHLIGHT_SIZE, HIGHLIGHT_SIZE);
+                                e.Graphics.FillEllipse(penLine.Brush, Geometry.Expand(dispRect.Left, dispRect.Top, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Geometry.Expand(dispRect.Right, dispRect.Top, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Geometry.Expand(dispRect.Left, dispRect.Bottom, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Geometry.Expand(dispRect.Right, dispRect.Bottom, HIGHLIGHT_SIZE));
                             }
                             break;
 
                         case LineShape shapeLine:
                             var dispStart = Geometry.VirtualToDisplay(shapeLine.Start);
                             var dispEnd = Geometry.VirtualToDisplay(shapeLine.End);
-                            e.Graphics.DrawLine(shapeLine.State == ShapeState.Highlighted ? penHighlight : penLine, dispStart, dispEnd);
+                            e.Graphics.DrawLine(penLine, dispStart, dispEnd);
+                            //e.Graphics.DrawLine(shapeLine.State == ShapeState.Highlighted ? penHighlight : penLine, dispStart, dispEnd);
                             e.Graphics.DrawString(shapeLine.Text, _settings.Font, Brushes.Black, dispStart.X + 2, dispStart.Y + 2);
 
-                            if (shapeLine.State == ShapeState.Selected)
+                            if (shapeLine.State == ShapeState.Highlighted)
                             {
-                                e.Graphics.FillEllipse(penLine.Brush, dispStart.X, dispStart.Y, HIGHLIGHT_SIZE, HIGHLIGHT_SIZE);
+                                e.Graphics.FillEllipse(penLine.Brush, Geometry.Expand(dispStart.X, dispStart.Y, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Geometry.Expand(dispEnd.X, dispEnd.Y, HIGHLIGHT_SIZE));
                             }
                             break;
                     }
                 }
             }
 
-            // Draw Selection Rectangle if dragging cursor.
-            if (_dragging)
-            {
-                using Pen penSelect = new(_settings.GridColor, GRID_LINE_WIDTH);
+            //// Draw Selection Rectangle if dragging cursor.
+            //if (_dragging)
+            //{
+            //    using Pen penSelect = new(_settings.GridColor, GRID_LINE_WIDTH);
 
-                Point start = new();
-                Point pos = PointToClient(Cursor.Position);
+            //    Point start = new();
+            //    Point pos = PointToClient(Cursor.Position);
 
-                float width = Math.Abs(pos.X - _startPos.X);
-                float height = Math.Abs(pos.Y - _startPos.Y);
-                start.X = pos.X > _startPos.X ? _startPos.X : pos.X;
-                start.Y = pos.Y > _startPos.Y ? _startPos.Y : pos.Y;
+            //    float width = Math.Abs(pos.X - _startPos.X);
+            //    float height = Math.Abs(pos.Y - _startPos.Y);
+            //    start.X = pos.X > _startPos.X ? _startPos.X : pos.X;
+            //    start.Y = pos.Y > _startPos.Y ? _startPos.Y : pos.Y;
 
-                e.Graphics.DrawRectangle(penSelect, start.X, start.Y, width, height);
-            }
+            //    e.Graphics.DrawRectangle(penSelect, start.X, start.Y, width, height);
+            //}
         }
 
         /// <summary>
@@ -252,7 +259,7 @@ namespace NDraw
         {
             using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH);
 
-            float spacing = 42.0f; // TODO1 calculate along with others
+            float spacing = 42.0f; // TODO calculate along with others
 
             // Draw X-Axis
             for (float tickPos = spacing; tickPos < Width; tickPos += spacing)
@@ -267,71 +274,71 @@ namespace NDraw
             }
         }
 
-        /// <summary>
-        /// Draw text using the specified transformations.
-        /// </summary>
-        /// <param name="g">The Graphics object to use.</param>
-        /// <param name="x">The X transform</param>
-        /// <param name="y">The Y transform</param>
-        /// <param name="text">The text of the label.</param>
-        /// <param name="degrees">The rotation of the axis.</param>
-        void DrawText(Graphics g, float x, float y, string text, Font font, int degrees)
-        {
-            g.TranslateTransform(x, y);
-            g.RotateTransform(degrees);
-            g.DrawString(text, font, Brushes.Black, 0, 0);
-            g.ResetTransform();
-        }
+        ///// <summary>
+        ///// Draw text using the specified transformations.
+        ///// </summary>
+        ///// <param name="g">The Graphics object to use.</param>
+        ///// <param name="x">The X transform</param>
+        ///// <param name="y">The Y transform</param>
+        ///// <param name="text">The text of the label.</param>
+        ///// <param name="degrees">The rotation of the axis.</param>
+        //void DrawText(Graphics g, float x, float y, string text, Font font, int degrees)
+        //{
+        //    g.TranslateTransform(x, y);
+        //    g.RotateTransform(degrees);
+        //    g.DrawString(text, font, Brushes.Black, 0, 0);
+        //    g.ResetTransform();
+        //}
         #endregion
 
         #region Mouse events
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            _startPos = e.Location;
-            _currentPos = e.Location;
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="e"></param>
+        //protected override void OnMouseDown(MouseEventArgs e)
+        //{
+        //    _startPos = e.Location;
+        //    _currentPos = e.Location;
 
-            if(e.Button == MouseButtons.Left && ControlPressed()) // if near a shape toggle selected
-            {
-                Shape pt = GetCloseShape(e.Location);
+        //    if(e.Button == MouseButtons.Left && ControlPressed()) // if near a shape toggle selected
+        //    {
+        //        Shape pt = GetCloseShape(e.Location);
 
-                if (pt != null)
-                {
-                    pt.State = pt.State == ShapeState.Selected ? ShapeState.Default : ShapeState.Selected;
-                    Invalidate();
-                }
-            }
+        //        if (pt != null)
+        //        {
+        //            pt.State = pt.State == ShapeState.Selected ? ShapeState.Default : ShapeState.Selected;
+        //            Invalidate();
+        //        }
+        //    }
 
-            ShowInfo();
-        }
+        //    ShowInfo();
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            _currentPos = e.Location;
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="e"></param>
+        //protected override void OnMouseUp(MouseEventArgs e)
+        //{
+        //    _currentPos = e.Location;
 
-            if (e.Button == MouseButtons.Left && ControlPressed()) // Select shapes within drag rectangle TODOSEL adjust
-            {
-                //List<DataPoint> tempPoints = GetSelectedPoints();
-                //foreach (DataPoint pt in tempPoints)
-                //{
-                //    if (!SelectedPoints.Contains(pt))
-                //    {
-                //        SelectedPoints.Add(pt);
-                //        pt.Selected = true;
-                //    }
-                //}
-                // }
-            }
+        //    if (e.Button == MouseButtons.Left && ControlPressed()) // Select shapes within drag rectangle TO-DOSEL adjust
+        //    {
+        //        //List<DataPoint> tempPoints = GetSelectedPoints();
+        //        //foreach (DataPoint pt in tempPoints)
+        //        //{
+        //        //    if (!SelectedPoints.Contains(pt))
+        //        //    {
+        //        //        SelectedPoints.Add(pt);
+        //        //        pt.Selected = true;
+        //        //    }
+        //        //}
+        //        // }
+        //    }
 
-            ShowInfo();
-        }
+        //    ShowInfo();
+        //}
 
         /// <summary>
         /// 
@@ -339,53 +346,81 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            _currentPos = e.Location;
-
             bool redraw = false;
 
-            switch (e.Button, ControlPressed())
+            var virtLoc = Geometry.DisplayToVirtual(e.Location);
+            foreach (Shape shape in _shapes)
             {
-                case (MouseButtons.Left, false): // drawing selection rect
-                    if(!_dragging)
+                if (shape.KeyPoint(virtLoc, SELECT_RANGE / Geometry.Zoom) > 0)//TODO this should be done in display domain
+                {
+                    if (shape.State == ShapeState.Default)
                     {
-                        _dragging = true;
+                        shape.State = ShapeState.Highlighted;
+                        redraw = true;
                     }
-                    else
+                }
+                else
+                {
+                    // Unhighlight those away from.
+                    if (shape.State == ShapeState.Highlighted)
                     {
+                        shape.State = ShapeState.Default;
+                        redraw = true;
+                    }
+                }
+            }
 
-                    }
+
+
+
+
+
+
+            //_currentPos = e.Location;
+
+            //switch (e.Button, ControlPressed())
+            //{
+            //    case (MouseButtons.Left, false): // drawing selection rect
+            //        if(!_dragging)
+            //        {
+            //            _dragging = true;
+            //        }
+            //        else
+            //        {
+
+            //        }
                     
-                    //_endMousePos = new Point(e.X, e.Y);
-                    redraw = true;
-                    break;
+            //        //_endMousePos = new Point(e.X, e.Y);
+            //        redraw = true;
+            //        break;
 
-                case (MouseButtons.None, false): // highlight any close shapes
-                    var virtLoc = Geometry.DisplayToVirtual(e.Location);
-                    foreach (Shape shape in _shapes)
-                    {
-                        if(shape.IsClose(virtLoc, SELECT_RANGE / Geometry.Zoom))//TODO1 this should be done in display domain
-                        {
-                            if (shape.State == ShapeState.Default)
-                            {
-                                shape.State = ShapeState.Highlighted;
-                                redraw = true;
-                            }
-                        }
-                        else
-                        {
-                            // Unhighlight those away from.
-                            if(shape.State == ShapeState.Highlighted)
-                            {
-                                shape.State = ShapeState.Default;
-                                redraw = true;
-                            }
-                        }
-                    }
-                    break;
+            //    case (MouseButtons.None, false): // highlight any close shapes
+            //        var virtLoc = Geometry.DisplayToVirtual(e.Location);
+            //        foreach (Shape shape in _shapes)
+            //        {
+            //            if(shape.IsClose(virtLoc, SELECT_RANGE / Geometry.Zoom))//TO-DO1 this should be done in display domain
+            //            {
+            //                if (shape.State == ShapeState.Default)
+            //                {
+            //                    shape.State = ShapeState.Highlighted;
+            //                    redraw = true;
+            //                }
+            //            }
+            //            else
+            //            {
+            //                // Unhighlight those away from.
+            //                if(shape.State == ShapeState.Highlighted)
+            //                {
+            //                    shape.State = ShapeState.Default;
+            //                    redraw = true;
+            //                }
+            //            }
+            //        }
+            //        break;
 
-                default:
-                    break;
-            };
+            //    default:
+            //        break;
+            //};
 
             if(redraw)
             {
@@ -401,7 +436,7 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            //(e as HandledMouseEventArgs).Handled = true; // This prevents the mouse wheel event from getting back to the parent. TODO3?
+            //(e as HandledMouseEventArgs).Handled = true; // This prevents the mouse wheel event from getting back to the parent. ???
 
             bool redraw = false;
 
@@ -484,17 +519,17 @@ namespace NDraw
                     redraw = true;
                     break;
 
-                case Keys.A: //TODOSEL select all
-                    redraw = true;
-                    break;
+                //case Keys.A: //TO-DOSEL select all
+                //    redraw = true;
+                //    break;
 
-                case Keys.C: //TODOSEL copy/paste/cut
-                    redraw = true;
-                    break;
+                //case Keys.C: //TO-DOSEL copy/paste/cut
+                //    redraw = true;
+                //    break;
 
-                case Keys.Escape: //TODOSEL reset all selections
-                    redraw = true;
-                    break;
+                //case Keys.Escape: //TO-DOSEL reset all selections
+                //    redraw = true;
+                //    break;
             }
 
             if(redraw)
@@ -505,46 +540,46 @@ namespace NDraw
             ShowInfo();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        public void Handle_KeyUp(KeyEventArgs e)
-        {
-            bool redraw = false;
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="e"></param>
+        //public void Handle_KeyUp(KeyEventArgs e)
+        //{
+        //    bool redraw = false;
 
-            //switch (e.KeyCode)
-            //{
-            //    case Keys.ControlKey:
-            //        _ctrlPressed = false;
+        //    switch (e.KeyCode)
+        //    {
+        //        case Keys.ControlKey:
+        //            _ctrlPressed = false;
 
-            //        if (_dragging)
-            //        {
-            //            GetSelectedShapes();
-            //            _dragging = false;
-            //            Cursor = Cursors.Default;
+        //            if (_dragging)
+        //            {
+        //                GetSelectedShapes();
+        //                _dragging = false;
+        //                Cursor = Cursors.Default;
 
-            //            //_dragCursor = null;
-            //            redraw = true;
-            //            //Refresh();
-            //        }
+        //                //_dragCursor = null;
+        //                redraw = true;
+        //                //Refresh();
+        //            }
 
-            //        _startPos = new Point();
-            //        //_endMousePos = new Point();
-            //        break;
+        //            _startPos = new Point();
+        //            //_endMousePos = new Point();
+        //            break;
 
-            //    case Keys.ShiftKey:
-            //        _shiftPressed = false;
-            //        break;
-            //}
+        //        case Keys.ShiftKey:
+        //            _shiftPressed = false;
+        //            break;
+        //    }
 
-            if (redraw)
-            {
-                Invalidate();
-            }
+        //    if (redraw)
+        //    {
+        //        Invalidate();
+        //    }
 
-            ShowInfo();
-        }
+        //    ShowInfo();
+        //}
         #endregion
 
         #region Private helpers
@@ -553,7 +588,7 @@ namespace NDraw
         /// </summary>
         void ShowInfo()
         {
-            lblInfo.Text = $"Mouse:{_currentPos} OffsetX:{Geometry.OffsetX} OffsetY:{Geometry.OffsetY} Zoom:{Geometry.Zoom}";
+            lblInfo.Text = $"Mouse:{MousePosition} OffsetX:{Geometry.OffsetX} OffsetY:{Geometry.OffsetY} Zoom:{Geometry.Zoom}";
             //lblInfo.Text = $"Mouse:{_currentPos} Ctrl:{(_ctrlPressed ? "D" : "U")} Shift:{(_shiftPressed ? "D" : "U")} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
         }
 
@@ -584,35 +619,35 @@ namespace NDraw
             return (ModifierKeys & Keys.Shift) > 0;
         }
 
-        /// <summary>Get shape that is within range of point.</summary>
-        /// <param name="point">Mouse point</param>
-        /// <returns>The closest DataPoint or null if none in range.</returns>
-        Shape GetCloseShape(Point pt)
-        {
-            Shape close = null;
+        ///// <summary>Get shape that is within range of point.</summary>
+        ///// <param name="point">Mouse point</param>
+        ///// <returns>The closest DataPoint or null if none in range.</returns>
+        //Shape GetCloseShape(Point pt)
+        //{
+        //    Shape close = null;
 
-            var virtPoint = Geometry.DisplayToVirtual(pt);
+        //    var virtPoint = Geometry.DisplayToVirtual(pt);
 
-            foreach (var shape in _shapes)
-            {
-                if(shape.IsClose(virtPoint, SELECT_RANGE / Geometry.Zoom))//TODO1 this should be done in display domain
-                {
-                    close = shape;
-                    break;
-                }
-            }
+        //    foreach (var shape in _shapes)
+        //    {
+        //        if(shape.IsClose(virtPoint, SELECT_RANGE / Geometry.Zoom))//TO-DO1 this should be done in display domain
+        //        {
+        //            close = shape;
+        //            break;
+        //        }
+        //    }
 
-            return close;
-        }
+        //    return close;
+        //}
 
-        /// <summary>Select multiple shapes.</summary>
-        /// <returns>The shapes.</returns>
-        List<Shape> GetSelectedShapes() //TODOSEL
-        {
-            List<Shape> shapes = new();
+        ///// <summary>Select multiple shapes.</summary>
+        ///// <returns>The shapes.</returns>
+        //List<Shape> GetSelectedShapes() //TO-DOSEL
+        //{
+        //    List<Shape> shapes = new();
 
-            return shapes;
-        }
+        //    return shapes;
+        //}
         #endregion
     }
 }
