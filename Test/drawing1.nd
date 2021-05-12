@@ -1,0 +1,29 @@
+
+
+// page: units width height grid
+pg_1=page, un=feet, w=50.0, h=35.2, gr=2.0
+
+// global values: can be changed any time
+$lt=4
+$lc=salmon
+
+
+// define user values: id=value (float or simple expression)
+pabc=23.5 // something
+size_1_w=10
+size_1_h=15
+size_2_w=size_1_w - 2.33
+size_2_h=45
+loc_1_x=pabc - 5.11
+loc_1_y=84.12
+loc_2_x=pabc + size_2_w - 2.2
+loc_2_y=loc_1_x + 2
+loc_3_x=12.7
+loc_3_x=loc_1_y + 13
+
+
+// shapes: id=type, param=value, ...
+my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx=Nice day, tp=TL
+my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=my_rect2_x, ey=my_rect3_y, lt=2, tx=Hoohaa, tp=TL, es=CH, ss=AF
+// TODO ellipse, poly, ...
+
