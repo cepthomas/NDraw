@@ -5,7 +5,6 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -48,7 +47,7 @@ namespace NDraw
             try
             {
                 Parser p = new();
-                Page page = p.ParseFile(@"C:\Dev\repos\NDraw\Test\drawing1.nd");
+                p.ParseFile(@"C:\Dev\repos\NDraw\Test\drawing1.nd");
 
                 if(p.Errors.Count > 0) // TODO
                 {
@@ -59,7 +58,7 @@ namespace NDraw
                 }
                 else
                 {
-                    canvas.Init(page, _settings);
+                    canvas.Init(p.Page, _settings);
                 }
             }
             catch (Exception ex)

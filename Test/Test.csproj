@@ -9,4 +9,10 @@
     <ProjectReference Include="..\NDraw.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="NBagOfTricks">
+      <HintPath>..\lib\NBagOfTricks.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
