@@ -39,10 +39,10 @@ namespace NDraw
         /// <summary>Real world.</summary>
         public string UnitsName { get; set; } = "feet";
 
-        /// <summary>All the shapes</summary>
+        /// <summary>All the shapes.</summary>
         public List<RectShape> Rects { get; set; } = new();
 
-        /// <summary>All the shapes</summary>
+        /// <summary>All the shapes.</summary>
         public List<LineShape> Lines { get; set; } = new();
 
         #region Fields

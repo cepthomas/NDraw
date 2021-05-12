@@ -140,10 +140,7 @@ namespace NDraw
         protected override void OnResize(EventArgs e)
         {
             //Geometry.DrawArea = ClientRectangle;
-
             lblInfo.Location = new(10, Bottom - lblInfo.Height - 10);
-            rtb.Location = new(500, Bottom - rtb.Height - 10);
-
             Invalidate();
         }
 
@@ -551,16 +548,6 @@ namespace NDraw
         #endregion
 
         #region Private helpers
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="s"></param>
-        public void Trace(string s)
-        {
-            rtb.AppendText(s + Environment.NewLine);
-            rtb.ScrollToCaret();
-        }
-
         /// <summary>
         /// Debug helper.
         /// </summary>

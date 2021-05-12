@@ -31,7 +31,6 @@ namespace NDraw
         private void InitializeComponent()
         {
             this.lblInfo = new System.Windows.Forms.Label();
-            this.rtb = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // lblInfo
@@ -44,18 +43,8 @@ namespace NDraw
             this.lblInfo.TabIndex = 0;
             this.lblInfo.Text = "label1";
             // 
-            // rtb
-            // 
-            this.rtb.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.rtb.Location = new System.Drawing.Point(174, 274);
-            this.rtb.Name = "rtb";
-            this.rtb.Size = new System.Drawing.Size(543, 157);
-            this.rtb.TabIndex = 1;
-            this.rtb.Text = "";
-            // 
             // Canvas
             // 
-            this.Controls.Add(this.rtb);
             this.Controls.Add(this.lblInfo);
             this.Name = "Canvas";
             this.Size = new System.Drawing.Size(731, 437);
@@ -67,6 +56,5 @@ namespace NDraw
         #endregion
 
         private System.Windows.Forms.Label lblInfo;
-        private System.Windows.Forms.RichTextBox rtb;
     }
 }

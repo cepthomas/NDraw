@@ -14,17 +14,17 @@ using NBagOfTricks.Utils;
 
 namespace NDraw
 {
-    public class ParseException : Exception
-    {
-        public int Row { get; set; }
-        public int Column { get; set; }
-        public ParseException(string msg) : base(msg) { }
-    }
+    //public class ParseException : Exception
+    //{
+    //    public int Row { get; set; }
+    //    public int Column { get; set; }
+    //    public ParseException(string msg) : base(msg) { }
+    //}
 
 
     public class Parser
     {
-        #region Defaults
+        #region Global defaults
         Color _fc = Color.LightBlue;
         Color _lc = Color.Red;
         float _lt = 2.5f;
@@ -49,8 +49,14 @@ namespace NDraw
         };
         #endregion
 
-        /// <summary>Key: User assigned value name Value: float</summary>
+        /// <summary>User assigned values: <name, value></name></summary>
         Dictionary<string, float> _vals = new();
+
+        /// <summary>Where we are.</summary>
+        int _row = 0;
+
+        /// <summary>Parsing errors.</summary>
+        public List<string> Errors { get; set; } = new();
 
         /// <summary>
         /// 
@@ -60,12 +66,11 @@ namespace NDraw
         public Page ParseFile(string fn)
         {
             Page page = new();
-
-            int row = 0;
+            _row = 0;
 
             foreach (string sf in File.ReadAllLines(fn))
             {
-                row++;
+                _row++;
 
                 try
                 {
@@ -103,74 +108,62 @@ namespace NDraw
                         case "page":
                             // pg_1=page, un=feet, w=100, h=50, gr=2
                             page.UnitsName = elemParams.ContainsKey("un") ? elemParams["un"] : "";
-                            page.Width = elemParams.ContainsKey("w") ? float.Parse(elemParams["w"]) : 20.0f;
-                            page.Height = elemParams.ContainsKey("h") ? float.Parse(elemParams["h"]) : 20.0f;
-                            page.Grid = elemParams.ContainsKey("gr") ? float.Parse(elemParams["gr"]) : 1.0f;
+                            page.Width = ParseValue(elemParams["w"]); // required
+                            page.Height = ParseValue(elemParams["h"]); // required
+                            page.Grid = ParseValue(elemParams["gr"]); // required
                             break;
 
                         case "line":
                             // my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=my_rect2_x, ey=my_rect3_y, lt=2, tx=Hoohaa, tp=TL, es=CH, ss=AF
                             LineShape line = new() { Id = first.lhs };
                             InitShapeCommon(line, elemParams);
-                            line.Start = new PointF(ParseNumber(elemParams["sx"]), ParseNumber(elemParams["sy"])); // required
-                            line.End = new PointF(ParseNumber(elemParams["sx"]), ParseNumber(elemParams["sy"])); // required
+                            line.Start = new PointF(ParseValue(elemParams["sx"]), ParseValue(elemParams["sy"])); // required
+                            line.End = new PointF(ParseValue(elemParams["ex"]), ParseValue(elemParams["ey"])); // required
                             line.StartStyle = elemParams.ContainsKey("ss") ? _pointStyle[elemParams["ss"]] : _ss;
                             line.EndStyle = elemParams.ContainsKey("es") ? _pointStyle[elemParams["es"]] : _es;
-
                             // Do sanity check on start and end. TODO
-
                             page.Lines.Add(line);
                             break;
 
                         case "rect":
                             // my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w, h=size_1_h, lc=green, fc=lightgreen, tx=Nice day, tp=TL
-
-                            // Init some defaults from _defs.
-
-                            // public ContentAlignment Alignment { get; set; } = ContentAlignment.TopLeft;
-                            // public float LineThickness { get; set; } = 2.0f;
-                            // public Color LineColor { get; set; } = Color.Green;
-                            // public Color FillColor { get; set; } = Color.Black;
-
-                            // switch the values
-
-                            // sanity check:
-                            // public PointF TL { get; set; } = new(0, 0);
-                            // public PointF BR { get; set; } = new(0, 0);
-
+                            RectShape rect = new() { Id = first.lhs };
+                            InitShapeCommon(rect, elemParams);
+                            rect.TL = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
+                            rect.BR = new PointF(rect.TL.X + ParseValue(elemParams["w"]), rect.TL.Y + ParseValue(elemParams["h"])); // required
+                            // TODO do sanity check.
+                            page.Rects.Add(rect);
                             break;
 
                         default:
-                            if(first.lhs.StartsWith("$"))
+                            // global values: can be changed any time
+                            //$lt=4
+                            //$lc=salmon
+                            switch (first.lhs)
                             {
-                                // special
-                                //$lt=4
-                                //$lc=salmon
+                                case "$fc": _fc = Color.FromName(first.rhs); break;
+                                case "$lc": _lc = Color.FromName(first.rhs); break;
+                                case "$lt": _lt = float.Parse(first.rhs); break;
+                                case "$tp": _tp = _alignment[first.rhs]; break;
+                                case "$ss": _ss = _pointStyle[first.rhs]; break;
+                                case "$es": _es = _pointStyle[first.rhs]; break;
 
-                                //Color _fc = Color.LightBlue;// }, // fill color
-                                //Color _lc = Color.Red;// }, // line color
-                                //float _lt = 2.5f;// }, // line thickness
-                                //ContentAlignment _tp = ContentAlignment.MiddleCenter;// }, // text position TL, TC, TR, CL, ...
-                                //PointStyle _ss = PointStyle.None;// }, // line start style
-                                //PointStyle _es = PointStyle.None;// }, // line end style
-
-                            }
-                            else
-                            {
-                                // user scalar
-                                _vals[first.lhs] = ParseNumber(first.rhs);
-                                // _vals[first.lhs] = pval.Contains("\"") ? pval.Replace("\"", "") : ParseNumber(pval);
+                                default:
+                                    // user scalar or expression
+                                    _vals[first.lhs] = ParseValue(first.rhs);
+                                    // _vals[first.lhs] = pval.Contains("\"") ? pval.Replace("\"", "") : ParseNumber(pval);
+                                    break;
                             }
                             break;
                     }
                 }
-                catch (ParseException ex)
-                {
-                    // May be transient. Do something though?
-                }
+                //catch (ParseException ex)
+                //{
+                //    Errors.Add($"Parse error: {ex}");
+                //}
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Some other exception: {ex}");
+                    Errors.Add($"Parse error at row {_row}: {ex.Message}"); // TODO more info?
                 }
             }
 
@@ -178,17 +171,47 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Parse a single number - scalar or simple expression. TODO
+        /// Parse a single value - scalar or simple expression. TODO
         /// </summary>
         /// <param name="s"></param>
-        /// <returns></returns>
-        float ParseNumber(string s)
+        /// <returns>The value or NaN if invalid.</returns>
+        float ParseValue(string s)
         {
-            float v = float.NaN;
+            float v = 0;// float.NaN;
 
-            // Try parse float.
+            // Try simple float.
+            if(!float.TryParse(s, out v))
+            {
+                // Try parse expression. v1 + 4.4 - v2 + 123 + 290 ...
+                var ops = "+-";
+                var parts = Split(s, ops);
 
-            // Try parse expression.
+                string op = "";
+                float f = float.NaN;
+
+                foreach(string p in parts)
+                {
+                    if(ops.Contains(p)) // op
+                    {
+                        op = p;
+                    }
+                    else if(float.TryParse(p, out f)) // literal
+                    {
+                        op = "";
+                    }
+                    else // named
+                    {
+                        f = _vals[p];
+                    }
+
+                    if (f != float.NaN)
+                    {
+                        if (op == "-") v -= f;
+                        else if (op == "+") v += f;
+                        else v = f;
+                    }
+                }
+            }
 
             return v;
         }
@@ -201,7 +224,6 @@ namespace NDraw
         (string lhs, string rhs) SplitParam(string p)
         {
             var pp = p.SplitByToken("=");
-            //TODO check for valid name?
             return pp.Count > 1 ? (pp[0], pp[1]) : (null, pp[0]);
         }
 
@@ -219,6 +241,45 @@ namespace NDraw
             shape.LineColor = elemParams.ContainsKey("lc") ? Color.FromName(elemParams["lc"]) : _lc;
             shape.FillColor = elemParams.ContainsKey("fc") ? Color.FromName(elemParams["fc"]) : _fc;
             shape.TextAlignment = elemParams.ContainsKey("tp") ? _alignment[elemParams["tp"]] : _tp;
+        }
+
+        /// <summary>
+        /// Split by one of the delims but keep the delim.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="delims"></param>
+        /// <returns></returns>
+        List<string> Split(string s, string delims) // TODO optimize
+        {
+            var parts = new List<string>();
+            string acc = "";
+
+            for (int i = 0; i < s.Length; i++)
+            {
+                if(!char.IsWhiteSpace(s[i]))
+                {
+                    if (delims.Contains(s[i]))
+                    {
+                        if(acc.Length > 0)
+                        {
+                            parts.Add(acc);
+                            acc = "";
+                        }
+                        parts.Add(s[i].ToString());
+                    }
+                    else
+                    {
+                        acc += s[i];
+                    }
+                }
+            }
+
+            if (acc.Length > 0)
+            {
+                parts.Add(acc);
+            }
+
+            return parts;
         }
     }
 }

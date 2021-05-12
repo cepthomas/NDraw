@@ -31,16 +31,18 @@ namespace NDraw
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ToolStrip = new System.Windows.Forms.ToolStrip();
+            this.fileDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.recentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
             this.canvas = new NDraw.Canvas();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.fileDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.recentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rtbInfo = new System.Windows.Forms.RichTextBox();
             this.ToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
@@ -59,6 +61,30 @@ namespace NDraw
             this.ToolStrip.TabIndex = 0;
             this.ToolStrip.Text = "ToolStrip";
             this.ToolStrip.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ToolStrip_ItemClicked);
+            // 
+            // fileDropDownButton
+            // 
+            this.fileDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.fileDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openToolStripMenuItem,
+            this.recentToolStripMenuItem});
+            this.fileDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("fileDropDownButton.Image")));
+            this.fileDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.fileDropDownButton.Name = "fileDropDownButton";
+            this.fileDropDownButton.Size = new System.Drawing.Size(34, 24);
+            this.fileDropDownButton.Text = "File";
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
+            this.openToolStripMenuItem.Text = "Open...";
+            // 
+            // recentToolStripMenuItem
+            // 
+            this.recentToolStripMenuItem.Name = "recentToolStripMenuItem";
+            this.recentToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
+            this.recentToolStripMenuItem.Text = "Recent...";
             // 
             // toolStripButton1
             // 
@@ -100,6 +126,10 @@ namespace NDraw
             this.splitContainer1.Location = new System.Drawing.Point(0, 27);
             this.splitContainer1.Name = "splitContainer1";
             // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.rtbInfo);
+            // 
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.canvas);
@@ -107,29 +137,16 @@ namespace NDraw
             this.splitContainer1.SplitterDistance = 271;
             this.splitContainer1.TabIndex = 2;
             // 
-            // fileDropDownButton
+            // rtbInfo
             // 
-            this.fileDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.fileDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openToolStripMenuItem,
-            this.recentToolStripMenuItem});
-            this.fileDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("fileDropDownButton.Image")));
-            this.fileDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.fileDropDownButton.Name = "fileDropDownButton";
-            this.fileDropDownButton.Size = new System.Drawing.Size(34, 24);
-            this.fileDropDownButton.Text = "File";
-            // 
-            // openToolStripMenuItem
-            // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
-            this.openToolStripMenuItem.Text = "Open...";
-            // 
-            // recentToolStripMenuItem
-            // 
-            this.recentToolStripMenuItem.Name = "recentToolStripMenuItem";
-            this.recentToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
-            this.recentToolStripMenuItem.Text = "Recent...";
+            this.rtbInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtbInfo.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.rtbInfo.Location = new System.Drawing.Point(4, 328);
+            this.rtbInfo.Name = "rtbInfo";
+            this.rtbInfo.Size = new System.Drawing.Size(265, 295);
+            this.rtbInfo.TabIndex = 0;
+            this.rtbInfo.Text = "";
             // 
             // MainForm
             // 
@@ -145,6 +162,7 @@ namespace NDraw
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ToolStrip.ResumeLayout(false);
             this.ToolStrip.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
@@ -164,6 +182,7 @@ namespace NDraw
         private System.Windows.Forms.ToolStripDropDownButton fileDropDownButton;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem recentToolStripMenuItem;
+        private System.Windows.Forms.RichTextBox rtbInfo;
     }
 }
 
