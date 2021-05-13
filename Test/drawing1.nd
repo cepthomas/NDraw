@@ -1,6 +1,7 @@
 
 // page: units width height grid
-pg_1=page, un=feet, w=50.0, h=35.2, gr=2.0
+pg_1=page, un=feet, gr=10.0, sc=5
+//pg_1=page, un=feet, w=50.0, h=35.2, gr=2.0
 
 // global values: can be changed any time
 $lt=4

@@ -36,13 +36,14 @@ namespace NDraw
             // Receive key events before the event is passed to the control that has focus.
             KeyPreview = true;
 
-            KeyDown += MainForm_KeyDown;
-            //KeyUp += MainForm_KeyUp;
-
             string appDir = MiscUtils.GetAppDataDir("NDraw");
             DirectoryInfo di = new(appDir);
             di.Create();
             _settings = UserSettings.Load(appDir);
+
+            Location = new(_settings.FormX, _settings.FormX);
+            Width = _settings.FormWidth;
+            Height = _settings.FormHeight;
 
             try
             {
@@ -72,25 +73,16 @@ namespace NDraw
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MainForm_KeyDown(object sender, KeyEventArgs e)
-        {
-            Point pt = canvas.PointToClient(MousePosition);
-            if (canvas.Bounds.Contains(pt))
-            {
-                //canvas.Log($"Hit!!!");
-                canvas.HandleKeyDown(e);
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Clean up.
             //canvas.SavePage("page.json");
+
+            _settings.FormX = Location.X;
+            _settings.FormY = Location.Y;
+            _settings.FormWidth = Width;
+            _settings.FormHeight = Height;
+
             _settings.Save();
             _settings.Dispose();
         }

@@ -123,10 +123,12 @@ namespace NDraw
             {
                 case "page":
                     // pg_1=page, un=feet, w=100, h=50, gr=2
+                    // pg_1=page, un=feet, gr=2
                     Page.UnitsName = elemParams.ContainsKey("un") ? elemParams["un"] : "";
-                    Page.Width = ParseValue(elemParams["w"]); // required
-                    Page.Height = ParseValue(elemParams["h"]); // required
-                    Page.Grid = ParseValue(elemParams["gr"]); // required
+                    //Page.Width = ParseValue(elemParams["w"]); // required
+                    //Page.Height = ParseValue(elemParams["h"]); // required
+                    Page.Grid = float.Parse(elemParams["gr"]); // required
+                    Page.Scale = int.Parse(elemParams["sc"]); // required
                     break;
 
                 case "line":

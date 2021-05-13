@@ -92,7 +92,8 @@ namespace NDraw.Test
                         break;
 
                     case 1:
-                        page = new() { Width = 20.0f, Height = 10.0f, UnitsName = "feet", Grid = 0.5f, Snap = 0.1f };
+                        page = new() { UnitsName = "feet", Grid = 0.5f };
+                        //page = new() { Width = 20.0f, Height = 10.0f, UnitsName = "feet", Grid = 0.5f, Snap = 0.1f };
                         break;
 
                     case 2:

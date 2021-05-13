@@ -58,17 +58,20 @@ namespace NDraw
         #endregion
 
         #region Common functions
-        #endregion
-
-        #region Abstract functions
         /// <summary>
-        /// Determine if pt is within range of this.
+        /// Make a square with the point at the center.
         /// </summary>
         /// <param name="pt"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-       // public abstract bool IsClose(PointF pt, float range);
+        public RectangleF Expand(PointF pt, float range)
+        {
+            RectangleF r = new(pt.X - range, pt.Y - range, range * 2, range * 2);
+            return r;
+        }
+        #endregion
 
+        #region Abstract functions
         /// <summary>
         /// Determine if pt is within range of this.
         /// </summary>
@@ -109,23 +112,16 @@ namespace NDraw
         public PointStyle EndStyle { get; set; } = PointStyle.None;
         #endregion
 
-        ///// <inheritdoc />
-        //public override bool IsClose(PointF pt, float range)
-        //{
-        //    var close = Geometry.Expand(Start, End, range).Contains(pt);
-        //    return close;
-        //}
-
         /// <inheritdoc />
         public override int KeyPoint(PointF pt, float range)
         {
             int which = 0;
 
-            if (Geometry.Expand(Start, range).Contains(pt))
+            if (Expand(Start, range).Contains(pt))
             {
                 which = 1;
             }
-            else if (Geometry.Expand(End, range).Contains(pt))
+            else if (Expand(End, range).Contains(pt))
             {
                 which = 2;
             }
@@ -140,7 +136,10 @@ namespace NDraw
         }
 
         /// <summary>For viewing pleasure.</summary>
-        public override string ToString() => string.Format($"Start:{Start} End:{End}");
+        public override string ToString()
+        {
+            return $"Start:{Start} End:{End}";
+        }
     }
 
     /// <summary>Drawing rectangle.</summary>
@@ -226,42 +225,24 @@ namespace NDraw
             return lines;
         }
 
-        ///// <inheritdoc />
-        //public override bool IsClose(PointF pt, float range)
-        //{
-        //    bool close = false;
-
-        //    foreach(var (start, end) in GetEdges())
-        //    {
-        //        // Make rectangles out of each side and test for point contained.
-        //        if (Geometry.Expand(start, end, range).Contains(pt))
-        //        {
-        //            close = true;
-        //            break;
-        //        }
-        //    }
-
-        //    return close;
-        //}
-
         /// <inheritdoc />
         public override int KeyPoint(PointF pt, float range)
         {
             int which = 0;
 
-            if (Geometry.Expand(TL, range).Contains(pt))
+            if (Expand(TL, range).Contains(pt))
             {
                 which = 1;
             }
-            else if (Geometry.Expand(TR, range).Contains(pt))
+            else if (Expand(TR, range).Contains(pt))
             {
                 which = 2;
             }
-            else if (Geometry.Expand(BL, range).Contains(pt))
+            else if (Expand(BL, range).Contains(pt))
             {
                 which = 3;
             }
-            else if (Geometry.Expand(BR, range).Contains(pt))
+            else if (Expand(BR, range).Contains(pt))
             {
                 which = 4;
             }
@@ -270,6 +251,9 @@ namespace NDraw
         }
 
         /// <summary>For viewing pleasure.</summary>
-        public override string ToString() => string.Format($"TL:{TL} BR:{BR} W:{Width} H:{Height}");
+        public override string ToString()
+        {
+            return $"TL:{TL} BR:{BR} W:{Width} H:{Height}";
+        }
     }
 }

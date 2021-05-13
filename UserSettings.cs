@@ -17,12 +17,6 @@ namespace NDraw
     public class UserSettings : IDisposable
     {
         #region Properties
-        /// <summary>Display grid in Page units.</summary>
-        public float Grid { get; set; } = 2;
-
-        /// <summary>Display snap grid in Page units.</summary>
-        public float Snap { get; set; } = 2;
-
         /// <summary>DOC</summary>
         [JsonConverter(typeof(FontConverter))]
         public Font Font { get; set; } = new Font("Consolas", 10);
