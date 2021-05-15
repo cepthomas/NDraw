@@ -14,9 +14,9 @@ namespace NDraw.Test
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            TestRunner runner = new TestRunner(OutputFormat.Readable);
+            TestRunner runner = new(OutputFormat.Readable);
             var cases = new[] { "PARSER_1" };
             runner.RunSuites(cases);
             File.WriteAllLines("test_out.txt", runner.Context.OutputLines);

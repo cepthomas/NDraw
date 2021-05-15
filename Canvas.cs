@@ -12,12 +12,9 @@ using System.Diagnostics;
 using NBagOfTricks;
 
 
-// Deals exclusively in display units. Translation between display and virtual is done in GeometryMap.
-
-
 namespace NDraw
 {
-    public partial class Canvas : UserControl // Should be Control but breaks in designer
+    public partial class Canvas : UserControl // Should be Control but breaks in designer.
     {
         #region Fields
         /// <summary>Current drawing.</summary>
@@ -41,7 +38,7 @@ namespace NDraw
 
         #region Constants
         /// <summary>Cosmetics.</summary>
-        const float GRID_LINE_WIDTH = 1.0f;
+        const float GRID_LINE_WIDTH = 0.5f;
 
         /// <summary>How close do you have to be to select a shape in pixels.</summary>
         const float SELECT_RANGE = 10;
@@ -114,13 +111,14 @@ namespace NDraw
         {
             e.Graphics.Clear(_settings.BackColor);
 
-            // Draw the grid.
-            DrawGrid(e.Graphics);
-
-            // Draw the shapes.
             var tl = DisplayToVirtual(ClientRectangle.Location);
             var br = DisplayToVirtual(new Point(ClientRectangle.Right, ClientRectangle.Bottom));
             var virtVisible = new RectangleF(tl, new SizeF(br.X - tl.X, br.Y - tl.Y));
+
+            // Draw the grid.
+            DrawGrid(e.Graphics, virtVisible);
+
+            // Draw the shapes.
 
             foreach (var shape in _shapes)
             {
@@ -128,6 +126,8 @@ namespace NDraw
                 if (shape.ContainedIn(virtVisible, true))
                 {
                     using Pen penLine = new(shape.LineColor, shape.LineThickness);
+                    var align = Convert(shape.TextAlignment);
+                    using StringFormat fmt = new() { Alignment = align.hor, LineAlignment = align.vert };
 
                     switch (shape)
                     {
@@ -137,7 +137,8 @@ namespace NDraw
                             var dispRect = new RectangleF(disptl, new SizeF(dispbr.X - disptl.X, dispbr.Y - disptl.Y));
 
                             e.Graphics.DrawRectangle(penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
-                            e.Graphics.DrawString(shapeRect.Text, _settings.Font, Brushes.Black, dispRect.X + 2, dispRect.Y + 2);
+                            e.Graphics.DrawString(shapeRect.Text, _settings.Font, Brushes.Black, dispRect, fmt);
+                            //e.Graphics.DrawString(shapeRect.Text, _settings.Font, Brushes.Black, dispRect.X + 2, dispRect.Y + 2, fmt);
 
                             if (shapeRect.State == ShapeState.Highlighted)
                             {
@@ -152,7 +153,8 @@ namespace NDraw
                             var dispStart = VirtualToDisplay(shapeLine.Start);
                             var dispEnd = VirtualToDisplay(shapeLine.End);
                             e.Graphics.DrawLine(penLine, dispStart, dispEnd);
-                            e.Graphics.DrawString(shapeLine.Text, _settings.Font, Brushes.Black, dispStart.X + 2, dispStart.Y + 2);
+                            e.Graphics.DrawString(shapeLine.Text, _settings.Font, Brushes.Black, dispStart, fmt);
+                            //e.Graphics.DrawString(shapeLine.Text, _settings.Font, Brushes.Black, dispStart.X + 2, dispStart.Y + 2, fmt);
 
                             if (shapeLine.State == ShapeState.Highlighted)
                             {
@@ -176,7 +178,7 @@ namespace NDraw
         /// </summary>
         /// <param name="pt"></param>
         /// <param name="ps"></param>
-        void DrawPoint(PointF pt, PointStyle ps) // TODO
+        void DrawPoint(PointF pt, PointStyle ps) // TODO - will need angle/orientation too
         {
             switch (ps)
             {
@@ -203,25 +205,32 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Draw the grid.
+        /// Draw the grid. TODO a bit wobbly. TODO Draw values.
         /// </summary>
         /// <param name="g">The Graphics object to use.</param>
-        void DrawGrid(Graphics g)
+        /// <param name="visible">Virtual area to scope.</param>
+        void DrawGrid(Graphics g, RectangleF visible)
         {
-            using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH);
+            using Pen penGrid = new(_settings.GridColor, 3.0f);
 
-            float spacing = 50.0f; // TODO Need grid? calculate along with others
+            // Origin
+            var dorig = VirtualToDisplay(new());
+            g.DrawLine(penGrid, dorig.X, 0, dorig.X, Height);
+            g.DrawLine(penGrid, 0, dorig.Y, Width, dorig.Y);
 
             // Draw X-Axis
-            for (float tickPos = spacing; tickPos < Width; tickPos += spacing)
+            penGrid.Width = GRID_LINE_WIDTH;
+            for (float x = visible.X + _page.Grid; x < visible.Width; x += _page.Grid)
             {
-                g.DrawLine(penGrid, tickPos, 0, tickPos, Width);
+                var xd = VirtualToDisplay(new(x, 0)).X;
+                g.DrawLine(penGrid, xd, 0, xd, Width);
             }
 
             // Draw Y-Axis
-            for (float tickPos = spacing; tickPos < Height; tickPos += spacing)
+            for (float y = visible.Y + _page.Grid; y < visible.Width; y += _page.Grid)
             {
-                g.DrawLine(penGrid, 0, tickPos, Right, tickPos);
+                var yd = VirtualToDisplay(new(0, y)).Y;
+                g.DrawLine(penGrid, 0, yd, Width, yd);
             }
         }
         #endregion
@@ -414,8 +423,8 @@ namespace NDraw
         void Reset()
         {
             _zoom = 1.0f;
-            _offsetX = 0;
-            _offsetY = 0;
+            _offsetX = 50;
+            _offsetY = 50;
         }
 
         /// <summary>
@@ -429,6 +438,38 @@ namespace NDraw
         {
             RectangleF r = new(x - range, y - range, range * 2, range * 2);
             return r;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cal"></param>
+        /// <returns></returns>
+        (StringAlignment vert, StringAlignment hor) Convert(ContentAlignment cal)
+        {
+            switch(cal)
+            {
+                case ContentAlignment.TopLeft:
+                    return (StringAlignment.Near, StringAlignment.Near);
+                case ContentAlignment.TopCenter:
+                    return (StringAlignment.Near, StringAlignment.Center);
+                case ContentAlignment.TopRight:
+                    return (StringAlignment.Near, StringAlignment.Far);
+                case ContentAlignment.MiddleLeft:
+                    return (StringAlignment.Center, StringAlignment.Near);
+                case ContentAlignment.MiddleCenter:
+                    return (StringAlignment.Center, StringAlignment.Center);
+                case ContentAlignment.MiddleRight:
+                    return (StringAlignment.Center, StringAlignment.Far);
+                case ContentAlignment.BottomLeft:
+                    return (StringAlignment.Far, StringAlignment.Near);
+                case ContentAlignment.BottomCenter:
+                    return (StringAlignment.Far, StringAlignment.Center);
+                case ContentAlignment.BottomRight:
+                    return (StringAlignment.Far, StringAlignment.Far);
+                default:
+                    return (StringAlignment.Near, StringAlignment.Near);
+            }
         }
     }
 }

@@ -43,7 +43,7 @@ namespace NDraw
         /// <summary>Text to display.</summary>
         public string Text { get; set; } = "";
 
-        /// <summary>Text to display.</summary>
+        /// <summary>Text alignment. Technically ContentAlignment is misapplied here but it makes for easier handling.</summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ContentAlignment TextAlignment { get; set; } = ContentAlignment.TopLeft;
 

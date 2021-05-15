@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NBagOfTricks.Utils;
 
+//TODO stuff like:     N0 -> N2 [label="IsUnlocked"];
+
 
 namespace NDraw
 {
@@ -120,6 +122,7 @@ namespace NDraw
                 case "page":
                     Page.UnitsName = elemParams.ContainsKey("un") ? elemParams["un"] : "";
                     Page.Scale = int.Parse(elemParams["sc"]); // required
+                    Page.Grid = float.Parse(elemParams["gr"]); // required
                     break;
 
                 case "line":
@@ -175,7 +178,7 @@ namespace NDraw
             {
                 // Try parse expression.
                 var ops = "+-";
-                var parts = Split(s, ops);
+                var parts = SplitKeepDelims(s, ops);
 
                 string op = "";
 
@@ -243,7 +246,7 @@ namespace NDraw
         /// <param name="s"></param>
         /// <param name="delims"></param>
         /// <returns></returns>
-        public List<string> Split(string s, string delims) // TODO put in NBOT.
+        public List<string> SplitKeepDelims(string s, string delims) // TODO put in NBOT?
         {
             var parts = new List<string>();
             StringBuilder acc = new();

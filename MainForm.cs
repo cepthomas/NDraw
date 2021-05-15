@@ -20,7 +20,7 @@ namespace NDraw
         UserSettings _settings;
 
         /// <summary>Detect changed script files.</summary>
-        MultiFileWatcher _watcher = new();
+        readonly MultiFileWatcher _watcher = new();
 
         /// <summary>Current file name.</summary>
         string _fn = "";
@@ -112,7 +112,6 @@ namespace NDraw
         /// <param name="e"></param>
         void Recent_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem item = sender as ToolStripMenuItem;
             string fn = sender.ToString();
             OpenFile(fn);
         }
@@ -131,6 +130,8 @@ namespace NDraw
                 // Update file watcher.
                 _watcher.Clear();
                 _watcher.Add(fn);
+
+                AddToRecentDefs(fn);
             }
             catch (Exception ex)
             {
@@ -179,7 +180,7 @@ namespace NDraw
 
             _settings.RecentFiles.ForEach(f =>
             {
-                ToolStripMenuItem menuItem = new ToolStripMenuItem(f, null, new EventHandler(Recent_Click));
+                ToolStripMenuItem menuItem = new(f, null, new EventHandler(Recent_Click));
                 menuItems.Add(menuItem);
             });
         }
@@ -247,20 +248,22 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Make a picture. TODO
+        /// Make a picture.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         void Render_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            Bitmap bmp = new(canvas.Width, canvas.Height);
+            canvas.DrawToBitmap(bmp, new Rectangle(0, 0, canvas.Width, canvas.Height));
+            bmp.Save(_fn.Replace(".nd", ".png"), System.Drawing.Imaging.ImageFormat.Png);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="s"></param>
-        void Log(string s, [CallerMemberName] string caller = null)
+        void Log(string s)
         {
             rtbInfo.AppendText(s);
             rtbInfo.AppendText(Environment.NewLine);
