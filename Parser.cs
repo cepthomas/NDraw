@@ -16,7 +16,7 @@ namespace NDraw
     public class Parser
     {
         #region Properties
-        /// <summary>The product.</summary>
+        /// <summary>The parsing product.</summary>
         public Page Page { get; private set; } = new();
 
         /// <summary>Parsing errors.</summary>
@@ -73,10 +73,6 @@ namespace NDraw
                 {
                     ParseLine(sf);
                 }
-                //catch (ParseException ex)
-                //{
-                //    Errors.Add($"Parse error: {ex}");
-                //}
                 catch (Exception ex)
                 {
                     Errors.Add($"Parse error at row {_row}: {ex.Message}");
@@ -122,42 +118,35 @@ namespace NDraw
             switch (rhs)
             {
                 case "page":
-                    // pg_1=page, un=feet, w=100, h=50, gr=2
-                    // pg_1=page, un=feet, gr=2
                     Page.UnitsName = elemParams.ContainsKey("un") ? elemParams["un"] : "";
-                    //Page.Width = ParseValue(elemParams["w"]); // required
-                    //Page.Height = ParseValue(elemParams["h"]); // required
-                    Page.Grid = float.Parse(elemParams["gr"]); // required
                     Page.Scale = int.Parse(elemParams["sc"]); // required
                     break;
 
                 case "line":
-                    // my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=my_rect2_x, ey=my_rect3_y, lt=2, tx=Hoohaa, tp=TL, es=CH, ss=AF
                     LineShape line = new() { Id = lhs };
                     InitShapeCommon(line, elemParams);
                     line.Start = new PointF(ParseValue(elemParams["sx"]), ParseValue(elemParams["sy"])); // required
                     line.End = new PointF(ParseValue(elemParams["ex"]), ParseValue(elemParams["ey"])); // required
                     line.StartStyle = elemParams.ContainsKey("ss") ? _pointStyle[elemParams["ss"]] : _ss;
                     line.EndStyle = elemParams.ContainsKey("es") ? _pointStyle[elemParams["es"]] : _es;
-                    // Do sanity check on start and end. TODO
                     Page.Lines.Add(line);
                     break;
 
                 case "rect":
-                    // my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w, h=size_1_h, lc=green, fc=lightgreen, tx=Nice day, tp=TL
                     RectShape rect = new() { Id = lhs };
                     InitShapeCommon(rect, elemParams);
-                    rect.TL = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
-                    rect.BR = new PointF(rect.TL.X + ParseValue(elemParams["w"]), rect.TL.Y + ParseValue(elemParams["h"])); // required
-                    // TODO do sanity check.
+                    rect.Location = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
+                    rect.Width = ParseValue(elemParams["w"]); // required
+                    rect.Height = ParseValue(elemParams["h"]); // required
+                    if (rect.Width < 1 || rect.Height < 1)
+                    {
+                        throw new Exception("Invalid rectangle");
+                    }
                     Page.Rects.Add(rect);
                     break;
 
                 default:
-                    // global values: can be changed any time
-                    //$lt=4
-                    //$lc=salmon
-                    switch (lhs)
+                    switch (lhs) // global
                     {
                         case "$fc": _fc = Color.FromName(rhs); break;
                         case "$lc": _lc = Color.FromName(rhs); break;
@@ -166,14 +155,12 @@ namespace NDraw
                         case "$ss": _ss = _pointStyle[rhs]; break;
                         case "$es": _es = _pointStyle[rhs]; break;
 
-                        default:
-                            // user scalar or expression
+                        default: // user scalar or expression
                             UserVals[lhs] = ParseValue(rhs);
                             break;
                     }
                     break;
             }
-
         }
 
         /// <summary>
@@ -218,7 +205,7 @@ namespace NDraw
                 }
             }
 
-            Debug.WriteLine($"{s} >> {v}");
+            // Debug.WriteLine($"{s} >> {v}");
 
             return v;
         }
@@ -256,34 +243,34 @@ namespace NDraw
         /// <param name="s"></param>
         /// <param name="delims"></param>
         /// <returns></returns>
-        public List<string> Split(string s, string delims) // TODO optimize
+        public List<string> Split(string s, string delims) // TODO put in NBOT.
         {
             var parts = new List<string>();
-            string acc = "";
+            StringBuilder acc = new();
 
             for (int i = 0; i < s.Length; i++)
             {
-                if(!char.IsWhiteSpace(s[i]))
+                if (!char.IsWhiteSpace(s[i])) // skip ws
                 {
-                    if (delims.Contains(s[i]))
+                    if (delims.Contains(s[i])) // at delim
                     {
-                        if(acc.Length > 0)
+                        if (acc.Length > 0)
                         {
-                            parts.Add(acc);
-                            acc = "";
+                            parts.Add(acc.ToString());
+                            acc.Clear();
                         }
                         parts.Add(s[i].ToString());
                     }
                     else
                     {
-                        acc += s[i];
+                        acc.Append(s[i]);
                     }
                 }
             }
 
-            if (acc.Length > 0)
+            if (acc.Length > 0) // straggler?
             {
-                parts.Add(acc);
+                parts.Add(acc.ToString());
             }
 
             return parts;

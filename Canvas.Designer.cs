@@ -47,7 +47,7 @@ namespace NDraw
             // 
             // toolTip
             // 
-            this.toolTip.AutomaticDelay = 300;
+            this.toolTip.AutomaticDelay = 100;
             this.toolTip.UseAnimation = false;
             this.toolTip.UseFading = false;
             // 

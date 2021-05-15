@@ -32,10 +32,10 @@ namespace NDraw
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ToolStrip = new System.Windows.Forms.ToolStrip();
             this.fileDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.recentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.OpenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RecentMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RenderMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.SettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
             this.canvas = new NDraw.Canvas();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -52,57 +52,50 @@ namespace NDraw
             this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileDropDownButton,
-            this.toolStripButton1,
-            this.toolStripButton2,
             this.toolStripTextBox1});
             this.ToolStrip.Location = new System.Drawing.Point(0, 0);
             this.ToolStrip.Name = "ToolStrip";
             this.ToolStrip.Size = new System.Drawing.Size(1293, 27);
             this.ToolStrip.TabIndex = 0;
             this.ToolStrip.Text = "ToolStrip";
-            this.ToolStrip.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ToolStrip_ItemClicked);
             // 
             // fileDropDownButton
             // 
             this.fileDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.fileDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openToolStripMenuItem,
-            this.recentToolStripMenuItem});
-            this.fileDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("fileDropDownButton.Image")));
+            this.OpenMenuItem,
+            this.RecentMenuItem,
+            this.RenderMenuItem,
+            this.SettingsMenuItem});
+            this.fileDropDownButton.Image = global::NDraw.Properties.Resources.glyphicons_37_file;
             this.fileDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.fileDropDownButton.Name = "fileDropDownButton";
             this.fileDropDownButton.Size = new System.Drawing.Size(34, 24);
             this.fileDropDownButton.Text = "File";
             // 
-            // openToolStripMenuItem
+            // OpenMenuItem
             // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
-            this.openToolStripMenuItem.Text = "Open...";
+            this.OpenMenuItem.Name = "OpenMenuItem";
+            this.OpenMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.OpenMenuItem.Text = "Open";
             // 
-            // recentToolStripMenuItem
+            // RecentMenuItem
             // 
-            this.recentToolStripMenuItem.Name = "recentToolStripMenuItem";
-            this.recentToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
-            this.recentToolStripMenuItem.Text = "Recent...";
+            this.RecentMenuItem.Name = "RecentMenuItem";
+            this.RecentMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.RecentMenuItem.Text = "Recent";
             // 
-            // toolStripButton1
+            // RenderMenuItem
             // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(29, 24);
-            this.toolStripButton1.Text = "toolStripButton1";
+            this.RenderMenuItem.Name = "RenderMenuItem";
+            this.RenderMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.RenderMenuItem.Text = "Render";
             // 
-            // toolStripButton2
+            // SettingsMenuItem
             // 
-            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(29, 24);
-            this.toolStripButton2.Text = "toolStripButton2";
+            this.SettingsMenuItem.Name = "SettingsMenuItem";
+            this.SettingsMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.SettingsMenuItem.Text = "Settings";
             // 
             // toolStripTextBox1
             // 
@@ -176,13 +169,13 @@ namespace NDraw
         private System.Windows.Forms.ToolStrip ToolStrip;
         private Canvas canvas;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.ToolStripButton toolStripButton1;
-        private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
         private System.Windows.Forms.ToolStripDropDownButton fileDropDownButton;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem recentToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RecentMenuItem;
         private System.Windows.Forms.RichTextBox rtbInfo;
+        private System.Windows.Forms.ToolStripMenuItem OpenMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SettingsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RenderMenuItem;
     }
 }
 

@@ -13,11 +13,13 @@ using System.Text.Json.Serialization;
 
 // Deals exclusively in virtual (page) units. Translation between display and virtual is done in GeometryMap.
 
+// Later ellipse, poly, ...
+
 
 namespace NDraw
 {
     /// <summary>DOC</summary>
-    public enum ShapeState { Default, Highlighted };//, Selected };
+    public enum ShapeState { Default, Highlighted };
 
     /// <summary>DOC</summary>
     public enum PointStyle { None, CircleHollow, CircleFilled, SquareHollow, SquareFilled, ArrowHollow, ArrowFilled };
@@ -34,7 +36,7 @@ namespace NDraw
         /// <summary>Layer - 0 means all.</summary>
         public int Layer { get; set; } = 0;
 
-        /// <summary>DOC</summary>
+        /// <summary>Dynamic state.</summary>
         [JsonIgnore]
         public ShapeState State { get; set; } = ShapeState.Default;
 
@@ -57,6 +59,10 @@ namespace NDraw
         public Color FillColor { get; set; } = Color.Black;
         #endregion
 
+        #region Fields
+        protected int _lastFeature = 0;
+        #endregion
+
         #region Common functions
         /// <summary>
         /// Make a square with the point at the center.
@@ -73,12 +79,12 @@ namespace NDraw
 
         #region Abstract functions
         /// <summary>
-        /// Determine if pt is within range of this.
+        /// Determine if pt is within range of this shape's features.
         /// </summary>
         /// <param name="pt"></param>
         /// <param name="range"></param>
-        /// <returns></returns>
-        public abstract int KeyPoint(PointF pt, float range);
+        /// <returns>Arbitrary 1->N or 0 if none.</returns>
+        public abstract int FeaturePoint(PointF pt, float range);
 
         /// <summary>
         /// Determine if this is within rect.
@@ -87,6 +93,12 @@ namespace NDraw
         /// <param name="any">True if any part is contained otherwise must be the entire.</param>
         /// <returns></returns>
         public abstract bool ContainedIn(RectangleF rect, bool any);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public abstract string GetTooltipText();
         #endregion
     }
 
@@ -113,20 +125,20 @@ namespace NDraw
         #endregion
 
         /// <inheritdoc />
-        public override int KeyPoint(PointF pt, float range)
+        public override int FeaturePoint(PointF pt, float range)
         {
-            int which = 0;
+            _lastFeature = 0;
 
             if (Expand(Start, range).Contains(pt))
             {
-                which = 1;
+                _lastFeature = 1;
             }
             else if (Expand(End, range).Contains(pt))
             {
-                which = 2;
+                _lastFeature = 2;
             }
 
-            return which;
+            return _lastFeature;
         }
 
         /// <inheritdoc />
@@ -135,10 +147,16 @@ namespace NDraw
             return rect.Contains(Start) || rect.Contains(End);
         }
 
+        /// <inheritdoc />
+        public override string GetTooltipText()
+        {
+            return "";
+        }
+
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            return $"Start:{Start} End:{End}";
+            return $"{Id} S:{Start} E:{End}";
         }
     }
 
@@ -149,27 +167,29 @@ namespace NDraw
         #region Properties
         /// <summary>DOC</summary>
         [JsonConverter(typeof(PointFConverter))]
-        public PointF TL { get; set; } = new(0, 0);
+        public PointF Location { get; set; } = new(0, 0);
 
         /// <summary>DOC</summary>
-        [JsonConverter(typeof(PointFConverter))]
-        public PointF BR { get; set; } = new(0, 0);
+        public float Width { get; set; }
 
         /// <summary>DOC</summary>
-        [JsonIgnore, Browsable(false)]
-        public PointF TR => new(BR.X, TL.Y);
-
-        /// <summary>DOC</summary>
-        [JsonIgnore, Browsable(false)]
-        public PointF BL => new(TL.X, BR.Y);
+        public float Height { get; set; }
 
         /// <summary>DOC</summary>
         [JsonIgnore, Browsable(false)]
-        public float Width => BR.X - TL.X;
+        public PointF TL => new(Location.X, Location.Y);
 
         /// <summary>DOC</summary>
         [JsonIgnore, Browsable(false)]
-        public float Height => BR.Y - TL.Y;
+        public PointF TR => new(Location.X + Width, Location.Y);
+
+        /// <summary>DOC</summary>
+        [JsonIgnore, Browsable(false)]
+        public PointF BR => new(Location.X + Width, Location.Y + Height);
+
+        /// <summary>DOC</summary>
+        [JsonIgnore, Browsable(false)]
+        public PointF BL => new(Location.X, Location.Y + Height);
         #endregion
 
         /// <summary>
@@ -177,7 +197,7 @@ namespace NDraw
         /// <returns></returns>
         public PointF Center()
         {
-            PointF center = new((BR.X - TL.X) / 2, (BR.Y - TL.Y) / 2);
+            PointF center = new(Location.X + Width / 2, Location.Y + Height / 2);
             return center;
         }
 
@@ -187,7 +207,7 @@ namespace NDraw
         /// <returns></returns>
         public bool Contains(PointF pf)
         {
-            bool ret = (pf.X <= BR.X) && (pf.X >= TL.X) && (pf.Y <= BR.Y) && (pf.Y >= TL.Y);
+            bool ret = (pf.X <= BR.X) && (pf.X >= Location.X) && (pf.Y <= BR.Y) && (pf.Y >= Location.Y);
             return ret;
         }
 
@@ -198,7 +218,7 @@ namespace NDraw
 
             if (any)
             {
-                contained |= rect.Contains(TL);
+                contained |= rect.Contains(Location);
                 contained |= rect.Contains(BL);
                 contained |= rect.Contains(TR);
                 contained |= rect.Contains(BR);
@@ -206,7 +226,7 @@ namespace NDraw
             else
             {
                 contained = true;
-                contained &= rect.Contains(TL);
+                contained &= rect.Contains(Location);
                 contained &= rect.Contains(BL);
                 contained &= rect.Contains(TR);
                 contained &= rect.Contains(BR);
@@ -215,45 +235,51 @@ namespace NDraw
             return contained;
         }
 
+        /// <inheritdoc />
+        public override string GetTooltipText()
+        {
+            return "";
+        }
+
         /// <summary>
         /// Gets list of lines defining rect edges. Clockwise from top left.
         /// </summary>
         /// <returns></returns>
         public List<(PointF start, PointF end)> GetEdges()
         {
-            List<(PointF start, PointF end)> lines = new() { (TL, TR), (TR, BR), (BR, BL), (BL, TL) };
+            List<(PointF start, PointF end)> lines = new() { (Location, TR), (TR, BR), (BR, BL), (BL, Location) };
             return lines;
         }
 
         /// <inheritdoc />
-        public override int KeyPoint(PointF pt, float range)
+        public override int FeaturePoint(PointF pt, float range)
         {
-            int which = 0;
+            _lastFeature = 0;
 
-            if (Expand(TL, range).Contains(pt))
+            if (Expand(Location, range).Contains(pt))
             {
-                which = 1;
+                _lastFeature = 1;
             }
             else if (Expand(TR, range).Contains(pt))
             {
-                which = 2;
+                _lastFeature = 2;
             }
             else if (Expand(BL, range).Contains(pt))
             {
-                which = 3;
+                _lastFeature = 3;
             }
             else if (Expand(BR, range).Contains(pt))
             {
-                which = 4;
+                _lastFeature = 4;
             }
 
-            return which;
+            return _lastFeature;
         }
 
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            return $"TL:{TL} BR:{BR} W:{Width} H:{Height}";
+            return $"{Id} L:{Location} W:{Width} H:{Height}";
         }
     }
 }

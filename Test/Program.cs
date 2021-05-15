@@ -16,7 +16,6 @@ namespace NDraw.Test
     {
         static void Main(string[] args)
         {
-            ///// Use pnut for automated lib tests.
             TestRunner runner = new TestRunner(OutputFormat.Readable);
             var cases = new[] { "PARSER_1" };
             runner.RunSuites(cases);
@@ -76,6 +75,8 @@ namespace NDraw.Test
             Page page = new();
 
             int which = 0;
+            int RECT_SIZE = 20;
+            int RECT_SPACE = 100;
 
             try
             {
@@ -87,7 +88,6 @@ namespace NDraw.Test
 
                         if (p.Errors.Count > 0)
                         {
-
                         }
                         break;
 
@@ -97,22 +97,20 @@ namespace NDraw.Test
                         break;
 
                     case 2:
-                        page.Rects.Add(new RectShape() { Id = "R_1", Text = "foo", TL = new(50, 50),   BR = new(100, 100) });
-                        page.Rects.Add(new RectShape() { Id = "R_2", Text = "bar", TL = new(160, 170), BR = new(200, 300) });
-                        page.Rects.Add(new RectShape() { Id = "R_3", Text = "abc", TL = new(300, 250), BR = new(330, 300) });
-                        page.Rects.Add(new RectShape() { Id = "R_4", Text = "def", TL = new(400, 300), BR = new(550, 350) });
-                        page.Rects.Add(new RectShape() { Id = "R_5", Text = "ggg", TL = new(450, 250), BR = new(460, 550) });
-                        page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar",  Start = new(250, 250), End = new(275, 455) });
+                        page.Rects.Add(new RectShape() { Id = "R_1", Text = "foo", Location = new(50, 50),   Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Rects.Add(new RectShape() { Id = "R_2", Text = "bar", Location = new(160, 170), Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Rects.Add(new RectShape() { Id = "R_3", Text = "abc", Location = new(300, 250), Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Rects.Add(new RectShape() { Id = "R_4", Text = "def", Location = new(400, 300), Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Rects.Add(new RectShape() { Id = "R_5", Text = "ggg", Location = new(450, 250), Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Lines.Add(new LineShape() { Id = "L_1", Text = "bar", Start = new(250, 250), End = new(275, 455) });
                         break;
 
                     case 3:
-                        int RECT_SIZE = 20;
-                        int RECT_SPACE = 100;
                         for (int x = -70; x < 1500; x += RECT_SPACE)
                         {
                             for (int y = -50; y < 1000; y += RECT_SPACE)
                             {
-                                page.Rects.Add(new RectShape() { Text = $"R_{x}_{y}", TL = new(x, y), BR = new(x + RECT_SIZE, y + RECT_SIZE) });
+                                page.Rects.Add(new RectShape() { Text = $"R_{x}_{y}", Location = new(x, y), Width = RECT_SIZE, Height = RECT_SIZE });
                             }
                         }
                         break;

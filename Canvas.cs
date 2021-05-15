@@ -132,7 +132,7 @@ namespace NDraw
                     switch (shape)
                     {
                         case RectShape shapeRect:
-                            var disptl = VirtualToDisplay(shapeRect.TL);
+                            var disptl = VirtualToDisplay(shapeRect.Location);
                             var dispbr = VirtualToDisplay(shapeRect.BR);
                             var dispRect = new RectangleF(disptl, new SizeF(dispbr.X - disptl.X, dispbr.Y - disptl.Y));
 
@@ -141,10 +141,10 @@ namespace NDraw
 
                             if (shapeRect.State == ShapeState.Highlighted)
                             {
-                                e.Graphics.FillEllipse(penLine.Brush, Expand(dispRect.Left, dispRect.Top, HIGHLIGHT_SIZE));
-                                e.Graphics.FillEllipse(penLine.Brush, Expand(dispRect.Right, dispRect.Top, HIGHLIGHT_SIZE));
-                                e.Graphics.FillEllipse(penLine.Brush, Expand(dispRect.Left, dispRect.Bottom, HIGHLIGHT_SIZE));
-                                e.Graphics.FillEllipse(penLine.Brush, Expand(dispRect.Right, dispRect.Bottom, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispRect.Left, dispRect.Top, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispRect.Right, dispRect.Top, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispRect.Left, dispRect.Bottom, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispRect.Right, dispRect.Bottom, HIGHLIGHT_SIZE));
                             }
                             break;
 
@@ -156,8 +156,14 @@ namespace NDraw
 
                             if (shapeLine.State == ShapeState.Highlighted)
                             {
-                                e.Graphics.FillEllipse(penLine.Brush, Expand(dispStart.X, dispStart.Y, HIGHLIGHT_SIZE));
-                                e.Graphics.FillEllipse(penLine.Brush, Expand(dispEnd.X, dispEnd.Y, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispStart.X, dispStart.Y, HIGHLIGHT_SIZE));
+                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispEnd.X, dispEnd.Y, HIGHLIGHT_SIZE));
+                            }
+                            else
+                            {
+                                // Draw line ends.
+                                DrawPoint(shapeLine.Start, shapeLine.StartStyle);
+                                DrawPoint(shapeLine.End, shapeLine.EndStyle);
                             }
                             break;
                     }
@@ -165,31 +171,35 @@ namespace NDraw
             }
         }
 
-        void DrawPointShape() // TODO
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <param name="ps"></param>
+        void DrawPoint(PointF pt, PointStyle ps) // TODO
         {
-            //switch (point.PointShape)
-            //{
-            //    case DataPoint.PointShapeType.Circle:
-            //        g.DrawArc(pen, point.ClientPoint.X - x * 2, point.ClientPoint.Y - x * 2, x * 4, x * 4, 0, 360);
-            //        break;
+            switch (ps)
+            {
+                case PointStyle.ArrowFilled:
+                    break;
 
-            //    case DataPoint.PointShapeType.Square:
-            //        g.FillRectangle(pen.Brush, point.ClientPoint.X - x, point.ClientPoint.Y - x, series.PointWidth, series.PointWidth);
-            //        break;
+                case PointStyle.None:
+                    break;
+            }
 
-            //    case DataPoint.PointShapeType.Triangle:
-            //        g.FillPolygon(pen.Brush, new PointF[]
-            //            {
-            //              new PointF(point.ClientPoint.X - x, point.ClientPoint.Y + x),   // Bottom-Left
-            //              new PointF(point.ClientPoint.X + x, point.ClientPoint.Y + x),   // Bottom-Right
-            //              new PointF(point.ClientPoint.X, point.ClientPoint.Y - x),       // Top-Middle
-            //            });
-            //        break;
-
-            //    case DataPoint.PointShapeType.Dot:
-            //        g.FillEllipse(pen.Brush, point.ClientPoint.X - x, point.ClientPoint.Y - x, series.PointWidth, series.PointWidth);
-            //        break;
-            //}
+            //case Circle:
+            //    g.DrawArc(pen, point.ClientPoint.X - x * 2, point.ClientPoint.Y - x * 2, x * 4, x * 4, 0, 360);
+            //case Square:
+            //    g.FillRectangle(pen.Brush, point.ClientPoint.X - x, point.ClientPoint.Y - x, series.PointWidth, series.PointWidth);
+            //case Triangle:
+            //    g.FillPolygon(pen.Brush, new PointF[]
+            //        {
+            //          new PointF(point.ClientPoint.X - x, point.ClientPoint.Y + x),   // Bottom-Left
+            //          new PointF(point.ClientPoint.X + x, point.ClientPoint.Y + x),   // Bottom-Right
+            //          new PointF(point.ClientPoint.X, point.ClientPoint.Y - x),       // Top-Middle
+            //        });
+            //case Dot:
+            //    g.FillEllipse(pen.Brush, point.ClientPoint.X - x, point.ClientPoint.Y - x, series.PointWidth, series.PointWidth);
         }
 
         /// <summary>
@@ -227,37 +237,30 @@ namespace NDraw
             Shape toHighlight = null;
 
             var virtLoc = DisplayToVirtual(e.Location);
-            float range = SELECT_RANGE * _zoom / _page.Scale;
+            float range = SELECT_RANGE * _zoom / _page.Scale; // TODO this really should be done in display domain.
 
             foreach (Shape shape in _shapes)
             {
-                if (shape.KeyPoint(virtLoc, range) > 0) // TODO this really should be done in display domain
+                if (shape.FeaturePoint(virtLoc, range) > 0)
                 {
-                    if (shape.State == ShapeState.Default)
-                    {
-                        shape.State = ShapeState.Highlighted;
-                        toHighlight = shape;
-                        redraw = true;
-                    }
+                    shape.State = ShapeState.Highlighted;
+                    toHighlight = shape;
+                    redraw = true;
                 }
-                else
+                else if (shape.State == ShapeState.Highlighted) // Unhighlight those away from.
                 {
-                    // Unhighlight those away from.
-                    if (shape.State == ShapeState.Highlighted)
-                    {
-                        shape.State = ShapeState.Default;
-                        redraw = true;
-                    }
+                    shape.State = ShapeState.Default;
+                    redraw = true;
                 }
             }
 
-            if(toHighlight is not null)
+            if (toHighlight is not null)
             {
-              //  toolTip.Show(toHighlight.ToString(), this, e.X + 15, e.Y);
+                toolTip.Show(toHighlight.ToString(), this, e.X + 15, e.Y);
             }
             else
             {
-               // toolTip.Hide(this);
+                toolTip.Hide(this);
             }
 
             if (redraw)
@@ -318,7 +321,7 @@ namespace NDraw
                     break;
             };
 
-            if(redraw)
+            if (redraw)
             {
                 Invalidate();
             }
@@ -334,19 +337,17 @@ namespace NDraw
         /// <param name="e"></param>
         public void HandleKeyDown(KeyEventArgs e)
         {
-            //bool recalc = false;
             bool redraw = false;
 
             switch (e.KeyCode)
             {
                 case Keys.H: // reset
-                    //Trace("Got H");
                     Reset();
                     redraw = true;
                     break;
             }
 
-            if(redraw)
+            if (redraw)
             {
                 Invalidate();
             }
@@ -362,7 +363,6 @@ namespace NDraw
         void ShowInfo(Point pt)
         {
             lblInfo.Text = $"Mouse:{pt} TX:{DisplayToVirtual(pt)} OffsetX:{_offsetX} OffsetY:{_offsetY} Zoom:{_zoom}";
-            //lblInfo.Text = $"Mouse:{_currentPos} Ctrl:{(_ctrlPressed ? "D" : "U")} Shift:{(_shiftPressed ? "D" : "U")} OffsetX:{GeometryMap.OffsetX} OffsetY:{GeometryMap.OffsetY} Zoom:{GeometryMap.Zoom}";
         }
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace NDraw
         /// <param name="y"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-        RectangleF Expand(float x, float y, float range)
+        RectangleF Squarify(float x, float y, float range)
         {
             RectangleF r = new(x - range, y - range, range * 2, range * 2);
             return r;

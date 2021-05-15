@@ -15,21 +15,6 @@ namespace NDraw
     [Serializable]
     public class Page
     {
-        ///// <summary>Physical - inches</summary>
-        //public float Width { get; set; } = 8.5f;
-
-        ///// <summary>Physical - inches</summary>
-        //public float Height { get; set; } = 11.0f;
-
-        ///// <summary>Physical - inches</summary>
-        //public float Border { get; set; } = 0.75f;
-
-        // /// <summary>Drawing area in virtual units.</summary>
-        // public float Width { get; set; } = 100.0f;
-
-        // /// <summary>Drawing area in virtual units.</summary>
-        // public float Height { get; set; } = 50.0f;
-
         /// <summary>Grid spacing in virtual units.</summary>
         public float Grid { get; set; } = 5.0f;
 
