@@ -220,32 +220,34 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Draw the grid. TODO a bit wobbly. TODO Draw values.
+        /// Draw the grid. TODO a bit wobbly.
         /// </summary>
         /// <param name="g">The Graphics object to use.</param>
-        /// <param name="visible">Virtual area to scope.</param>
-        void DrawGrid(Graphics g, RectangleF visible)
+        /// <param name="virtualVisible">Virtual area to scope.</param>
+        void DrawGrid(Graphics g, RectangleF virtualVisible)
         {
             using Pen penGrid = new(_settings.GridColor, 3.0f);
 
-            // Origin
+            // Draw axes.
             var dorig = VirtualToDisplay(new());
             g.DrawLine(penGrid, dorig.X, 0, dorig.X, Height);
             g.DrawLine(penGrid, 0, dorig.Y, Width, dorig.Y);
 
-            // Draw X-Axis
+            // Draw X-Axis ticks.
             penGrid.Width = GRID_LINE_WIDTH;
-            for (float x = visible.X + _page.Grid; x < visible.Width; x += _page.Grid)
+            for (float x = virtualVisible.X + _page.Grid; x < virtualVisible.Width; x += _page.Grid)
             {
                 var xd = VirtualToDisplay(new(x, 0)).X;
                 g.DrawLine(penGrid, xd, 0, xd, Width);
+                g.DrawString(x.ToString(), _settings.Font, Brushes.Black, xd, 0);
             }
 
-            // Draw Y-Axis
-            for (float y = visible.Y + _page.Grid; y < visible.Width; y += _page.Grid)
+            // Draw Y-Axis ticks.
+            for (float y = virtualVisible.Y + _page.Grid; y < virtualVisible.Width; y += _page.Grid)
             {
                 var yd = VirtualToDisplay(new(0, y)).Y;
                 g.DrawLine(penGrid, 0, yd, Width, yd);
+                g.DrawString(y.ToString(), _settings.Font, Brushes.Black, 0, yd);
             }
         }
         #endregion
