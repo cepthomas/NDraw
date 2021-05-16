@@ -21,10 +21,10 @@ loc_3_y=loc_1_y + 13
 
 
 // shapes: id=type, param=value, ...
-ref_rect=rect, x=0, y=0, w=10, h=10, tx="ref", tp=CC
+//ref_rect=rect, x=0, y=0, w=10, h=10, tx="ref", tp=CC
 my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", tp=TL
 my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx="Hoohaa", tp=TL, es=CH, ss=AF
-base_line=line, sx=60, sy=10, ex=80, ey=50, tx="base line"
+base_line=line, sx=60, sy=10, ex=84, ey=50, tx="base line"
 
 $lc=purple
 

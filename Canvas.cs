@@ -34,6 +34,18 @@ namespace NDraw
 
         /// <summary>Current zoom level.</summary>
         float _zoom = 1.0F;
+
+        /// <summary>Range.</summary>
+        float _xMin = float.MaxValue;
+
+        /// <summary>Range.</summary>
+        float _yMin = float.MaxValue;
+
+        /// <summary>Range.</summary>
+        float _xMax = float.MinValue;
+
+        /// <summary>Range.</summary>
+        float _yMax = float.MinValue;
         #endregion
 
         #region Constants
@@ -97,6 +109,22 @@ namespace NDraw
             _shapes.AddRange(_page.Rects);
             _shapes.AddRange(_page.Lines);
             _shapes.AddRange(_page.Ellipses);
+
+            // Get ranges.
+            foreach(var shape in _shapes)
+            {
+                var rect = shape.ToRect();
+                _xMin = Math.Min(_xMin, rect.Left);
+                _xMax = Math.Max(_xMax, rect.Right);
+                _yMin = Math.Min(_yMin, rect.Top);
+                _yMax = Math.Max(_yMax, rect.Bottom);
+            }
+
+            // Breathing space.
+            _xMin = Box(_xMin).low;
+            _xMax = Box(_xMax).high;
+            _yMin = Box(_yMin).low;
+            _yMax = Box(_yMax).high;
 
             // Init geometry.
             Reset();
@@ -220,7 +248,7 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Draw the grid. TODO a bit wobbly.
+        /// Draw the grid.
         /// </summary>
         /// <param name="g">The Graphics object to use.</param>
         /// <param name="virtualVisible">Virtual area to scope.</param>
@@ -228,14 +256,14 @@ namespace NDraw
         {
             using Pen penGrid = new(_settings.GridColor, 3.0f);
 
-            // Draw axes.
+            // Draw main axes.
             var dorig = VirtualToDisplay(new());
             g.DrawLine(penGrid, dorig.X, 0, dorig.X, Height);
             g.DrawLine(penGrid, 0, dorig.Y, Width, dorig.Y);
 
             // Draw X-Axis ticks.
             penGrid.Width = GRID_LINE_WIDTH;
-            for (float x = virtualVisible.X + _page.Grid; x < virtualVisible.Width; x += _page.Grid)
+            for (float x = _xMin; x < _xMax; x += _page.Grid)
             {
                 var xd = VirtualToDisplay(new(x, 0)).X;
                 g.DrawLine(penGrid, xd, 0, xd, Width);
@@ -243,7 +271,7 @@ namespace NDraw
             }
 
             // Draw Y-Axis ticks.
-            for (float y = virtualVisible.Y + _page.Grid; y < virtualVisible.Width; y += _page.Grid)
+            for (float y = _yMin; y < _yMax; y += _page.Grid)
             {
                 var yd = VirtualToDisplay(new(0, y)).Y;
                 g.DrawLine(penGrid, 0, yd, Width, yd);
@@ -453,6 +481,12 @@ namespace NDraw
         {
             RectangleF r = new(x - range, y - range, range * 2, range * 2);
             return r;
+        }
+
+        (float low, float high) Box(float val)
+        {
+            var v = val - (val % _page.Grid);
+            return (v, v + _page.Grid);
         }
     }
 }
