@@ -69,6 +69,9 @@ namespace NDraw
 
         /// <summary>Cosmetics.</summary>
         const int HIGHLIGHT_SIZE = 5;
+
+        /// <summary>Cosmetics.</summary>
+        const int BORDER_SIZE = 40;
         #endregion
 
         #region Enum mappings
@@ -120,7 +123,7 @@ namespace NDraw
                 _yMax = Math.Max(_yMax, rect.Bottom);
             }
 
-            // Breathing space.
+            // Fit to grid intervals.
             _xMin = Box(_xMin).low;
             _xMax = Box(_xMax).high;
             _yMin = Box(_yMin).low;
@@ -160,7 +163,9 @@ namespace NDraw
             var virtVisible = new RectangleF(tl, new SizeF(br.X - tl.X, br.Y - tl.Y));
 
             // Draw the grid.
-            DrawGrid(e.Graphics, virtVisible);
+            DrawGrid(e.Graphics);
+
+            e.Graphics.SetClip(new Rectangle(BORDER_SIZE, BORDER_SIZE, ClientRectangle.Width - BORDER_SIZE, ClientRectangle.Height - BORDER_SIZE));
 
             // Draw the shapes.
             foreach (var shape in _shapes)
@@ -251,15 +256,15 @@ namespace NDraw
         /// Draw the grid.
         /// </summary>
         /// <param name="g">The Graphics object to use.</param>
-        /// <param name="virtualVisible">Virtual area to scope.</param>
-        void DrawGrid(Graphics g, RectangleF virtualVisible)
+        void DrawGrid(Graphics g)
         {
             using Pen penGrid = new(_settings.GridColor, 3.0f);
 
             // Draw main axes.
-            var dorig = VirtualToDisplay(new());
-            g.DrawLine(penGrid, dorig.X, 0, dorig.X, Height);
-            g.DrawLine(penGrid, 0, dorig.Y, Width, dorig.Y);
+            g.DrawLine(penGrid, BORDER_SIZE, 0, BORDER_SIZE, Height);
+            g.DrawLine(penGrid, 0, BORDER_SIZE, Width, BORDER_SIZE);
+
+            penGrid.Width = GRID_LINE_WIDTH;
 
             // Draw X-Axis ticks.
             penGrid.Width = GRID_LINE_WIDTH;
@@ -349,11 +354,11 @@ namespace NDraw
                         _zoom = newZoom;
 
                         // Adjust offsets to center zoom at mouse.
-                        float offx = e.X * zoomFactor;// / 2;
-                        float offy = e.Y * zoomFactor;// / 2;
+                        float offx = e.X * zoomFactor;
+                        float offy = e.Y * zoomFactor;
 
-                        _offsetX += (int)-offx;
-                        _offsetY += (int)-offy;
+                        _offsetX -= (int)offx;
+                        _offsetY -= (int)offy;
 
                         redraw = true;
                     }
@@ -372,6 +377,10 @@ namespace NDraw
                 default:
                     break;
             };
+
+            // Clamp offsets.
+            _offsetX = Math.Min(_offsetX, 0);
+            _offsetY = Math.Min(_offsetY, 0);
 
             if (redraw)
             {
@@ -443,8 +452,8 @@ namespace NDraw
         /// <returns></returns>
         PointF VirtualToDisplay(PointF virt)
         {
-            var dispX = (virt.X * _zoom) * _page.Scale + _offsetX;
-            var dispY = (virt.Y * _zoom) * _page.Scale + _offsetY;
+            var dispX = (virt.X * _zoom) * _page.Scale + _offsetX + BORDER_SIZE;
+            var dispY = (virt.Y * _zoom) * _page.Scale + _offsetY + BORDER_SIZE;
             return new(dispX, dispY);
         }
 
@@ -455,8 +464,8 @@ namespace NDraw
         /// <returns>The virtual point.</returns>
         PointF DisplayToVirtual(Point disp)
         {
-            var virtX = (disp.X - _offsetX) / _page.Scale / _zoom;
-            var virtY = (disp.Y - _offsetY) / _page.Scale / _zoom;
+            var virtX = (disp.X - _offsetX - BORDER_SIZE) / _page.Scale / _zoom;
+            var virtY = (disp.Y - _offsetY - BORDER_SIZE) / _page.Scale / _zoom;
             return new PointF(virtX, virtY);
         }
 
@@ -466,8 +475,8 @@ namespace NDraw
         void Reset()
         {
             _zoom = 1.0f;
-            _offsetX = 50;
-            _offsetY = 50;
+            _offsetX = 0;
+            _offsetY = 0;
         }
 
         /// <summary>

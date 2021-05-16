@@ -14,10 +14,10 @@ size_2_w=size_1_w - 2.33
 size_2_h=45
 loc_1_x=pabc - 5.11
 loc_1_y=84.12
-loc_2_x=pabc + size_2_w - 2.2
+loc_2_x=pabc + size_2_w - 2.2 + 19
 loc_2_y=loc_1_x + 2
 loc_3_x=12.7
-loc_3_y=loc_1_y + 13
+loc_3_y=loc_1_y + 23
 
 
 // shapes: id=type, param=value, ...
@@ -28,4 +28,4 @@ base_line=line, sx=60, sy=10, ex=84, ey=50, tx="base line"
 
 $lc=purple
 
-my_circle=ellipse, x=50, y=50, w=10, h=10, tx="I'm rrrround", tp=CC
+my_circle=ellipse, x=50, y=50, w=20, h=20, tx="I'm rrrround", tp=CC
