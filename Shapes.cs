@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//using Newtonsoft.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -18,12 +17,13 @@ using System.Text.Json.Serialization;
 
 namespace NDraw
 {
+    #region Enums
     /// <summary>DOC</summary>
     public enum ShapeState { Default, Highlighted };
 
     /// <summary>DOC</summary>
     public enum PointStyle { None, CircleHollow, CircleFilled, SquareHollow, SquareFilled, ArrowHollow, ArrowFilled };
-
+    #endregion
 
     /// <summary>Base/abstract class for all shape types.</summary>
     [Serializable]
@@ -35,10 +35,6 @@ namespace NDraw
 
         /// <summary>Layer - 0 means all.</summary>
         public int Layer { get; set; } = 0;
-
-        /// <summary>Dynamic state.</summary>
-        [JsonIgnore]
-        public ShapeState State { get; set; } = ShapeState.Default;
 
         /// <summary>Text to display.</summary>
         public string Text { get; set; } = "";
@@ -57,6 +53,10 @@ namespace NDraw
         /// <summary>DOC</summary>
         [JsonConverter(typeof(ColorConverter))]
         public Color FillColor { get; set; } = Color.Black;
+
+        /// <summary>Dynamic state.</summary>
+        [JsonIgnore]
+        public ShapeState State { get; set; } = ShapeState.Default;
         #endregion
 
         #region Fields
@@ -75,16 +75,37 @@ namespace NDraw
             RectangleF r = new(pt.X - range, pt.Y - range, range * 2, range * 2);
             return r;
         }
+
+        /// <summary>
+        /// Derived classes supply this.
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public int FeaturePoint(PointF pt, float range)
+        {
+            _lastFeature = 0;
+            var features = AllFeaturePoints();
+
+            for (int i = 0; i < features.Count; i++)
+            {
+                if (Expand(features[i], range).Contains(pt))
+                {
+                    _lastFeature = i + 1;
+                }
+            }
+
+            return _lastFeature;
+        }
+
         #endregion
 
         #region Abstract functions
         /// <summary>
-        /// Determine if pt is within range of this shape's features.
+        /// Bounds of shape.
         /// </summary>
-        /// <param name="pt"></param>
-        /// <param name="range"></param>
-        /// <returns>Arbitrary 1->N or 0 if none.</returns>
-        public abstract int FeaturePoint(PointF pt, float range);
+        /// <returns></returns>
+        public abstract RectangleF ToRect();
 
         /// <summary>
         /// Determine if this is within rect.
@@ -95,10 +116,10 @@ namespace NDraw
         public abstract bool ContainedIn(RectangleF rect, bool any);
 
         /// <summary>
-        /// 
+        /// Derived classes supply this.
         /// </summary>
         /// <returns></returns>
-        public abstract string GetTooltipText();
+        public abstract List<PointF> AllFeaturePoints();
         #endregion
     }
 
@@ -125,20 +146,9 @@ namespace NDraw
         #endregion
 
         /// <inheritdoc />
-        public override int FeaturePoint(PointF pt, float range)
+        public override List<PointF> AllFeaturePoints()
         {
-            _lastFeature = 0;
-
-            if (Expand(Start, range).Contains(pt))
-            {
-                _lastFeature = 1;
-            }
-            else if (Expand(End, range).Contains(pt))
-            {
-                _lastFeature = 2;
-            }
-
-            return _lastFeature;
+            return new List<PointF>() { Start, End };
         }
 
         /// <inheritdoc />
@@ -148,15 +158,15 @@ namespace NDraw
         }
 
         /// <inheritdoc />
-        public override string GetTooltipText()
+        public override RectangleF ToRect()
         {
-            return "";
+            return new RectangleF(Start.X, Start.Y, End.X - Start.X, End.Y - Start.Y);
         }
 
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            return $"{Id} S:{Start} E:{End}";
+            return $"Line:{Id} S:{Start.X},{Start.Y} E:{End.X},{End.Y}";
         }
     }
 
@@ -235,12 +245,6 @@ namespace NDraw
             return contained;
         }
 
-        /// <inheritdoc />
-        public override string GetTooltipText()
-        {
-            return "";
-        }
-
         /// <summary>
         /// Gets list of lines defining rect edges. Clockwise from top left.
         /// </summary>
@@ -252,34 +256,93 @@ namespace NDraw
         }
 
         /// <inheritdoc />
-        public override int FeaturePoint(PointF pt, float range)
+        public override List<PointF> AllFeaturePoints()
         {
-            _lastFeature = 0;
+            return new List<PointF>() { Location, TR, BL, BR };
+        }
 
-            if (Expand(Location, range).Contains(pt))
-            {
-                _lastFeature = 1;
-            }
-            else if (Expand(TR, range).Contains(pt))
-            {
-                _lastFeature = 2;
-            }
-            else if (Expand(BL, range).Contains(pt))
-            {
-                _lastFeature = 3;
-            }
-            else if (Expand(BR, range).Contains(pt))
-            {
-                _lastFeature = 4;
-            }
-
-            return _lastFeature;
+        /// <inheritdoc />
+        public override RectangleF ToRect()
+        {
+            return new RectangleF(Location.X, Location.Y, Width, Height);
         }
 
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            return $"{Id} L:{Location} W:{Width} H:{Height}";
+            return $"Rect:{Id} L:{Location.X},{Location.Y} W:{Width} H:{Height}";
+        }
+    }
+
+    /// <summary>Drawing ellipse.</summary>
+    [Serializable]
+    public class EllipseShape : Shape
+    {
+        #region Properties
+        /// <summary>DOC</summary>
+        [JsonConverter(typeof(PointFConverter))]
+        public PointF Center { get; set; } = new(0, 0);
+
+        /// <summary>DOC</summary>
+        public float Width { get; set; }
+
+        /// <summary>DOC</summary>
+        public float Height { get; set; }
+        #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public bool Contains(PointF pf)
+        {
+            var rect = ToRect();
+            bool ret = (pf.X <= rect.Right) && (pf.X >= rect.Left) && (pf.Y <= rect.Bottom) && (pf.Y >= rect.Top);
+            return ret;
+        }
+
+        /// <inheritdoc />
+        public override bool ContainedIn(RectangleF rect, bool any)
+        {
+            bool contained = false;
+            var elrect = ToRect();
+
+            if (any)
+            {
+                contained |= rect.Contains(elrect.Left, elrect.Top);
+                contained |= rect.Contains(elrect.Right, elrect.Top);
+                contained |= rect.Contains(elrect.Left, elrect.Bottom);
+                contained |= rect.Contains(elrect.Right, elrect.Bottom);
+            }
+            else
+            {
+                contained = true;
+                contained &= rect.Contains(elrect.Left, elrect.Top);
+                contained &= rect.Contains(elrect.Right, elrect.Top);
+                contained &= rect.Contains(elrect.Left, elrect.Bottom);
+                contained &= rect.Contains(elrect.Right, elrect.Bottom);
+            }
+
+            return contained;
+        }
+
+        /// <inheritdoc />
+        public override List<PointF> AllFeaturePoints()
+        {
+            return new List<PointF>() { new PointF(Center.X, Center.Y - Height / 2), new PointF(Center.X, Center.Y + Height / 2),
+                new PointF(Center.X - Width / 2, Center.Y),new PointF(Center.X + Width / 2, Center.Y) };
+        }
+
+        /// <summary>For viewing pleasure.</summary>
+        public override string ToString()
+        {
+            return $"Ellipse:{Id} C:{Center.X},{Center.Y} W:{Width} H:{Height}";
+        }
+
+        /// <summary>Helper.</summary>
+        public override RectangleF ToRect()
+        {
+            return new(Center.X - Width / 2, Center.Y - Height / 2, Width, Height);
         }
     }
 }

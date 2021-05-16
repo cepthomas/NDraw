@@ -49,7 +49,7 @@ namespace NDraw
             di.Create();
             _settings = UserSettings.Load(appDir);
 
-            Location = new(_settings.FormX, _settings.FormX);
+            Location = new(_settings.FormX, _settings.FormY);
             Width = _settings.FormWidth;
             Height = _settings.FormHeight;
 

@@ -59,6 +59,21 @@ namespace NDraw
         const int HIGHLIGHT_SIZE = 5;
         #endregion
 
+        #region Enum mappings
+        readonly Dictionary<ContentAlignment, (StringAlignment vert, StringAlignment hor)> _alignment = new()
+        {
+            { ContentAlignment.TopLeft,      (StringAlignment.Near,   StringAlignment.Near) },
+            { ContentAlignment.TopCenter,    (StringAlignment.Near,   StringAlignment.Center) },
+            { ContentAlignment.TopRight,     (StringAlignment.Near,   StringAlignment.Far) },
+            { ContentAlignment.MiddleLeft,   (StringAlignment.Center, StringAlignment.Near) },
+            { ContentAlignment.MiddleCenter, (StringAlignment.Center, StringAlignment.Center) },
+            { ContentAlignment.MiddleRight,  (StringAlignment.Center, StringAlignment.Far) },
+            { ContentAlignment.BottomLeft,   (StringAlignment.Far,    StringAlignment.Near) },
+            { ContentAlignment.BottomCenter, (StringAlignment.Far,    StringAlignment.Center) },
+            { ContentAlignment.BottomRight,  (StringAlignment.Far,    StringAlignment.Far) },
+        };
+        #endregion
+
         #region Lifecycle
         /// <summary>
         /// 
@@ -81,6 +96,7 @@ namespace NDraw
             _shapes.Clear();
             _shapes.AddRange(_page.Rects);
             _shapes.AddRange(_page.Lines);
+            _shapes.AddRange(_page.Ellipses);
 
             // Init geometry.
             Reset();
@@ -119,55 +135,54 @@ namespace NDraw
             DrawGrid(e.Graphics, virtVisible);
 
             // Draw the shapes.
-
             foreach (var shape in _shapes)
             {
                 // Is it visible?
                 if (shape.ContainedIn(virtVisible, true))
                 {
                     using Pen penLine = new(shape.LineColor, shape.LineThickness);
-                    var align = Convert(shape.TextAlignment);
-                    using StringFormat fmt = new() { Alignment = align.hor, LineAlignment = align.vert };
+                    // Map to display coordinates.
+                    var bounds = shape.ToRect();
+                    var disptl = VirtualToDisplay(bounds.Location);
+                    var dispbr = VirtualToDisplay(new(bounds.Right, bounds.Bottom));
+                    var dispRect = new RectangleF(disptl, new SizeF(dispbr.X - disptl.X, dispbr.Y - disptl.Y));
+                    //e.Graphics.DrawRectangle(Pens.Red, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
 
                     switch (shape)
                     {
                         case RectShape shapeRect:
-                            var disptl = VirtualToDisplay(shapeRect.Location);
-                            var dispbr = VirtualToDisplay(shapeRect.BR);
-                            var dispRect = new RectangleF(disptl, new SizeF(dispbr.X - disptl.X, dispbr.Y - disptl.Y));
+                            e.Graphics.DrawRectangle(penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);//.X, dispRect.Y, dispRect.Width, dispRect.Height);
+                            break;
 
-                            e.Graphics.DrawRectangle(penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
-                            e.Graphics.DrawString(shapeRect.Text, _settings.Font, Brushes.Black, dispRect, fmt);
-                            //e.Graphics.DrawString(shapeRect.Text, _settings.Font, Brushes.Black, dispRect.X + 2, dispRect.Y + 2, fmt);
-
-                            if (shapeRect.State == ShapeState.Highlighted)
-                            {
-                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispRect.Left, dispRect.Top, HIGHLIGHT_SIZE));
-                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispRect.Right, dispRect.Top, HIGHLIGHT_SIZE));
-                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispRect.Left, dispRect.Bottom, HIGHLIGHT_SIZE));
-                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispRect.Right, dispRect.Bottom, HIGHLIGHT_SIZE));
-                            }
+                        case EllipseShape shapeEllipse:
+                            e.Graphics.DrawEllipse(penLine, dispRect);//.X, dispRect.Y, dispRect.Width, dispRect.Height);
                             break;
 
                         case LineShape shapeLine:
-                            var dispStart = VirtualToDisplay(shapeLine.Start);
-                            var dispEnd = VirtualToDisplay(shapeLine.End);
-                            e.Graphics.DrawLine(penLine, dispStart, dispEnd);
-                            e.Graphics.DrawString(shapeLine.Text, _settings.Font, Brushes.Black, dispStart, fmt);
-                            //e.Graphics.DrawString(shapeLine.Text, _settings.Font, Brushes.Black, dispStart.X + 2, dispStart.Y + 2, fmt);
+                            e.Graphics.DrawLine(penLine, disptl, dispbr);
 
-                            if (shapeLine.State == ShapeState.Highlighted)
-                            {
-                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispStart.X, dispStart.Y, HIGHLIGHT_SIZE));
-                                e.Graphics.FillEllipse(penLine.Brush, Squarify(dispEnd.X, dispEnd.Y, HIGHLIGHT_SIZE));
-                            }
-                            else
+                            if (shapeLine.State != ShapeState.Highlighted)
                             {
                                 // Draw line ends.
                                 DrawPoint(shapeLine.Start, shapeLine.StartStyle);
                                 DrawPoint(shapeLine.End, shapeLine.EndStyle);
                             }
                             break;
+                    }
+
+                    // Text.
+                    var align = _alignment[shape.TextAlignment];
+                    using StringFormat fmt = new() { Alignment = align.hor, LineAlignment = align.vert };
+                    e.Graphics.DrawString(shape.Text, _settings.Font, Brushes.Black, dispRect, fmt);
+
+                    // Highlight features.
+                    if (shape.State == ShapeState.Highlighted)
+                    {
+                        foreach (var pt in shape.AllFeaturePoints())
+                        {
+                            PointF disppt = VirtualToDisplay(pt);
+                            e.Graphics.FillEllipse(penLine.Brush, Squarify(disppt.X, disppt.Y, HIGHLIGHT_SIZE));
+                        }
                     }
                 }
             }
@@ -291,7 +306,7 @@ namespace NDraw
             bool redraw = false;
 
             // Number of detents the mouse wheel has rotated, multiplied by the WHEEL_DELTA constant.
-            int delta = WHEEL_RESOLUTION * e.Delta / SystemInformation.MouseWheelScrollDelta;
+            int delta = 2 * WHEEL_RESOLUTION * e.Delta / SystemInformation.MouseWheelScrollDelta;
 
             switch (e.Button, ControlPressed(), ShiftPressed())
             {
@@ -309,8 +324,6 @@ namespace NDraw
 
                         _offsetX += (int)-offx;
                         _offsetY += (int)-offy;
-
-                        //Trace($"offx:{offx} offy:{offy} Zoom:{Geometry.Zoom} GeoX:{Geometry.OffsetX} GeoY:{Geometry.OffsetY}");
 
                         redraw = true;
                     }
@@ -344,7 +357,7 @@ namespace NDraw
         /// 
         /// </summary>
         /// <param name="e"></param>
-        public void HandleKeyDown(KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
             bool redraw = false;
 
@@ -438,38 +451,6 @@ namespace NDraw
         {
             RectangleF r = new(x - range, y - range, range * 2, range * 2);
             return r;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cal"></param>
-        /// <returns></returns>
-        (StringAlignment vert, StringAlignment hor) Convert(ContentAlignment cal)
-        {
-            switch(cal)
-            {
-                case ContentAlignment.TopLeft:
-                    return (StringAlignment.Near, StringAlignment.Near);
-                case ContentAlignment.TopCenter:
-                    return (StringAlignment.Near, StringAlignment.Center);
-                case ContentAlignment.TopRight:
-                    return (StringAlignment.Near, StringAlignment.Far);
-                case ContentAlignment.MiddleLeft:
-                    return (StringAlignment.Center, StringAlignment.Near);
-                case ContentAlignment.MiddleCenter:
-                    return (StringAlignment.Center, StringAlignment.Center);
-                case ContentAlignment.MiddleRight:
-                    return (StringAlignment.Center, StringAlignment.Far);
-                case ContentAlignment.BottomLeft:
-                    return (StringAlignment.Far, StringAlignment.Near);
-                case ContentAlignment.BottomCenter:
-                    return (StringAlignment.Far, StringAlignment.Center);
-                case ContentAlignment.BottomRight:
-                    return (StringAlignment.Far, StringAlignment.Far);
-                default:
-                    return (StringAlignment.Near, StringAlignment.Near);
-            }
         }
     }
 }

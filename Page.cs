@@ -30,6 +30,9 @@ namespace NDraw
         /// <summary>All the shapes.</summary>
         public List<LineShape> Lines { get; set; } = new();
 
+        /// <summary>All the shapes.</summary>
+        public List<EllipseShape> Ellipses { get; set; } = new();
+
         #region Fields
         /// <summary>The file name.</summary>
         string _fn = null;

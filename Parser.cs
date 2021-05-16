@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NBagOfTricks.Utils;
 
-//TODO stuff like:     N0 -> N2 [label="IsUnlocked"];
-
 
 namespace NDraw
 {
@@ -120,7 +118,7 @@ namespace NDraw
             switch (rhs)
             {
                 case "page":
-                    Page.UnitsName = elemParams.ContainsKey("un") ? elemParams["un"] : "";
+                    Page.UnitsName = elemParams.ContainsKey("un") ? ParseString(elemParams["un"]) : "";
                     Page.Scale = int.Parse(elemParams["sc"]); // required
                     Page.Grid = float.Parse(elemParams["gr"]); // required
                     break;
@@ -146,6 +144,19 @@ namespace NDraw
                         throw new Exception("Invalid rectangle");
                     }
                     Page.Rects.Add(rect);
+                    break;
+
+                case "ellipse":
+                    EllipseShape ellipse = new() { Id = lhs };
+                    InitShapeCommon(ellipse, elemParams);
+                    ellipse.Center = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
+                    ellipse.Width = ParseValue(elemParams["w"]); // required
+                    ellipse.Height = ParseValue(elemParams["h"]); // required
+                    if (ellipse.Width < 1 || ellipse.Height < 1)
+                    {
+                        throw new Exception("Invalid ellipse");
+                    }
+                    Page.Ellipses.Add(ellipse);
                     break;
 
                 default:
@@ -214,6 +225,24 @@ namespace NDraw
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        string ParseString(string s)
+        {
+            s = s.Trim();
+            if(s.StartsWith("\"") && s.EndsWith("\""))
+            {
+                return s.Substring(1, s.Length - 2);
+            }
+            else
+            {
+                throw new Exception("Invalid string");
+            }
+        }
+
+        /// <summary>
         /// Utility to chop up named params.
         /// </summary>
         /// <param name="p"></param>
@@ -233,7 +262,7 @@ namespace NDraw
         {
             // Common.
             shape.Layer = elemParams.ContainsKey("lr") ? int.Parse(elemParams["lr"]) : 0;
-            shape.Text = elemParams.ContainsKey("tx") ? elemParams["tx"] : null;
+            shape.Text = elemParams.ContainsKey("tx") ? ParseString(elemParams["tx"]) : null;
             shape.LineThickness = elemParams.ContainsKey("lt") ? float.Parse(elemParams["lt"]) : _lt;
             shape.LineColor = elemParams.ContainsKey("lc") ? Color.FromName(elemParams["lc"]) : _lc;
             shape.FillColor = elemParams.ContainsKey("fc") ? Color.FromName(elemParams["fc"]) : _fc;
