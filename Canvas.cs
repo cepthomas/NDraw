@@ -46,6 +46,9 @@ namespace NDraw
 
         /// <summary>Range.</summary>
         float _yMax = float.MinValue;
+
+        /// <summary>Based on range.</summary>
+        string _numericalFormat = "";
         #endregion
 
         #region Constants
@@ -72,6 +75,9 @@ namespace NDraw
 
         /// <summary>Cosmetics.</summary>
         const int BORDER_SIZE = 40;
+
+        /// <summary>Cosmetics.</summary>
+        const int TICK_SIZE = 10;
         #endregion
 
         #region Enum mappings
@@ -128,6 +134,8 @@ namespace NDraw
             _xMax = Box(_xMax).high;
             _yMin = Box(_yMin).low;
             _yMax = Box(_yMax).high;
+
+            _numericalFormat = FormatSpecifier(MathF.Max(_xMax, _yMax));
 
             // Init geometry.
             Reset();
@@ -258,29 +266,44 @@ namespace NDraw
         /// <param name="g">The Graphics object to use.</param>
         void DrawGrid(Graphics g)
         {
-            using Pen penGrid = new(_settings.GridColor, 3.0f);
+            using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH * 6.0f);
 
             // Draw main axes.
-            g.DrawLine(penGrid, BORDER_SIZE, 0, BORDER_SIZE, Height);
-            g.DrawLine(penGrid, 0, BORDER_SIZE, Width, BORDER_SIZE);
+            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, Height);
+            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, Width, BORDER_SIZE);
 
             penGrid.Width = GRID_LINE_WIDTH;
+            bool done = false;
 
             // Draw X-Axis ticks.
-            penGrid.Width = GRID_LINE_WIDTH;
-            for (float x = _xMin; x < _xMax; x += _page.Grid)
+            for (float x = _xMin; !done; x += _page.Grid)
             {
                 var xd = VirtualToDisplay(new(x, 0)).X;
-                g.DrawLine(penGrid, xd, 0, xd, Width);
-                g.DrawString(x.ToString(), _settings.Font, Brushes.Black, xd, 0);
+                if(xd > Width)
+                {
+                    done = true;
+                }
+                else if(xd > BORDER_SIZE) // clip
+                {
+                    g.DrawLine(penGrid, xd, BORDER_SIZE - TICK_SIZE, xd, Width);
+                    g.DrawString(x.ToString(_numericalFormat), _settings.Font, Brushes.Black, xd - TICK_SIZE, 0);
+                }
             }
 
             // Draw Y-Axis ticks.
-            for (float y = _yMin; y < _yMax; y += _page.Grid)
+            done = false;
+            for (float y = _yMin; !done; y += _page.Grid)
             {
                 var yd = VirtualToDisplay(new(0, y)).Y;
-                g.DrawLine(penGrid, 0, yd, Width, yd);
-                g.DrawString(y.ToString(), _settings.Font, Brushes.Black, 0, yd);
+                if (yd > Height)
+                {
+                    done = true;
+                }
+                else if (yd > BORDER_SIZE) // clip
+                {
+                    g.DrawLine(penGrid, BORDER_SIZE - TICK_SIZE, yd, Width, yd);
+                    g.DrawString(y.ToString(_numericalFormat), _settings.Font, Brushes.Black, 0, yd - TICK_SIZE);
+                }
             }
         }
         #endregion
@@ -417,6 +440,32 @@ namespace NDraw
         }
         #endregion
 
+        #region Mapping functions
+        /// <summary>
+        /// Map a virtual point to the display.
+        /// </summary>
+        /// <param name="virt"></param>
+        /// <returns></returns>
+        PointF VirtualToDisplay(PointF virt)
+        {
+            var dispX = (virt.X * _zoom) * _page.Scale + _offsetX + BORDER_SIZE;
+            var dispY = (virt.Y * _zoom) * _page.Scale + _offsetY + BORDER_SIZE;
+            return new(dispX, dispY);
+        }
+
+        /// <summary>
+        /// Obtain the virtual point for a display position.
+        /// </summary>
+        /// <param name="disp">The display point.</param>
+        /// <returns>The virtual point.</returns>
+        PointF DisplayToVirtual(Point disp)
+        {
+            var virtX = (disp.X - _offsetX - BORDER_SIZE) / _page.Scale / _zoom;
+            var virtY = (disp.Y - _offsetY - BORDER_SIZE) / _page.Scale / _zoom;
+            return new PointF(virtX, virtY);
+        }
+        #endregion
+
         #region Private helpers
         /// <summary>
         /// Debug helper.
@@ -443,31 +492,6 @@ namespace NDraw
         {
             return (ModifierKeys & Keys.Shift) > 0;
         }
-        #endregion
-
-        /// <summary>
-        /// Map a virtual point to the display.
-        /// </summary>
-        /// <param name="virt"></param>
-        /// <returns></returns>
-        PointF VirtualToDisplay(PointF virt)
-        {
-            var dispX = (virt.X * _zoom) * _page.Scale + _offsetX + BORDER_SIZE;
-            var dispY = (virt.Y * _zoom) * _page.Scale + _offsetY + BORDER_SIZE;
-            return new(dispX, dispY);
-        }
-
-        /// <summary>
-        /// Obtain the virtual point for a display position.
-        /// </summary>
-        /// <param name="disp">The display point.</param>
-        /// <returns>The virtual point.</returns>
-        PointF DisplayToVirtual(Point disp)
-        {
-            var virtX = (disp.X - _offsetX - BORDER_SIZE) / _page.Scale / _zoom;
-            var virtY = (disp.Y - _offsetY - BORDER_SIZE) / _page.Scale / _zoom;
-            return new PointF(virtX, virtY);
-        }
 
         /// <summary>
         /// Defaults.
@@ -492,10 +516,43 @@ namespace NDraw
             return r;
         }
 
+        /// <summary>
+        /// Return the integral grid neighbors.
+        /// </summary>
+        /// <param name="val">(low,high) neighbors</param>
+        /// <returns></returns>
         (float low, float high) Box(float val)
         {
             var v = val - (val % _page.Grid);
             return (v, v + _page.Grid);
         }
+
+        /// <summary>Sets the format specifier based upon the range of data.</summary>
+        /// <param name="range">Tick range</param>
+        /// <returns>Format specifier</returns>
+        string FormatSpecifier(float range) // TODO put in NBOT?
+        {
+            string format = "";
+
+            if (range >= 100)
+            {
+                format = "0;-0;0";
+            }
+            else if (range < 100 && range >= 10)
+            {
+                format = "0.0;-0.0;0";
+            }
+            else if (range < 10 && range >= 1)
+            {
+                format = "0.00;-0.00;0";
+            }
+            else if (range < 1)
+            {
+                format = "0.000;-0.000;0";
+            }
+
+            return format;
+        }
+        #endregion
     }
 }
