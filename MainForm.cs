@@ -58,6 +58,15 @@ namespace NDraw
             RenderMenuItem.Click += Render_Click;
             SettingsMenuItem.Click += Settings_Click;
 
+            ToolStrip.Renderer = new TsRenderer();
+
+            foreach (var btn in new List<ToolStripButton>() { Btn_Layer1, Btn_Layer2, Btn_Layer3, Btn_Layer4 })
+            {
+                btn.Click += Btn_Layer_Click;
+                btn.Checked = true;
+                canvas.SetLayer(int.Parse(btn.Text) - 1, true);
+            }
+
             _watcher.FileChangeEvent += Watcher_Changed;
 
             var args = Environment.GetCommandLineArgs();
@@ -95,13 +104,14 @@ namespace NDraw
         {
             OpenFileDialog openDlg = new()
             {
-                Filter = "Nebulator files (*.neb)|*.neb",
-                Title = "Select a Nebulator file"
+                Filter = "NDraw files (*.nd)|*.nd",
+                Title = "Select a NDraw file"
             };
 
             if (openDlg.ShowDialog() == DialogResult.OK)
             {
                 OpenFile(openDlg.FileName);
+                Parse();
             }
         }
 
@@ -114,6 +124,7 @@ namespace NDraw
         {
             string fn = sender.ToString();
             OpenFile(fn);
+            Parse();
         }
 
         /// <summary>
@@ -122,20 +133,26 @@ namespace NDraw
         /// <param name="fn"></param>
         void OpenFile(string fn)
         {
-            try
+            if(fn.EndsWith(".nd"))
             {
-                _fn = fn;
-                Parse();
+                try
+                {
+                    _fn = fn;
 
-                // Update file watcher.
-                _watcher.Clear();
-                _watcher.Add(fn);
+                    // Update file watcher.
+                    _watcher.Clear();
+                    _watcher.Add(fn);
 
-                AddToRecentDefs(fn);
+                    AddToRecentDefs(fn);
+                }
+                catch (Exception ex)
+                {
+                    Log($"Open Fail: {ex.Message}");
+                }
             }
-            catch (Exception ex)
+            else
             {
-                Log($"Open Fail: {ex}");
+                Log($"Invalid NDraw File: {fn}");
             }
         }
 
@@ -144,11 +161,12 @@ namespace NDraw
         /// </summary>
         void Parse()
         {
+            rtbInfo.Clear();
+
             try
             {
                 Parser p = new();
                 p.ParseFile(_fn);
-                //p.ParseFile(@"");
 
                 if (p.Errors.Count > 0)
                 {
@@ -191,7 +209,7 @@ namespace NDraw
         /// <param name="fn">The selected file.</param>
         void AddToRecentDefs(string fn)
         {
-            if (File.Exists(fn))
+            if (fn.EndsWith(".nd") && File.Exists(fn))
             {
                 _settings.RecentFiles.UpdateMru(fn);
                 PopulateRecentMenu();
@@ -248,6 +266,20 @@ namespace NDraw
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void Btn_Layer_Click(object sender, EventArgs e)
+        {
+            var b = sender as ToolStripButton;
+            if(int.TryParse(b.Text, out int n))
+            {
+                canvas.SetLayer(n - 1, b.Checked);
+            }
+        }
+
+        /// <summary>
         /// Make a picture.
         /// </summary>
         /// <param name="sender"></param>
@@ -270,5 +302,24 @@ namespace NDraw
             rtbInfo.ScrollToCaret();
         }
         #endregion
+    }
+
+    /// <summary>UI helper.</summary>
+    class TsRenderer : ToolStripProfessionalRenderer
+    {
+        protected override void OnRenderButtonBackground(ToolStripItemRenderEventArgs e)
+        {
+            var btn = e.Item as ToolStripButton;
+            if (btn != null && btn.CheckOnClick)
+            {
+                using var brush = new SolidBrush(btn.Checked ? Color.LightSalmon : SystemColors.Control);
+                Rectangle bounds = new(Point.Empty, e.Item.Size);
+                e.Graphics.FillRectangle(brush, bounds);
+            }
+            else
+            {
+                base.OnRenderButtonBackground(e);
+            }
+        }
     }
 }

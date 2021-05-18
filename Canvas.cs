@@ -23,8 +23,11 @@ namespace NDraw
         /// <summary>The settings.</summary>
         UserSettings _settings = new();
 
-        /// <summary>The various shapes in _page converted to internal format.</summary>
+        /// <summary>All the shapes.</summary>
         readonly List<Shape> _shapes = new();
+
+        /// <summary>Show/hide layers.</summary>
+        bool[] _layers = new bool[NUM_LAYERS];
 
         /// <summary>Current horizontal offset in pixels.</summary>
         int _offsetX = 0;
@@ -35,16 +38,16 @@ namespace NDraw
         /// <summary>Current zoom level.</summary>
         float _zoom = 1.0F;
 
-        /// <summary>Range.</summary>
+        /// <summary>Range in virtual units.</summary>
         float _xMin = float.MaxValue;
 
-        /// <summary>Range.</summary>
+        /// <summary>Range in virtual units.</summary>
         float _yMin = float.MaxValue;
 
-        /// <summary>Range.</summary>
+        /// <summary>Range in virtual units.</summary>
         float _xMax = float.MinValue;
 
-        /// <summary>Range.</summary>
+        /// <summary>Range in virtual units.</summary>
         float _yMax = float.MinValue;
 
         /// <summary>Based on range.</summary>
@@ -52,8 +55,20 @@ namespace NDraw
         #endregion
 
         #region Constants
-        /// <summary>Cosmetics.</summary>
+        /// <summary>How many layers.</summary>
+        public const int NUM_LAYERS = 4;
+
+        /// <summary>Cosmetics in pixels.</summary>
         const float GRID_LINE_WIDTH = 0.5f;
+
+        /// <summary>Cosmetics in pixels.</summary>
+        const int HIGHLIGHT_SIZE = 5;
+
+        /// <summary>Cosmetics in pixels.</summary>
+        const int BORDER_SIZE = 40;
+
+        /// <summary>Cosmetics in pixels.</summary>
+        const int TICK_SIZE = 10;
 
         /// <summary>How close do you have to be to select a shape in pixels.</summary>
         const float SELECT_RANGE = 10;
@@ -62,22 +77,13 @@ namespace NDraw
         const int WHEEL_RESOLUTION = 4;
 
         /// <summary>Maximum zoom in limit.</summary>
-        const float MAX_ZOOM = 10.0f;
+        const float ZOOM_MAX = 10.0f;
 
         /// <summary>Minimum zoom out limit.</summary>
-        const float MIN_ZOOM = 0.1f;
+        const float ZOOM_MIN = 0.1f;
 
         /// <summary>Speed at which to zoom in/out.</summary>
         const float ZOOM_SPEED = 0.1F;
-
-        /// <summary>Cosmetics.</summary>
-        const int HIGHLIGHT_SIZE = 5;
-
-        /// <summary>Cosmetics.</summary>
-        const int BORDER_SIZE = 40;
-
-        /// <summary>Cosmetics.</summary>
-        const int TICK_SIZE = 10;
         #endregion
 
         #region Enum mappings
@@ -144,6 +150,22 @@ namespace NDraw
         }
         #endregion
 
+        #region Public functions
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="value"></param>
+        public void SetLayer(int layer, bool value)
+        {
+            if(layer >= 0 && layer < NUM_LAYERS)
+            {
+                _layers[layer] = value;
+                Invalidate();
+            }
+        }
+        #endregion
+
         #region Misc window events
         /// <summary>
         /// 
@@ -179,7 +201,7 @@ namespace NDraw
             foreach (var shape in _shapes)
             {
                 // Is it visible?
-                if (shape.ContainedIn(virtVisible, true))
+                if (shape.ContainedIn(virtVisible, true) && _layers[shape.Layer - 1])
                 {
                     using Pen penLine = new(shape.LineColor, shape.LineThickness);
                     // Map to display coordinates.
@@ -234,16 +256,20 @@ namespace NDraw
         /// </summary>
         /// <param name="pt"></param>
         /// <param name="ps"></param>
-        void DrawPoint(PointF pt, PointStyle ps) // TODO - will need angle/orientation too
+        void DrawPoint(PointF pt, PointStyle ps) // TODO - will also need angle/orientation too
         {
             switch (ps)
             {
-                case PointStyle.ArrowFilled:
+                case PointStyle.Arrow:
+                    break;
+
+                case PointStyle.Tee:
                     break;
 
                 case PointStyle.None:
                     break;
             }
+
 
             //case Circle:
             //    g.DrawArc(pen, point.ClientPoint.X - x * 2, point.ClientPoint.Y - x * 2, x * 4, x * 4, 0, 360);
@@ -323,7 +349,7 @@ namespace NDraw
 
             foreach (Shape shape in _shapes)
             {
-                if (shape.FeaturePoint(virtLoc, range) > 0)
+                if (shape.FeaturePoint(virtLoc, range) > 0 && _layers[shape.Layer - 1])
                 {
                     shape.State = ShapeState.Highlighted;
                     toHighlight = shape;
@@ -372,7 +398,7 @@ namespace NDraw
                     var zoomFactor = delta > 0 ? ZOOM_SPEED : -ZOOM_SPEED;
                     var newZoom = _zoom + zoomFactor;
 
-                    if (newZoom > MIN_ZOOM && newZoom < MAX_ZOOM)
+                    if (newZoom > ZOOM_MIN && newZoom < ZOOM_MAX)
                     {
                         _zoom = newZoom;
 

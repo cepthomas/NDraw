@@ -12,8 +12,6 @@ using System.Text.Json.Serialization;
 
 // Deals exclusively in virtual (page) units. Translation between display and virtual is done in GeometryMap.
 
-// Later ellipse, poly, ...
-
 
 namespace NDraw
 {
@@ -22,7 +20,7 @@ namespace NDraw
     public enum ShapeState { Default, Highlighted };
 
     /// <summary>DOC</summary>
-    public enum PointStyle { None, CircleHollow, CircleFilled, SquareHollow, SquareFilled, ArrowHollow, ArrowFilled };
+    public enum PointStyle { None, Arrow, Tee };
     #endregion
 
     /// <summary>Base/abstract class for all shape types.</summary>
@@ -33,8 +31,8 @@ namespace NDraw
         /// <summary></summary>
         public string Id { get; set; } = "???";
 
-        /// <summary>Layer - 0 means all.</summary>
-        public int Layer { get; set; } = 0;
+        /// <summary>Layer 1-4.</summary>
+        public int Layer { get; set; } = 1;
 
         /// <summary>Text to display.</summary>
         public string Text { get; set; } = "";

@@ -43,16 +43,14 @@ namespace NDraw
         #region Enum mappings
         readonly Dictionary<string, PointStyle> _pointStyle = new()
         {
-            { "NO", PointStyle.None },
-            { "CH", PointStyle.CircleHollow }, { "CF", PointStyle.CircleFilled }, { "SH", PointStyle.SquareHollow },
-            { "SF", PointStyle.SquareFilled }, { "AH", PointStyle.ArrowHollow },  { "AF", PointStyle.ArrowFilled },
+            { "n", PointStyle.None }, { "a", PointStyle.Arrow }, { "t", PointStyle.Tee }
         };
 
-        readonly Dictionary<string, ContentAlignment> _alignment = new()
+        readonly Dictionary<string, ContentAlignment> _alignment = new() //TODO use correct?
         {
-            { "TL", ContentAlignment.TopLeft },    { "TC", ContentAlignment.TopCenter },    { "TR", ContentAlignment.TopRight },
-            { "CL", ContentAlignment.MiddleLeft }, { "CC", ContentAlignment.MiddleCenter }, { "CR", ContentAlignment.MiddleRight },
-            { "BL", ContentAlignment.BottomLeft }, { "BC", ContentAlignment.BottomCenter }, { "BR", ContentAlignment.BottomRight },
+            { "tl", ContentAlignment.TopLeft },    { "tc", ContentAlignment.TopCenter },    { "tr", ContentAlignment.TopRight },
+            { "ml", ContentAlignment.MiddleLeft }, { "mc", ContentAlignment.MiddleCenter }, { "mr", ContentAlignment.MiddleRight },
+            { "bl", ContentAlignment.BottomLeft }, { "bc", ContentAlignment.BottomCenter }, { "br", ContentAlignment.BottomRight },
         };
         #endregion
 
@@ -64,6 +62,7 @@ namespace NDraw
         {
             Page = new();
             _row = 0;
+            Errors.Clear();
 
             foreach (string sf in File.ReadAllLines(fn))
             {
@@ -76,6 +75,12 @@ namespace NDraw
                 catch (Exception ex)
                 {
                     Errors.Add($"Parse error at row {_row}: {ex.Message}");
+
+                    // Don't torture the author.
+                    if(Errors.Count >= 5)
+                    {
+                        return;
+                    }
                 }
             }
         }
@@ -114,11 +119,11 @@ namespace NDraw
                 elemParams.Add(name is null ? elemParams.Count.ToString() : name, val);
             }
 
-            ///// Section parsers.
+            ///// Section parsers. TODO swap like my_rect1=rect <> rect=my_rect1
             switch (rhs)
             {
                 case "page":
-                    Page.UnitsName = elemParams.ContainsKey("un") ? ParseString(elemParams["un"]) : "";
+                    Page.UnitsName = elemParams.ContainsKey("un") ? ParseText(elemParams["un"]) : "";
                     Page.Scale = int.Parse(elemParams["sc"]); // required
                     Page.Grid = float.Parse(elemParams["gr"]); // required
                     break;
@@ -178,7 +183,7 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Parse a single value - scalar or simple expression.
+        /// Parse a numerical value - scalar or simple expression.
         /// </summary>
         /// <param name="s"></param>
         /// <returns>The value or NaN if invalid.</returns>
@@ -219,27 +224,36 @@ namespace NDraw
                 }
             }
 
-            // Debug.WriteLine($"{s} >> {v}");
-
             return v;
         }
 
         /// <summary>
-        /// 
+        /// Parse a string in quotes or a scalar or simple expression.
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        string ParseString(string s)
+        string ParseText(string s)
         {
             s = s.Trim();
+
             if(s.StartsWith("\"") && s.EndsWith("\""))
             {
-                return s.Substring(1, s.Length - 2);
+                s = s.Substring(1, s.Length - 2);
             }
             else
             {
-                throw new Exception("Invalid string");
+                float f = ParseValue(s);
+                if(!float.IsNaN(f))
+                {
+                    s = f.ToString();
+                }
+                else
+                {
+                    throw new Exception("Invalid string");
+                }
             }
+
+            return s;
         }
 
         /// <summary>
@@ -262,7 +276,7 @@ namespace NDraw
         {
             // Common.
             shape.Layer = elemParams.ContainsKey("lr") ? int.Parse(elemParams["lr"]) : 0;
-            shape.Text = elemParams.ContainsKey("tx") ? ParseString(elemParams["tx"]) : null;
+            shape.Text = elemParams.ContainsKey("tx") ? ParseText(elemParams["tx"]) : null;
             shape.LineThickness = elemParams.ContainsKey("lt") ? float.Parse(elemParams["lt"]) : _lt;
             shape.LineColor = elemParams.ContainsKey("lc") ? Color.FromName(elemParams["lc"]) : _lc;
             shape.FillColor = elemParams.ContainsKey("fc") ? Color.FromName(elemParams["fc"]) : _fc;

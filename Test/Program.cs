@@ -84,7 +84,7 @@ namespace NDraw.Test
                 {
                     case 0:
                         Parser p = new();
-                        p.ParseFile(@"C:\Dev\repos\NDraw\Test\drawing1.nd");
+                        p.ParseFile(@"C:\Dev\repos\NDraw\Test\test1.nd");
 
                         if (p.Errors.Count > 0)
                         {
