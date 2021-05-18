@@ -26,5 +26,6 @@ my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=lo
 base_line=line, lr=1, sx=60, sy=10, ex=84, ey=50, tx="base line"
 
 $lc=purple
+angle_line=line, lr=1, sx=90, sy=140, ex=140, ey=90, tx="45 deg", es=t, ss=a
 
 my_circle=ellipse, lr=2, x=50, y=50, w=20, h=20, tx="I'm rrrround", tp=mc

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using NBagOfTricks.Utils;
 
 
 // Deals exclusively in virtual (page) units. Translation between display and virtual is done in GeometryMap.
@@ -141,6 +142,10 @@ namespace NDraw
         /// <summary>DOC</summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public PointStyle EndStyle { get; set; } = PointStyle.None;
+
+        /// <summary>Get the line angle.</summary>
+        [JsonIgnore]
+        public float Angle { get { return MathF.Atan((End.Y - Start.Y) / (End.X - End.Y)); } }
         #endregion
 
         /// <inheritdoc />
@@ -158,7 +163,7 @@ namespace NDraw
         /// <inheritdoc />
         public override RectangleF ToRect()
         {
-            return new RectangleF(Start.X, Start.Y, End.X - Start.X, End.Y - Start.Y);
+            return new RectangleF(Start.X > End.X ? End.X : Start.X, Start.Y > End.Y ? End.Y : Start.Y, MathF.Abs(End.X - Start.X), MathF.Abs(End.Y - Start.Y));
         }
 
         /// <summary>For viewing pleasure.</summary>

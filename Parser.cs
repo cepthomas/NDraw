@@ -46,7 +46,7 @@ namespace NDraw
             { "n", PointStyle.None }, { "a", PointStyle.Arrow }, { "t", PointStyle.Tee }
         };
 
-        readonly Dictionary<string, ContentAlignment> _alignment = new() //TODO use correct?
+        readonly Dictionary<string, ContentAlignment> _alignment = new()
         {
             { "tl", ContentAlignment.TopLeft },    { "tc", ContentAlignment.TopCenter },    { "tr", ContentAlignment.TopRight },
             { "ml", ContentAlignment.MiddleLeft }, { "mc", ContentAlignment.MiddleCenter }, { "mr", ContentAlignment.MiddleRight },
@@ -110,17 +110,20 @@ namespace NDraw
 
             ///// Get the statement values.
             var parts = s.SplitByToken(",");
-            var (lhs, rhs) = SplitParam(parts[0]);
 
+            // The first one describes the type.
+            var (elid, elval) = SplitParam(parts[0]);
+
+            // The rest are the params.
             var elemParams = new Dictionary<string, string>();
             foreach (var elem in parts.GetRange(1, parts.Count - 1))
             {
-                var (name, val) = SplitParam(elem);
-                elemParams.Add(name is null ? elemParams.Count.ToString() : name, val);
+                var (pname, pval) = SplitParam(elem);
+                elemParams.Add(pname is null ? elemParams.Count.ToString() : pname, pval);
             }
 
-            ///// Section parsers. TODO swap like my_rect1=rect <> rect=my_rect1
-            switch (rhs)
+            ///// Section parsers.
+            switch (elval)
             {
                 case "page":
                     Page.UnitsName = elemParams.ContainsKey("un") ? ParseText(elemParams["un"]) : "";
@@ -129,7 +132,7 @@ namespace NDraw
                     break;
 
                 case "line":
-                    LineShape line = new() { Id = lhs };
+                    LineShape line = new() { Id = elid };
                     InitShapeCommon(line, elemParams);
                     line.Start = new PointF(ParseValue(elemParams["sx"]), ParseValue(elemParams["sy"])); // required
                     line.End = new PointF(ParseValue(elemParams["ex"]), ParseValue(elemParams["ey"])); // required
@@ -139,7 +142,7 @@ namespace NDraw
                     break;
 
                 case "rect":
-                    RectShape rect = new() { Id = lhs };
+                    RectShape rect = new() { Id = elid };
                     InitShapeCommon(rect, elemParams);
                     rect.Location = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
                     rect.Width = ParseValue(elemParams["w"]); // required
@@ -152,7 +155,7 @@ namespace NDraw
                     break;
 
                 case "ellipse":
-                    EllipseShape ellipse = new() { Id = lhs };
+                    EllipseShape ellipse = new() { Id = elid };
                     InitShapeCommon(ellipse, elemParams);
                     ellipse.Center = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
                     ellipse.Width = ParseValue(elemParams["w"]); // required
@@ -164,18 +167,18 @@ namespace NDraw
                     Page.Ellipses.Add(ellipse);
                     break;
 
-                default:
-                    switch (lhs) // global
+                default: // a value type
+                    switch (elid) // global
                     {
-                        case "$fc": _fc = Color.FromName(rhs); break;
-                        case "$lc": _lc = Color.FromName(rhs); break;
-                        case "$lt": _lt = float.Parse(rhs); break;
-                        case "$tp": _tp = _alignment[rhs]; break;
-                        case "$ss": _ss = _pointStyle[rhs]; break;
-                        case "$es": _es = _pointStyle[rhs]; break;
+                        case "$fc": _fc = Color.FromName(elval); break;
+                        case "$lc": _lc = Color.FromName(elval); break;
+                        case "$lt": _lt = float.Parse(elval); break;
+                        case "$tp": _tp = _alignment[elval]; break;
+                        case "$ss": _ss = _pointStyle[elval]; break;
+                        case "$es": _es = _pointStyle[elval]; break;
 
                         default: // user scalar or expression
-                            UserVals[lhs] = ParseValue(rhs);
+                            UserVals[elid] = ParseValue(elval);
                             break;
                     }
                     break;
@@ -289,7 +292,7 @@ namespace NDraw
         /// <param name="s"></param>
         /// <param name="delims"></param>
         /// <returns></returns>
-        public List<string> SplitKeepDelims(string s, string delims) // TODO put in NBOT?
+        public List<string> SplitKeepDelims(string s, string delims) // FUTURE put in NBOT?
         {
             var parts = new List<string>();
             StringBuilder acc = new();

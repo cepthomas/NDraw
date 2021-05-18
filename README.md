@@ -83,10 +83,6 @@ size_2_w=size_1_w - 2.33
 ## Shapes
 All shapes have a common set of parameters.
 
-```
-xxxx
-```
-
 Field | Type | Req | Description
 ----  | ---- | --- | ----------
 id    |  D   |  N  | Identifier

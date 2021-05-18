@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using NBagOfTricks;
-
+using NBagOfTricks.Utils;
 
 namespace NDraw
 {
@@ -209,26 +209,31 @@ namespace NDraw
                     var disptl = VirtualToDisplay(bounds.Location);
                     var dispbr = VirtualToDisplay(new(bounds.Right, bounds.Bottom));
                     var dispRect = new RectangleF(disptl, new SizeF(dispbr.X - disptl.X, dispbr.Y - disptl.Y));
-                    //e.Graphics.DrawRectangle(Pens.Red, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
+                    
+                    e.Graphics.DrawRectangle(Pens.Red, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
 
                     switch (shape)
                     {
                         case RectShape shapeRect:
-                            e.Graphics.DrawRectangle(penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);//.X, dispRect.Y, dispRect.Width, dispRect.Height);
+                            e.Graphics.DrawRectangle(penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
                             break;
 
                         case EllipseShape shapeEllipse:
-                            e.Graphics.DrawEllipse(penLine, dispRect);//.X, dispRect.Y, dispRect.Width, dispRect.Height);
+                            e.Graphics.DrawEllipse(penLine, dispRect);
                             break;
 
                         case LineShape shapeLine:
-                            e.Graphics.DrawLine(penLine, disptl, dispbr);
+                            //e.Graphics.DrawLine(penLine, disptl, dispbr);
+                            e.Graphics.DrawLine(penLine, VirtualToDisplay(shapeLine.Start), VirtualToDisplay(shapeLine.End));
 
                             if (shapeLine.State != ShapeState.Highlighted)
                             {
                                 // Draw line ends.
-                                DrawPoint(shapeLine.Start, shapeLine.StartStyle);
-                                DrawPoint(shapeLine.End, shapeLine.EndStyle);
+                                float angle = shapeLine.Angle;
+                                angle = (float)MathUtils.RadiansToDegrees(angle);
+                                //angle = 45;
+                                DrawPoint(e.Graphics, penLine, VirtualToDisplay(shapeLine.Start), shapeLine.StartStyle, angle);
+                                DrawPoint(e.Graphics, penLine, VirtualToDisplay(shapeLine.End), shapeLine.EndStyle, angle);
                             }
                             break;
                     }
@@ -254,36 +259,39 @@ namespace NDraw
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="g">The Graphics object to use.</param>
         /// <param name="pt"></param>
         /// <param name="ps"></param>
-        void DrawPoint(PointF pt, PointStyle ps) // TODO - will also need angle/orientation too
+        /// <param name="degrees">The rotation of the axis.</param>
+        void DrawPoint(Graphics g, Pen pen, PointF pt, PointStyle ps, float degrees)
         {
+            g.TranslateTransform(pt.X, pt.Y);
+            g.RotateTransform(degrees);
+
             switch (ps)
             {
                 case PointStyle.Arrow:
+                    g.FillPolygon(pen.Brush, new PointF[]
+                    {
+                        new PointF(- 15, 50),   // Bottom-Left
+                        new PointF(15, 50),   // Bottom-Right
+                        new PointF(0, 0),       // Top-Middle
+                        //new PointF(pt.X - 15, pt.Y + 50),   // Bottom-Left
+                        //new PointF(pt.X + 15, pt.Y + 50),   // Bottom-Right
+                        //new PointF(pt.X, pt.Y),       // Top-Middle
+                    });
                     break;
 
                 case PointStyle.Tee:
+                    //g.FillRectangle(pen.Brush, new RectangleF(pt.X, pt.Y, 50, 50));
+                    g.FillRectangle(pen.Brush, new RectangleF(0, 0, 50, 50));
                     break;
 
                 case PointStyle.None:
                     break;
             }
 
-
-            //case Circle:
-            //    g.DrawArc(pen, point.ClientPoint.X - x * 2, point.ClientPoint.Y - x * 2, x * 4, x * 4, 0, 360);
-            //case Square:
-            //    g.FillRectangle(pen.Brush, point.ClientPoint.X - x, point.ClientPoint.Y - x, series.PointWidth, series.PointWidth);
-            //case Triangle:
-            //    g.FillPolygon(pen.Brush, new PointF[]
-            //        {
-            //          new PointF(point.ClientPoint.X - x, point.ClientPoint.Y + x),   // Bottom-Left
-            //          new PointF(point.ClientPoint.X + x, point.ClientPoint.Y + x),   // Bottom-Right
-            //          new PointF(point.ClientPoint.X, point.ClientPoint.Y - x),       // Top-Middle
-            //        });
-            //case Dot:
-            //    g.FillEllipse(pen.Brush, point.ClientPoint.X - x, point.ClientPoint.Y - x, series.PointWidth, series.PointWidth);
+            g.ResetTransform();
         }
 
         /// <summary>
@@ -332,6 +340,22 @@ namespace NDraw
                 }
             }
         }
+
+        /// <summary>
+        /// Draw text using the specified transformations.
+        /// </summary>
+        /// <param name="g">The Graphics object to use.</param>
+        /// <param name="x">The X transform</param>
+        /// <param name="y">The Y transform</param>
+        /// <param name="text">The text of the label.</param>
+        /// <param name="degrees">The rotation of the axis.</param>
+        void DrawText(Graphics g, float x, float y, string text, Font font, int degrees)
+        {
+            g.TranslateTransform(x, y);
+            g.RotateTransform(degrees);
+            g.DrawString(text, font, Brushes.Black, 0, 0);
+            g.ResetTransform();
+        }
         #endregion
 
         #region Mouse events
@@ -345,7 +369,7 @@ namespace NDraw
             Shape toHighlight = null;
 
             var virtLoc = DisplayToVirtual(e.Location);
-            float range = SELECT_RANGE * _zoom / _page.Scale; // TODO this really should be done in display domain.
+            float range = SELECT_RANGE * _zoom / _page.Scale; // FUTURE this really should be done in display domain.
 
             foreach (Shape shape in _shapes)
             {
@@ -556,7 +580,7 @@ namespace NDraw
         /// <summary>Sets the format specifier based upon the range of data.</summary>
         /// <param name="range">Tick range</param>
         /// <returns>Format specifier</returns>
-        string FormatSpecifier(float range) // TODO put in NBOT?
+        string FormatSpecifier(float range) // FUTURE put in NBOT?
         {
             string format = "";
 
