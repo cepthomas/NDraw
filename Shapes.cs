@@ -76,12 +76,12 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Derived classes supply this.
+        /// Is the pt near a feature point.
         /// </summary>
         /// <param name="pt"></param>
         /// <param name="range"></param>
-        /// <returns></returns>
-        public int FeaturePoint(PointF pt, float range)
+        /// <returns>The feature point or 0 if none.</returns>
+        public int IsFeaturePoint(PointF pt, float range)
         {
             _lastFeature = 0;
             var features = AllFeaturePoints();
@@ -96,7 +96,6 @@ namespace NDraw
 
             return _lastFeature;
         }
-
         #endregion
 
         #region Abstract functions
@@ -143,9 +142,9 @@ namespace NDraw
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public PointStyle EndStyle { get; set; } = PointStyle.None;
 
-        /// <summary>Get the line angle.</summary>
+        /// <summary>Get the line angle in radians.</summary>
         [JsonIgnore]
-        public float Angle { get { return MathF.Atan((End.Y - Start.Y) / (End.X - End.Y)); } }
+        public float Angle { get { return MathF.Atan((End.Y - Start.Y) / (End.X - Start.X)); } }
         #endregion
 
         /// <inheritdoc />
@@ -169,7 +168,8 @@ namespace NDraw
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            return $"Line:{Id} S:{Start.X},{Start.Y} E:{End.X},{End.Y}";
+            string fp = _lastFeature > 0 ? $" F:{_lastFeature}" : "";
+            return $"Line:{Id}{fp} S:{Start.X},{Start.Y} E:{End.X},{End.Y}";
         }
     }
 
@@ -273,7 +273,8 @@ namespace NDraw
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            return $"Rect:{Id} L:{Location.X},{Location.Y} W:{Width} H:{Height}";
+            string fp = _lastFeature > 0 ? $" F:{_lastFeature}" : "";
+            return $"Rect:{Id}{fp} L:{Location.X},{Location.Y} W:{Width} H:{Height}";
         }
     }
 
@@ -339,7 +340,8 @@ namespace NDraw
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            return $"Ellipse:{Id} C:{Center.X},{Center.Y} W:{Width} H:{Height}";
+            string fp = _lastFeature > 0 ? $" F:{_lastFeature}" : "";
+            return $"Ellipse:{Id}{fp} C:{Center.X},{Center.Y} W:{Width} H:{Height}";
         }
 
         /// <summary>Helper.</summary>

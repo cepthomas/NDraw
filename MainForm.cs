@@ -53,6 +53,8 @@ namespace NDraw
             Width = _settings.FormWidth;
             Height = _settings.FormHeight;
 
+            canvas.InfoEvent += (_, msg) => Txt_Info.Text = msg;
+
             OpenMenuItem.Click += Open_Click;
             RecentMenuItem.Click += Recent_Click;
             RenderMenuItem.Click += Render_Click;
@@ -161,7 +163,7 @@ namespace NDraw
         /// </summary>
         void Parse()
         {
-            rtbInfo.Clear();
+            rtbLog.Clear();
 
             try
             {
@@ -297,9 +299,9 @@ namespace NDraw
         /// <param name="s"></param>
         void Log(string s)
         {
-            rtbInfo.AppendText(s);
-            rtbInfo.AppendText(Environment.NewLine);
-            rtbInfo.ScrollToCaret();
+            rtbLog.AppendText(s);
+            rtbLog.AppendText(Environment.NewLine);
+            rtbLog.ScrollToCaret();
         }
         #endregion
     }

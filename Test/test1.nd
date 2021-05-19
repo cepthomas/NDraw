@@ -3,7 +3,7 @@
 pg_1=page, un="feet", gr=10.0, sc=5
 
 // global values: can be changed any time
-$lt=4
+$lt=3
 $lc=salmon
 
 // define user values: id=value (float or simple expression)
@@ -22,10 +22,15 @@ loc_3_y=loc_1_y + 23
 
 // shapes: id=type, param=value, ...
 my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", tp=tl
-my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, tp=tl, es=t, ss=a
-base_line=line, lr=1, sx=60, sy=10, ex=84, ey=50, tx="base line"
+
+my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, tp=tl, es=t, ss=t
+
+base_line=line, lr=1, sx=60, sy=10, ex=84, ey=50, tx="base line", es=t, ss=a
 
 $lc=purple
-angle_line=line, lr=1, sx=90, sy=140, ex=140, ey=90, tx="45 deg", es=t, ss=a
+
+angle_line=line, lr=1, sx=90, sy=140, ex=140, ey=90, tx="45 deg", es=a, ss=a
+
+$lt=6
 
 my_circle=ellipse, lr=2, x=50, y=50, w=20, h=20, tx="I'm rrrround", tp=mc

@@ -27,7 +27,7 @@ namespace NDraw
         readonly List<Shape> _shapes = new();
 
         /// <summary>Show/hide layers.</summary>
-        bool[] _layers = new bool[NUM_LAYERS];
+        readonly bool[] _layers = new bool[NUM_LAYERS];
 
         /// <summary>Current horizontal offset in pixels.</summary>
         int _offsetX = 0;
@@ -37,6 +37,9 @@ namespace NDraw
 
         /// <summary>Current zoom level.</summary>
         float _zoom = 1.0F;
+
+        /// <summary>Based on range.</summary>
+        string _numericalFormat = "";
 
         /// <summary>Range in virtual units.</summary>
         float _xMin = float.MaxValue;
@@ -49,9 +52,6 @@ namespace NDraw
 
         /// <summary>Range in virtual units.</summary>
         float _yMax = float.MinValue;
-
-        /// <summary>Based on range.</summary>
-        string _numericalFormat = "";
         #endregion
 
         #region Constants
@@ -99,6 +99,10 @@ namespace NDraw
             { ContentAlignment.BottomCenter, (StringAlignment.Far,    StringAlignment.Center) },
             { ContentAlignment.BottomRight,  (StringAlignment.Far,    StringAlignment.Far) },
         };
+        #endregion
+
+        #region Events
+        public event EventHandler<string> InfoEvent;
         #endregion
 
         #region Lifecycle
@@ -166,14 +170,28 @@ namespace NDraw
         }
         #endregion
 
-        #region Misc window events
+        #region Misc window handlers
         /// <summary>
         /// 
         /// </summary>
         /// <param name="e"></param>
         protected override void OnResize(EventArgs e)
         {
-            lblInfo.Location = new(10, Bottom - lblInfo.Height - 10);
+            Invalidate();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnLostFocus(EventArgs e)
+        {
+            // Clear any highlights.
+            foreach (Shape shape in _shapes)
+            {
+                shape.State = ShapeState.Default;
+            }
+
             Invalidate();
         }
         #endregion
@@ -209,8 +227,8 @@ namespace NDraw
                     var disptl = VirtualToDisplay(bounds.Location);
                     var dispbr = VirtualToDisplay(new(bounds.Right, bounds.Bottom));
                     var dispRect = new RectangleF(disptl, new SizeF(dispbr.X - disptl.X, dispbr.Y - disptl.Y));
-                    
-                    e.Graphics.DrawRectangle(Pens.Red, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
+
+                    //e.Graphics.DrawRectangle(Pens.Red, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
 
                     switch (shape)
                     {
@@ -223,16 +241,13 @@ namespace NDraw
                             break;
 
                         case LineShape shapeLine:
-                            //e.Graphics.DrawLine(penLine, disptl, dispbr);
                             e.Graphics.DrawLine(penLine, VirtualToDisplay(shapeLine.Start), VirtualToDisplay(shapeLine.End));
 
                             if (shapeLine.State != ShapeState.Highlighted)
                             {
                                 // Draw line ends.
-                                float angle = shapeLine.Angle;
-                                angle = (float)MathUtils.RadiansToDegrees(angle);
-                                //angle = 45;
-                                DrawPoint(e.Graphics, penLine, VirtualToDisplay(shapeLine.Start), shapeLine.StartStyle, angle);
+                                float angle = (float)MathUtils.RadiansToDegrees(shapeLine.Angle);
+                                DrawPoint(e.Graphics, penLine, VirtualToDisplay(shapeLine.Start), shapeLine.StartStyle, angle - 180);
                                 DrawPoint(e.Graphics, penLine, VirtualToDisplay(shapeLine.End), shapeLine.EndStyle, angle);
                             }
                             break;
@@ -271,20 +286,12 @@ namespace NDraw
             switch (ps)
             {
                 case PointStyle.Arrow:
-                    g.FillPolygon(pen.Brush, new PointF[]
-                    {
-                        new PointF(- 15, 50),   // Bottom-Left
-                        new PointF(15, 50),   // Bottom-Right
-                        new PointF(0, 0),       // Top-Middle
-                        //new PointF(pt.X - 15, pt.Y + 50),   // Bottom-Left
-                        //new PointF(pt.X + 15, pt.Y + 50),   // Bottom-Right
-                        //new PointF(pt.X, pt.Y),       // Top-Middle
-                    });
+                    var pts = new PointF[] { new PointF(0, 0), new PointF(-20, -10), new PointF(-20, 10) };
+                    g.FillPolygon(pen.Brush, pts);
                     break;
 
                 case PointStyle.Tee:
-                    //g.FillRectangle(pen.Brush, new RectangleF(pt.X, pt.Y, 50, 50));
-                    g.FillRectangle(pen.Brush, new RectangleF(0, 0, 50, 50));
+                    g.DrawLine(pen, 0, +10, 0, -10);
                     break;
 
                 case PointStyle.None:
@@ -369,17 +376,17 @@ namespace NDraw
             Shape toHighlight = null;
 
             var virtLoc = DisplayToVirtual(e.Location);
-            float range = SELECT_RANGE * _zoom / _page.Scale; // FUTURE this really should be done in display domain.
+            float range = SELECT_RANGE / _zoom / _page.Scale; // This really should be done in display domain.
 
             foreach (Shape shape in _shapes)
             {
-                if (shape.FeaturePoint(virtLoc, range) > 0 && _layers[shape.Layer - 1])
+                if (shape.IsFeaturePoint(virtLoc, range) > 0 && _layers[shape.Layer - 1])
                 {
                     shape.State = ShapeState.Highlighted;
                     toHighlight = shape;
                     redraw = true;
                 }
-                else if (shape.State == ShapeState.Highlighted) // Unhighlight those away from.
+                else if (shape.State == ShapeState.Highlighted) // Unhighlight those not near.
                 {
                     shape.State = ShapeState.Default;
                     redraw = true;
@@ -400,7 +407,7 @@ namespace NDraw
                 Invalidate();
             }
 
-            ShowInfo(e.Location);
+            InfoEvent?.Invoke(this, $"Mouse:{e.Location} TX:{DisplayToVirtual(e.Location)} OffsetX:{_offsetX} OffsetY:{_offsetY} Zoom:{_zoom}");
         }
 
         /// <summary>
@@ -459,8 +466,6 @@ namespace NDraw
             {
                 Invalidate();
             }
-
-            ShowInfo(e.Location);
         }
         #endregion
 
@@ -518,14 +523,6 @@ namespace NDraw
 
         #region Private helpers
         /// <summary>
-        /// Debug helper.
-        /// </summary>
-        void ShowInfo(Point pt)
-        {
-            lblInfo.Text = $"Mouse:{pt} TX:{DisplayToVirtual(pt)} OffsetX:{_offsetX} OffsetY:{_offsetY} Zoom:{_zoom}";
-        }
-
-        /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
@@ -578,9 +575,9 @@ namespace NDraw
         }
 
         /// <summary>Sets the format specifier based upon the range of data.</summary>
-        /// <param name="range">Tick range</param>
+        /// <param name="range">Data range</param>
         /// <returns>Format specifier</returns>
-        string FormatSpecifier(float range) // FUTURE put in NBOT?
+        string FormatSpecifier(float range)
         {
             string format = "";
 

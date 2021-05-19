@@ -40,10 +40,10 @@ namespace NDraw
             this.Btn_Layer2 = new System.Windows.Forms.ToolStripButton();
             this.Btn_Layer3 = new System.Windows.Forms.ToolStripButton();
             this.Btn_Layer4 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
             this.canvas = new NDraw.Canvas();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.rtbInfo = new System.Windows.Forms.RichTextBox();
+            this.rtbLog = new System.Windows.Forms.RichTextBox();
+            this.Txt_Info = new System.Windows.Forms.ToolStripTextBox();
             this.ToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -60,7 +60,7 @@ namespace NDraw
             this.Btn_Layer2,
             this.Btn_Layer3,
             this.Btn_Layer4,
-            this.toolStripTextBox1});
+            this.Txt_Info});
             this.ToolStrip.Location = new System.Drawing.Point(0, 0);
             this.ToolStrip.Name = "ToolStrip";
             this.ToolStrip.Size = new System.Drawing.Size(1293, 27);
@@ -115,7 +115,7 @@ namespace NDraw
             this.Btn_Layer1.Name = "Btn_Layer1";
             this.Btn_Layer1.Size = new System.Drawing.Size(29, 24);
             this.Btn_Layer1.Text = "1";
-            this.Btn_Layer1.ToolTipText = "1";
+            this.Btn_Layer1.ToolTipText = "Layer 1";
             // 
             // Btn_Layer2
             // 
@@ -127,6 +127,7 @@ namespace NDraw
             this.Btn_Layer2.Name = "Btn_Layer2";
             this.Btn_Layer2.Size = new System.Drawing.Size(29, 24);
             this.Btn_Layer2.Text = "2";
+            this.Btn_Layer2.ToolTipText = "Layer 2";
             // 
             // Btn_Layer3
             // 
@@ -138,6 +139,7 @@ namespace NDraw
             this.Btn_Layer3.Name = "Btn_Layer3";
             this.Btn_Layer3.Size = new System.Drawing.Size(29, 24);
             this.Btn_Layer3.Text = "3";
+            this.Btn_Layer3.ToolTipText = "Layer 3";
             // 
             // Btn_Layer4
             // 
@@ -149,13 +151,7 @@ namespace NDraw
             this.Btn_Layer4.Name = "Btn_Layer4";
             this.Btn_Layer4.Size = new System.Drawing.Size(29, 24);
             this.Btn_Layer4.Text = "4";
-            // 
-            // toolStripTextBox1
-            // 
-            this.toolStripTextBox1.BackColor = System.Drawing.Color.LemonChiffon;
-            this.toolStripTextBox1.Name = "toolStripTextBox1";
-            this.toolStripTextBox1.ReadOnly = true;
-            this.toolStripTextBox1.Size = new System.Drawing.Size(500, 27);
+            this.Btn_Layer4.ToolTipText = "Layer 4";
             // 
             // canvas
             // 
@@ -174,7 +170,7 @@ namespace NDraw
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.rtbInfo);
+            this.splitContainer1.Panel1.Controls.Add(this.rtbLog);
             // 
             // splitContainer1.Panel2
             // 
@@ -183,16 +179,21 @@ namespace NDraw
             this.splitContainer1.SplitterDistance = 271;
             this.splitContainer1.TabIndex = 2;
             // 
-            // rtbInfo
+            // rtbLog
             // 
-            this.rtbInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.rtbInfo.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.rtbInfo.Location = new System.Drawing.Point(4, 328);
-            this.rtbInfo.Name = "rtbInfo";
-            this.rtbInfo.Size = new System.Drawing.Size(265, 295);
-            this.rtbInfo.TabIndex = 0;
-            this.rtbInfo.Text = "";
+            this.rtbLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.rtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtbLog.Location = new System.Drawing.Point(0, 0);
+            this.rtbLog.Name = "rtbLog";
+            this.rtbLog.Size = new System.Drawing.Size(271, 626);
+            this.rtbLog.TabIndex = 0;
+            this.rtbLog.Text = "";
+            // 
+            // Txt_Info
+            // 
+            this.Txt_Info.Name = "Txt_Info";
+            this.Txt_Info.ReadOnly = true;
+            this.Txt_Info.Size = new System.Drawing.Size(600, 27);
             // 
             // MainForm
             // 
@@ -222,10 +223,9 @@ namespace NDraw
         private System.Windows.Forms.ToolStrip ToolStrip;
         private Canvas canvas;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
         private System.Windows.Forms.ToolStripDropDownButton fileDropDownButton;
         private System.Windows.Forms.ToolStripMenuItem RecentMenuItem;
-        private System.Windows.Forms.RichTextBox rtbInfo;
+        private System.Windows.Forms.RichTextBox rtbLog;
         private System.Windows.Forms.ToolStripMenuItem OpenMenuItem;
         private System.Windows.Forms.ToolStripMenuItem SettingsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RenderMenuItem;
@@ -233,6 +233,7 @@ namespace NDraw
         private System.Windows.Forms.ToolStripButton Btn_Layer2;
         private System.Windows.Forms.ToolStripButton Btn_Layer3;
         private System.Windows.Forms.ToolStripButton Btn_Layer4;
+        private System.Windows.Forms.ToolStripTextBox Txt_Info;
     }
 }
 

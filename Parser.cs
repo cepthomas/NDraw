@@ -292,7 +292,7 @@ namespace NDraw
         /// <param name="s"></param>
         /// <param name="delims"></param>
         /// <returns></returns>
-        public List<string> SplitKeepDelims(string s, string delims) // FUTURE put in NBOT?
+        public List<string> SplitKeepDelims(string s, string delims)
         {
             var parts = new List<string>();
             StringBuilder acc = new();
