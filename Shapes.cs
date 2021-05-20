@@ -168,8 +168,8 @@ namespace NDraw
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            string fp = _lastFeature > 0 ? $" F:{_lastFeature}" : "";
-            return $"Line:{Id}{fp} S:{Start.X},{Start.Y} E:{End.X},{End.Y}";
+            string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
+            return $"Line:{Id}{fp}  Start:{Start.X}, {Start.Y}  End:{End.X}, {End.Y}";
         }
     }
 
@@ -261,7 +261,7 @@ namespace NDraw
         /// <inheritdoc />
         public override List<PointF> AllFeaturePoints()
         {
-            return new List<PointF>() { Location, TR, BL, BR };
+            return new List<PointF>() { Location, TR, BR, BL };
         }
 
         /// <inheritdoc />
@@ -273,8 +273,8 @@ namespace NDraw
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            string fp = _lastFeature > 0 ? $" F:{_lastFeature}" : "";
-            return $"Rect:{Id}{fp} L:{Location.X},{Location.Y} W:{Width} H:{Height}";
+            string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
+            return $"Rect:{Id}{fp}  Location:{Location.X}, {Location.Y}  Width:{Width}  Height:{Height}";
         }
     }
 
@@ -333,15 +333,20 @@ namespace NDraw
         /// <inheritdoc />
         public override List<PointF> AllFeaturePoints()
         {
-            return new List<PointF>() { new PointF(Center.X, Center.Y - Height / 2), new PointF(Center.X, Center.Y + Height / 2),
-                new PointF(Center.X - Width / 2, Center.Y),new PointF(Center.X + Width / 2, Center.Y) };
+            return new List<PointF>()
+            {
+                new PointF(Center.X, Center.Y - Height / 2),
+                new PointF(Center.X + Width / 2, Center.Y),
+                new PointF(Center.X, Center.Y + Height / 2),
+                new PointF(Center.X - Width / 2, Center.Y),
+            };
         }
 
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
-            string fp = _lastFeature > 0 ? $" F:{_lastFeature}" : "";
-            return $"Ellipse:{Id}{fp} C:{Center.X},{Center.Y} W:{Width} H:{Height}";
+            string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
+            return $"Ellipse:{Id}{fp}  Center:{Center.X}, {Center.Y}  Width:{Width}  Height:{Height}";
         }
 
         /// <summary>Helper.</summary>

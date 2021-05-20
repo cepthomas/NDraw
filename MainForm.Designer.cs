@@ -40,10 +40,12 @@ namespace NDraw
             this.Btn_Layer2 = new System.Windows.Forms.ToolStripButton();
             this.Btn_Layer3 = new System.Windows.Forms.ToolStripButton();
             this.Btn_Layer4 = new System.Windows.Forms.ToolStripButton();
+            this.Txt_Info = new System.Windows.Forms.ToolStripTextBox();
             this.canvas = new NDraw.Canvas();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.rtbLog = new System.Windows.Forms.RichTextBox();
-            this.Txt_Info = new System.Windows.Forms.ToolStripTextBox();
+            this.Btn_Grid = new System.Windows.Forms.ToolStripButton();
+            this.Btn_Ruler = new System.Windows.Forms.ToolStripButton();
             this.ToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -56,6 +58,8 @@ namespace NDraw
             this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileDropDownButton,
+            this.Btn_Grid,
+            this.Btn_Ruler,
             this.Btn_Layer1,
             this.Btn_Layer2,
             this.Btn_Layer3,
@@ -153,6 +157,12 @@ namespace NDraw
             this.Btn_Layer4.Text = "4";
             this.Btn_Layer4.ToolTipText = "Layer 4";
             // 
+            // Txt_Info
+            // 
+            this.Txt_Info.Name = "Txt_Info";
+            this.Txt_Info.ReadOnly = true;
+            this.Txt_Info.Size = new System.Drawing.Size(600, 27);
+            // 
             // canvas
             // 
             this.canvas.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -164,6 +174,7 @@ namespace NDraw
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer1.IsSplitterFixed = true;
             this.splitContainer1.Location = new System.Drawing.Point(0, 27);
             this.splitContainer1.Name = "splitContainer1";
@@ -185,15 +196,32 @@ namespace NDraw
             this.rtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtbLog.Location = new System.Drawing.Point(0, 0);
             this.rtbLog.Name = "rtbLog";
+            this.rtbLog.ReadOnly = true;
             this.rtbLog.Size = new System.Drawing.Size(271, 626);
             this.rtbLog.TabIndex = 0;
             this.rtbLog.Text = "";
             // 
-            // Txt_Info
+            // Btn_Grid
             // 
-            this.Txt_Info.Name = "Txt_Info";
-            this.Txt_Info.ReadOnly = true;
-            this.Txt_Info.Size = new System.Drawing.Size(600, 27);
+            this.Btn_Grid.CheckOnClick = true;
+            this.Btn_Grid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.Btn_Grid.Image = ((System.Drawing.Image)(resources.GetObject("Btn_Grid.Image")));
+            this.Btn_Grid.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.Btn_Grid.Name = "Btn_Grid";
+            this.Btn_Grid.Size = new System.Drawing.Size(41, 24);
+            this.Btn_Grid.Text = "Grid";
+            this.Btn_Grid.ToolTipText = "Grid Visible";
+            // 
+            // Btn_Ruler
+            // 
+            this.Btn_Ruler.CheckOnClick = true;
+            this.Btn_Ruler.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.Btn_Ruler.Image = ((System.Drawing.Image)(resources.GetObject("Btn_Ruler.Image")));
+            this.Btn_Ruler.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.Btn_Ruler.Name = "Btn_Ruler";
+            this.Btn_Ruler.Size = new System.Drawing.Size(47, 24);
+            this.Btn_Ruler.Text = "Ruler";
+            this.Btn_Ruler.ToolTipText = "Ruler Visible";
             // 
             // MainForm
             // 
@@ -234,6 +262,8 @@ namespace NDraw
         private System.Windows.Forms.ToolStripButton Btn_Layer3;
         private System.Windows.Forms.ToolStripButton Btn_Layer4;
         private System.Windows.Forms.ToolStripTextBox Txt_Info;
+        private System.Windows.Forms.ToolStripButton Btn_Grid;
+        private System.Windows.Forms.ToolStripButton Btn_Ruler;
     }
 }
 

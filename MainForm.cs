@@ -62,11 +62,11 @@ namespace NDraw
 
             ToolStrip.Renderer = new TsRenderer();
 
-            foreach (var btn in new List<ToolStripButton>() { Btn_Layer1, Btn_Layer2, Btn_Layer3, Btn_Layer4 })
+            foreach (var btn in new List<ToolStripButton>() { Btn_Layer1, Btn_Layer2, Btn_Layer3, Btn_Layer4, Btn_Ruler, Btn_Grid })
             {
-                btn.Click += Btn_Layer_Click;
+                btn.Click += Btn_Click;
                 btn.Checked = true;
-                canvas.SetLayer(int.Parse(btn.Text) - 1, true);
+                Btn_Click(btn, null);
             }
 
             _watcher.FileChangeEvent += Watcher_Changed;
@@ -272,12 +272,24 @@ namespace NDraw
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Btn_Layer_Click(object sender, EventArgs e)
+        void Btn_Click(object sender, EventArgs e)
         {
             var b = sender as ToolStripButton;
-            if(int.TryParse(b.Text, out int n))
+
+            switch (b.Text)
             {
-                canvas.SetLayer(n - 1, b.Checked);
+                case "1":
+                case "2":
+                case "3":
+                case "4":
+                    int n = int.Parse(b.Text);
+                    canvas.SetLayer(n - 1, b.Checked);
+                    break;
+
+                case "Ruler":
+                case "Grid":
+                    canvas.SetVisibility(Btn_Ruler.Checked, Btn_Grid.Checked);
+                    break;
             }
         }
 

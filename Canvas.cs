@@ -29,11 +29,17 @@ namespace NDraw
         /// <summary>Show/hide layers.</summary>
         readonly bool[] _layers = new bool[NUM_LAYERS];
 
+        /// <summary>Ruler visibility.</summary>
+        bool _ruler = true;
+
+        /// <summary>Grid visibility.</summary>
+        bool _grid = true;
+
         /// <summary>Current horizontal offset in pixels.</summary>
-        int _offsetX = 0;
+        int _offsetX = SCROLL_NEGATIVE;
 
         /// <summary>Current vertical offset in pixels.</summary>
-        int _offsetY = 0;
+        int _offsetY = SCROLL_NEGATIVE;
 
         /// <summary>Current zoom level.</summary>
         float _zoom = 1.0F;
@@ -56,16 +62,16 @@ namespace NDraw
 
         #region Constants
         /// <summary>How many layers.</summary>
-        public const int NUM_LAYERS = 4;
+        const int NUM_LAYERS = 4;
 
         /// <summary>Cosmetics in pixels.</summary>
         const float GRID_LINE_WIDTH = 0.5f;
 
         /// <summary>Cosmetics in pixels.</summary>
-        const int HIGHLIGHT_SIZE = 5;
+        const int HIGHLIGHT_SIZE = 8;
 
         /// <summary>Cosmetics in pixels.</summary>
-        const int BORDER_SIZE = 40;
+        const int BORDER_SIZE = 50;
 
         /// <summary>Cosmetics in pixels.</summary>
         const int TICK_SIZE = 10;
@@ -73,8 +79,8 @@ namespace NDraw
         /// <summary>How close do you have to be to select a shape in pixels.</summary>
         const float SELECT_RANGE = 10;
 
-        /// <summary>How fast the mouse wheel goes.</summary>
-        const int WHEEL_RESOLUTION = 4;
+        /// <summary>Allow negative scrolling by this much. Looks better.</summary>
+        const int SCROLL_NEGATIVE = 20;
 
         /// <summary>Maximum zoom in limit.</summary>
         const float ZOOM_MAX = 10.0f;
@@ -168,6 +174,18 @@ namespace NDraw
                 Invalidate();
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ruler"></param>
+        /// <param name="grid"></param>
+        public void SetVisibility(bool ruler, bool grid)
+        {
+            _ruler = ruler;
+            _grid = grid;
+            Invalidate();
+        }
         #endregion
 
         #region Misc window handlers
@@ -254,8 +272,8 @@ namespace NDraw
                     }
 
                     // Text.
-                    var align = _alignment[shape.TextAlignment];
-                    using StringFormat fmt = new() { Alignment = align.hor, LineAlignment = align.vert };
+                    var (vert, hor) = _alignment[shape.TextAlignment];
+                    using StringFormat fmt = new() { Alignment = hor, LineAlignment = vert };
                     e.Graphics.DrawString(shape.Text, _settings.Font, Brushes.Black, dispRect, fmt);
 
                     // Highlight features.
@@ -307,13 +325,12 @@ namespace NDraw
         /// <param name="g">The Graphics object to use.</param>
         void DrawGrid(Graphics g)
         {
-            using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH * 6.0f);
+            using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH);
 
             // Draw main axes.
-            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, Height);
-            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, Width, BORDER_SIZE);
+            //g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, Height);
+            //g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, Width, BORDER_SIZE);
 
-            penGrid.Width = GRID_LINE_WIDTH;
             bool done = false;
 
             // Draw X-Axis ticks.
@@ -326,8 +343,15 @@ namespace NDraw
                 }
                 else if(xd > BORDER_SIZE) // clip
                 {
-                    g.DrawLine(penGrid, xd, BORDER_SIZE - TICK_SIZE, xd, Width);
-                    g.DrawString(x.ToString(_numericalFormat), _settings.Font, Brushes.Black, xd - TICK_SIZE, 0);
+                    if(_grid)
+                    {
+                        g.DrawLine(penGrid, xd, BORDER_SIZE - TICK_SIZE, xd, Width);
+                    }
+
+                    if (_ruler)
+                    {
+                        g.DrawString(x.ToString(_numericalFormat), _settings.Font, Brushes.Black, xd - TICK_SIZE, 0);
+                    }
                 }
             }
 
@@ -342,8 +366,15 @@ namespace NDraw
                 }
                 else if (yd > BORDER_SIZE) // clip
                 {
-                    g.DrawLine(penGrid, BORDER_SIZE - TICK_SIZE, yd, Width, yd);
-                    g.DrawString(y.ToString(_numericalFormat), _settings.Font, Brushes.Black, 0, yd - TICK_SIZE);
+                    if (_grid)
+                    {
+                        g.DrawLine(penGrid, BORDER_SIZE - TICK_SIZE, yd, Width, yd);
+                    }
+
+                    if (_ruler)
+                    {
+                        g.DrawString(y.ToString(_numericalFormat), _settings.Font, Brushes.Black, 0, yd - TICK_SIZE);
+                    }
                 }
             }
         }
@@ -380,7 +411,9 @@ namespace NDraw
 
             foreach (Shape shape in _shapes)
             {
-                if (shape.IsFeaturePoint(virtLoc, range) > 0 && _layers[shape.Layer - 1])
+                int fp = shape.IsFeaturePoint(virtLoc, range);
+
+                if (fp > 0 && _layers[shape.Layer - 1])
                 {
                     shape.State = ShapeState.Highlighted;
                     toHighlight = shape;
@@ -407,7 +440,7 @@ namespace NDraw
                 Invalidate();
             }
 
-            InfoEvent?.Invoke(this, $"Mouse:{e.Location} TX:{DisplayToVirtual(e.Location)} OffsetX:{_offsetX} OffsetY:{_offsetY} Zoom:{_zoom}");
+            InfoEvent?.Invoke(this, $"Disp:{e.Location}  Virt:{DisplayToVirtual(e.Location)}  OffsetX:{_offsetX}  OffsetY:{_offsetY}  Zoom:{_zoom}");
         }
 
         /// <summary>
@@ -421,7 +454,7 @@ namespace NDraw
             bool redraw = false;
 
             // Number of detents the mouse wheel has rotated, multiplied by the WHEEL_DELTA constant.
-            int delta = 2 * WHEEL_RESOLUTION * e.Delta / SystemInformation.MouseWheelScrollDelta;
+            int delta = _settings.WheelResolution * e.Delta / SystemInformation.MouseWheelScrollDelta;
 
             switch (e.Button, ControlPressed(), ShiftPressed())
             {
@@ -459,8 +492,8 @@ namespace NDraw
             };
 
             // Clamp offsets.
-            _offsetX = Math.Min(_offsetX, 0);
-            _offsetY = Math.Min(_offsetY, 0);
+            _offsetX = Math.Min(_offsetX, SCROLL_NEGATIVE);
+            _offsetY = Math.Min(_offsetY, SCROLL_NEGATIVE);
 
             if (redraw)
             {
@@ -515,8 +548,8 @@ namespace NDraw
         /// <returns>The virtual point.</returns>
         PointF DisplayToVirtual(Point disp)
         {
-            var virtX = (disp.X - _offsetX - BORDER_SIZE) / _page.Scale / _zoom;
-            var virtY = (disp.Y - _offsetY - BORDER_SIZE) / _page.Scale / _zoom;
+            var virtX = ((float)disp.X - _offsetX - BORDER_SIZE) / _page.Scale / _zoom;
+            var virtY = ((float)disp.Y - _offsetY - BORDER_SIZE) / _page.Scale / _zoom;
             return new PointF(virtX, virtY);
         }
         #endregion
@@ -546,8 +579,8 @@ namespace NDraw
         void Reset()
         {
             _zoom = 1.0f;
-            _offsetX = 0;
-            _offsetY = 0;
+            _offsetX = SCROLL_NEGATIVE;
+            _offsetY = SCROLL_NEGATIVE;
         }
 
         /// <summary>

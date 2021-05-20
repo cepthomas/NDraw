@@ -16,21 +16,26 @@ namespace NDraw
     [Serializable]
     public class UserSettings : IDisposable
     {
-        #region Properties
-        /// <summary>DOC</summary>
+        #region Properties - editable
+        /// <summary>Display font.</summary>
         [JsonConverter(typeof(FontConverter))]
         public Font Font { get; set; } = new Font("Consolas", 10);
 
-        /// <summary>DOC</summary>
+        /// <summary>Form color.</summary>
         [JsonConverter(typeof(ColorConverter))]
         public Color BackColor { get; set; } = Color.LightGray;
 
-        /// <summary>DOC</summary>
+        /// <summary>Form color.</summary>
         [JsonConverter(typeof(ColorConverter))]
         public Color GridColor { get; set; } = Color.Gray;
 
-        /// <summary>DOC</summary>
-        [Browsable(false)] // Persisted non-editable
+        /// <summary>How fast the mouse wheel goes.</summary>
+        public int WheelResolution { get; set; } = 8;
+        #endregion
+
+        #region Properties - internal
+        /// <summary>Recent file list.</summary>
+        [Browsable(false)]
         public List<string> RecentFiles { get; set; } = new List<string>();
 
         /// <summary>Form geometry</summary>
