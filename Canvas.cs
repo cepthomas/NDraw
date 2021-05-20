@@ -293,8 +293,8 @@ namespace NDraw
         /// 
         /// </summary>
         /// <param name="g">The Graphics object to use.</param>
-        /// <param name="pt"></param>
-        /// <param name="ps"></param>
+        /// <param name="pt">Origin for rotate.</param>
+        /// <param name="ps">End type.</param>
         /// <param name="degrees">The rotation of the axis.</param>
         void DrawPoint(Graphics g, Pen pen, PointF pt, PointStyle ps, float degrees)
         {
@@ -383,13 +383,12 @@ namespace NDraw
         /// Draw text using the specified transformations.
         /// </summary>
         /// <param name="g">The Graphics object to use.</param>
-        /// <param name="x">The X transform</param>
-        /// <param name="y">The Y transform</param>
+        /// <param name="pt">Origin for rotate.</param>
         /// <param name="text">The text of the label.</param>
         /// <param name="degrees">The rotation of the axis.</param>
-        void DrawText(Graphics g, float x, float y, string text, Font font, int degrees)
+        void DrawText(Graphics g, PointF pt, string text, Font font, int degrees)
         {
-            g.TranslateTransform(x, y);
+            g.TranslateTransform(pt.X, pt.Y);
             g.RotateTransform(degrees);
             g.DrawString(text, font, Brushes.Black, 0, 0);
             g.ResetTransform();

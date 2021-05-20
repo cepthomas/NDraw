@@ -12,13 +12,14 @@
     - `shift+mousewheel` scrolls left/right.
     - `ctrl+mousewheel` zooms in/out.
     - `H` resets the display.
+    - Show/hide layers, grid, ruler.
 
 
 # The File Format
 - NDraw files consist of single lines describing elements to be drawn. The parameters are a comma separated list of `name=value`.
 - Lines are parsed once from top to bottom.
 - `//` is used for comments.
-- Refer to `test1.nd` in the Test directory for example.
+- Refer to `test1.nd` in the Test directory for an example.
 
 ## Types
 These types are supported in the shape definitions.

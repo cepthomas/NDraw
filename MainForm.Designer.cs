@@ -31,21 +31,21 @@ namespace NDraw
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ToolStrip = new System.Windows.Forms.ToolStrip();
-            this.fileDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.FileDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.OpenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RecentMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RenderMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.Btn_Layer1 = new System.Windows.Forms.ToolStripButton();
-            this.Btn_Layer2 = new System.Windows.Forms.ToolStripButton();
-            this.Btn_Layer3 = new System.Windows.Forms.ToolStripButton();
-            this.Btn_Layer4 = new System.Windows.Forms.ToolStripButton();
-            this.Txt_Info = new System.Windows.Forms.ToolStripTextBox();
-            this.canvas = new NDraw.Canvas();
+            this.BtnLayer1 = new System.Windows.Forms.ToolStripButton();
+            this.BtnLayer2 = new System.Windows.Forms.ToolStripButton();
+            this.BtnLayer3 = new System.Windows.Forms.ToolStripButton();
+            this.BtnLayer4 = new System.Windows.Forms.ToolStripButton();
+            this.TxtInfo = new System.Windows.Forms.ToolStripTextBox();
+            this.Canvas = new NDraw.Canvas();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.rtbLog = new System.Windows.Forms.RichTextBox();
-            this.Btn_Grid = new System.Windows.Forms.ToolStripButton();
-            this.Btn_Ruler = new System.Windows.Forms.ToolStripButton();
+            this.RtbLog = new System.Windows.Forms.RichTextBox();
+            this.BtnGrid = new System.Windows.Forms.ToolStripButton();
+            this.BtnRuler = new System.Windows.Forms.ToolStripButton();
             this.ToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -57,33 +57,33 @@ namespace NDraw
             // 
             this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileDropDownButton,
-            this.Btn_Grid,
-            this.Btn_Ruler,
-            this.Btn_Layer1,
-            this.Btn_Layer2,
-            this.Btn_Layer3,
-            this.Btn_Layer4,
-            this.Txt_Info});
+            this.FileDropDownButton,
+            this.BtnGrid,
+            this.BtnRuler,
+            this.BtnLayer1,
+            this.BtnLayer2,
+            this.BtnLayer3,
+            this.BtnLayer4,
+            this.TxtInfo});
             this.ToolStrip.Location = new System.Drawing.Point(0, 0);
             this.ToolStrip.Name = "ToolStrip";
             this.ToolStrip.Size = new System.Drawing.Size(1293, 27);
             this.ToolStrip.TabIndex = 0;
             this.ToolStrip.Text = "ToolStrip";
             // 
-            // fileDropDownButton
+            // FileDropDownButton
             // 
-            this.fileDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.fileDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.FileDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.FileDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.OpenMenuItem,
             this.RecentMenuItem,
             this.RenderMenuItem,
             this.SettingsMenuItem});
-            this.fileDropDownButton.Image = global::NDraw.Properties.Resources.glyphicons_37_file;
-            this.fileDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.fileDropDownButton.Name = "fileDropDownButton";
-            this.fileDropDownButton.Size = new System.Drawing.Size(34, 24);
-            this.fileDropDownButton.Text = "File";
+            this.FileDropDownButton.Image = global::NDraw.Properties.Resources.glyphicons_37_file;
+            this.FileDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.FileDropDownButton.Name = "FileDropDownButton";
+            this.FileDropDownButton.Size = new System.Drawing.Size(34, 24);
+            this.FileDropDownButton.Text = "File";
             // 
             // OpenMenuItem
             // 
@@ -109,67 +109,67 @@ namespace NDraw
             this.SettingsMenuItem.Size = new System.Drawing.Size(145, 26);
             this.SettingsMenuItem.Text = "Settings";
             // 
-            // Btn_Layer1
+            // BtnLayer1
             // 
-            this.Btn_Layer1.BackColor = System.Drawing.SystemColors.Control;
-            this.Btn_Layer1.CheckOnClick = true;
-            this.Btn_Layer1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.Btn_Layer1.Image = ((System.Drawing.Image)(resources.GetObject("Btn_Layer1.Image")));
-            this.Btn_Layer1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Btn_Layer1.Name = "Btn_Layer1";
-            this.Btn_Layer1.Size = new System.Drawing.Size(29, 24);
-            this.Btn_Layer1.Text = "1";
-            this.Btn_Layer1.ToolTipText = "Layer 1";
+            this.BtnLayer1.BackColor = System.Drawing.SystemColors.Control;
+            this.BtnLayer1.CheckOnClick = true;
+            this.BtnLayer1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.BtnLayer1.Image = ((System.Drawing.Image)(resources.GetObject("BtnLayer1.Image")));
+            this.BtnLayer1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnLayer1.Name = "BtnLayer1";
+            this.BtnLayer1.Size = new System.Drawing.Size(29, 24);
+            this.BtnLayer1.Text = "1";
+            this.BtnLayer1.ToolTipText = "Layer 1";
             // 
-            // Btn_Layer2
+            // BtnLayer2
             // 
-            this.Btn_Layer2.BackColor = System.Drawing.SystemColors.Control;
-            this.Btn_Layer2.CheckOnClick = true;
-            this.Btn_Layer2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.Btn_Layer2.Image = ((System.Drawing.Image)(resources.GetObject("Btn_Layer2.Image")));
-            this.Btn_Layer2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Btn_Layer2.Name = "Btn_Layer2";
-            this.Btn_Layer2.Size = new System.Drawing.Size(29, 24);
-            this.Btn_Layer2.Text = "2";
-            this.Btn_Layer2.ToolTipText = "Layer 2";
+            this.BtnLayer2.BackColor = System.Drawing.SystemColors.Control;
+            this.BtnLayer2.CheckOnClick = true;
+            this.BtnLayer2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.BtnLayer2.Image = ((System.Drawing.Image)(resources.GetObject("BtnLayer2.Image")));
+            this.BtnLayer2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnLayer2.Name = "BtnLayer2";
+            this.BtnLayer2.Size = new System.Drawing.Size(29, 24);
+            this.BtnLayer2.Text = "2";
+            this.BtnLayer2.ToolTipText = "Layer 2";
             // 
-            // Btn_Layer3
+            // BtnLayer3
             // 
-            this.Btn_Layer3.BackColor = System.Drawing.SystemColors.Control;
-            this.Btn_Layer3.CheckOnClick = true;
-            this.Btn_Layer3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.Btn_Layer3.Image = ((System.Drawing.Image)(resources.GetObject("Btn_Layer3.Image")));
-            this.Btn_Layer3.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Btn_Layer3.Name = "Btn_Layer3";
-            this.Btn_Layer3.Size = new System.Drawing.Size(29, 24);
-            this.Btn_Layer3.Text = "3";
-            this.Btn_Layer3.ToolTipText = "Layer 3";
+            this.BtnLayer3.BackColor = System.Drawing.SystemColors.Control;
+            this.BtnLayer3.CheckOnClick = true;
+            this.BtnLayer3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.BtnLayer3.Image = ((System.Drawing.Image)(resources.GetObject("BtnLayer3.Image")));
+            this.BtnLayer3.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnLayer3.Name = "BtnLayer3";
+            this.BtnLayer3.Size = new System.Drawing.Size(29, 24);
+            this.BtnLayer3.Text = "3";
+            this.BtnLayer3.ToolTipText = "Layer 3";
             // 
-            // Btn_Layer4
+            // BtnLayer4
             // 
-            this.Btn_Layer4.BackColor = System.Drawing.SystemColors.Control;
-            this.Btn_Layer4.CheckOnClick = true;
-            this.Btn_Layer4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.Btn_Layer4.Image = ((System.Drawing.Image)(resources.GetObject("Btn_Layer4.Image")));
-            this.Btn_Layer4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Btn_Layer4.Name = "Btn_Layer4";
-            this.Btn_Layer4.Size = new System.Drawing.Size(29, 24);
-            this.Btn_Layer4.Text = "4";
-            this.Btn_Layer4.ToolTipText = "Layer 4";
+            this.BtnLayer4.BackColor = System.Drawing.SystemColors.Control;
+            this.BtnLayer4.CheckOnClick = true;
+            this.BtnLayer4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.BtnLayer4.Image = ((System.Drawing.Image)(resources.GetObject("BtnLayer4.Image")));
+            this.BtnLayer4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnLayer4.Name = "BtnLayer4";
+            this.BtnLayer4.Size = new System.Drawing.Size(29, 24);
+            this.BtnLayer4.Text = "4";
+            this.BtnLayer4.ToolTipText = "Layer 4";
             // 
-            // Txt_Info
+            // TxtInfo
             // 
-            this.Txt_Info.Name = "Txt_Info";
-            this.Txt_Info.ReadOnly = true;
-            this.Txt_Info.Size = new System.Drawing.Size(600, 27);
+            this.TxtInfo.Name = "TxtInfo";
+            this.TxtInfo.ReadOnly = true;
+            this.TxtInfo.Size = new System.Drawing.Size(600, 27);
             // 
-            // canvas
+            // Canvas
             // 
-            this.canvas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.canvas.Location = new System.Drawing.Point(0, 0);
-            this.canvas.Name = "canvas";
-            this.canvas.Size = new System.Drawing.Size(1018, 626);
-            this.canvas.TabIndex = 1;
+            this.Canvas.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Canvas.Location = new System.Drawing.Point(0, 0);
+            this.Canvas.Name = "Canvas";
+            this.Canvas.Size = new System.Drawing.Size(1018, 626);
+            this.Canvas.TabIndex = 1;
             // 
             // splitContainer1
             // 
@@ -181,47 +181,47 @@ namespace NDraw
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.rtbLog);
+            this.splitContainer1.Panel1.Controls.Add(this.RtbLog);
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.canvas);
+            this.splitContainer1.Panel2.Controls.Add(this.Canvas);
             this.splitContainer1.Size = new System.Drawing.Size(1293, 626);
             this.splitContainer1.SplitterDistance = 271;
             this.splitContainer1.TabIndex = 2;
             // 
-            // rtbLog
+            // RtbLog
             // 
-            this.rtbLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.rtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rtbLog.Location = new System.Drawing.Point(0, 0);
-            this.rtbLog.Name = "rtbLog";
-            this.rtbLog.ReadOnly = true;
-            this.rtbLog.Size = new System.Drawing.Size(271, 626);
-            this.rtbLog.TabIndex = 0;
-            this.rtbLog.Text = "";
+            this.RtbLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.RtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.RtbLog.Location = new System.Drawing.Point(0, 0);
+            this.RtbLog.Name = "RtbLog";
+            this.RtbLog.ReadOnly = true;
+            this.RtbLog.Size = new System.Drawing.Size(271, 626);
+            this.RtbLog.TabIndex = 0;
+            this.RtbLog.Text = "";
             // 
-            // Btn_Grid
+            // BtnGrid
             // 
-            this.Btn_Grid.CheckOnClick = true;
-            this.Btn_Grid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.Btn_Grid.Image = ((System.Drawing.Image)(resources.GetObject("Btn_Grid.Image")));
-            this.Btn_Grid.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Btn_Grid.Name = "Btn_Grid";
-            this.Btn_Grid.Size = new System.Drawing.Size(41, 24);
-            this.Btn_Grid.Text = "Grid";
-            this.Btn_Grid.ToolTipText = "Grid Visible";
+            this.BtnGrid.CheckOnClick = true;
+            this.BtnGrid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.BtnGrid.Image = ((System.Drawing.Image)(resources.GetObject("BtnGrid.Image")));
+            this.BtnGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnGrid.Name = "BtnGrid";
+            this.BtnGrid.Size = new System.Drawing.Size(41, 24);
+            this.BtnGrid.Text = "Grid";
+            this.BtnGrid.ToolTipText = "Grid Visible";
             // 
-            // Btn_Ruler
+            // BtnRuler
             // 
-            this.Btn_Ruler.CheckOnClick = true;
-            this.Btn_Ruler.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.Btn_Ruler.Image = ((System.Drawing.Image)(resources.GetObject("Btn_Ruler.Image")));
-            this.Btn_Ruler.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Btn_Ruler.Name = "Btn_Ruler";
-            this.Btn_Ruler.Size = new System.Drawing.Size(47, 24);
-            this.Btn_Ruler.Text = "Ruler";
-            this.Btn_Ruler.ToolTipText = "Ruler Visible";
+            this.BtnRuler.CheckOnClick = true;
+            this.BtnRuler.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.BtnRuler.Image = ((System.Drawing.Image)(resources.GetObject("BtnRuler.Image")));
+            this.BtnRuler.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnRuler.Name = "BtnRuler";
+            this.BtnRuler.Size = new System.Drawing.Size(47, 24);
+            this.BtnRuler.Text = "Ruler";
+            this.BtnRuler.ToolTipText = "Ruler Visible";
             // 
             // MainForm
             // 
@@ -249,21 +249,21 @@ namespace NDraw
         #endregion
 
         private System.Windows.Forms.ToolStrip ToolStrip;
-        private Canvas canvas;
+        private Canvas Canvas;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.ToolStripDropDownButton fileDropDownButton;
+        private System.Windows.Forms.ToolStripDropDownButton FileDropDownButton;
         private System.Windows.Forms.ToolStripMenuItem RecentMenuItem;
-        private System.Windows.Forms.RichTextBox rtbLog;
+        private System.Windows.Forms.RichTextBox RtbLog;
         private System.Windows.Forms.ToolStripMenuItem OpenMenuItem;
         private System.Windows.Forms.ToolStripMenuItem SettingsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RenderMenuItem;
-        private System.Windows.Forms.ToolStripButton Btn_Layer1;
-        private System.Windows.Forms.ToolStripButton Btn_Layer2;
-        private System.Windows.Forms.ToolStripButton Btn_Layer3;
-        private System.Windows.Forms.ToolStripButton Btn_Layer4;
-        private System.Windows.Forms.ToolStripTextBox Txt_Info;
-        private System.Windows.Forms.ToolStripButton Btn_Grid;
-        private System.Windows.Forms.ToolStripButton Btn_Ruler;
+        private System.Windows.Forms.ToolStripButton BtnLayer1;
+        private System.Windows.Forms.ToolStripButton BtnLayer2;
+        private System.Windows.Forms.ToolStripButton BtnLayer3;
+        private System.Windows.Forms.ToolStripButton BtnLayer4;
+        private System.Windows.Forms.ToolStripTextBox TxtInfo;
+        private System.Windows.Forms.ToolStripButton BtnGrid;
+        private System.Windows.Forms.ToolStripButton BtnRuler;
     }
 }
 

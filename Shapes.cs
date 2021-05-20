@@ -11,16 +11,16 @@ using System.Text.Json.Serialization;
 using NBagOfTricks.Utils;
 
 
-// Deals exclusively in virtual (page) units. Translation between display and virtual is done in GeometryMap.
+// Deals exclusively in virtual (page) units.
 
 
 namespace NDraw
 {
     #region Enums
-    /// <summary>DOC</summary>
+    /// <summar>Presentation state.</summary>
     public enum ShapeState { Default, Highlighted };
 
-    /// <summary>DOC</summary>
+    /// <summary>Cosmetics.</summary>
     public enum PointStyle { None, Arrow, Tee };
     #endregion
 
@@ -29,7 +29,7 @@ namespace NDraw
     public abstract class Shape
     {
         #region Properties
-        /// <summary></summary>
+        /// <summary>Arbitrary id.</summary>
         public string Id { get; set; } = "???";
 
         /// <summary>Layer 1-4.</summary>
@@ -42,14 +42,14 @@ namespace NDraw
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ContentAlignment TextAlignment { get; set; } = ContentAlignment.TopLeft;
 
-        /// <summary>DOC</summary>
+        /// <summary>Line Thickness</summary>
         public float LineThickness { get; set; } = 1.0f;
 
-        /// <summary>DOC</summary>
+        /// <summary>Line Color</summary>
         [JsonConverter(typeof(ColorConverter))]
         public Color LineColor { get; set; } = Color.Green;
 
-        /// <summary>DOC</summary>
+        /// <summary>Fill Color</summary>
         [JsonConverter(typeof(ColorConverter))]
         public Color FillColor { get; set; } = Color.Black;
 
@@ -126,19 +126,19 @@ namespace NDraw
     public class LineShape : Shape
     {
         #region Properties
-        /// <summary>DOC</summary>
+        /// <summary>Line start.</summary>
         [JsonConverter(typeof(PointFConverter))]
         public PointF Start { get; set; } = new(0, 0);
 
-        /// <summary>DOC</summary>
+        /// <summary>Line end.</summary>
         [JsonConverter(typeof(PointFConverter))]
         public PointF End { get; set; } = new(0, 0);
 
-        /// <summary>DOC</summary>
+        /// <summary>Start type.</summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public PointStyle StartStyle { get; set; } = PointStyle.None;
 
-        /// <summary>DOC</summary>
+        /// <summary>End type.</summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public PointStyle EndStyle { get; set; } = PointStyle.None;
 
@@ -178,29 +178,29 @@ namespace NDraw
     public class RectShape : Shape
     {
         #region Properties
-        /// <summary>DOC</summary>
+        /// <summary>Rectangle top left.</summary>
         [JsonConverter(typeof(PointFConverter))]
         public PointF Location { get; set; } = new(0, 0);
 
-        /// <summary>DOC</summary>
+        /// <summary>Width</summary>
         public float Width { get; set; }
 
-        /// <summary>DOC</summary>
+        /// <summary>Height</summary>
         public float Height { get; set; }
 
-        /// <summary>DOC</summary>
+        /// <summary>Top left.</summary>
         [JsonIgnore, Browsable(false)]
         public PointF TL => new(Location.X, Location.Y);
 
-        /// <summary>DOC</summary>
+        /// <summary>Top right.</summary>
         [JsonIgnore, Browsable(false)]
         public PointF TR => new(Location.X + Width, Location.Y);
 
-        /// <summary>DOC</summary>
+        /// <summary>Bottom right.</summary>
         [JsonIgnore, Browsable(false)]
         public PointF BR => new(Location.X + Width, Location.Y + Height);
 
-        /// <summary>DOC</summary>
+        /// <summary>Bottom left.</summary>
         [JsonIgnore, Browsable(false)]
         public PointF BL => new(Location.X, Location.Y + Height);
         #endregion
@@ -283,14 +283,14 @@ namespace NDraw
     public class EllipseShape : Shape
     {
         #region Properties
-        /// <summary>DOC</summary>
+        /// <summary>Center</summary>
         [JsonConverter(typeof(PointFConverter))]
         public PointF Center { get; set; } = new(0, 0);
 
-        /// <summary>DOC</summary>
+        /// <summary>Width</summary>
         public float Width { get; set; }
 
-        /// <summary>DOC</summary>
+        /// <summary>Height</summary>
         public float Height { get; set; }
         #endregion
 

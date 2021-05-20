@@ -53,7 +53,7 @@ namespace NDraw
             Width = _settings.FormWidth;
             Height = _settings.FormHeight;
 
-            canvas.InfoEvent += (_, msg) => Txt_Info.Text = msg;
+            Canvas.InfoEvent += (_, msg) => TxtInfo.Text = msg;
 
             OpenMenuItem.Click += Open_Click;
             RecentMenuItem.Click += Recent_Click;
@@ -62,7 +62,7 @@ namespace NDraw
 
             ToolStrip.Renderer = new TsRenderer();
 
-            foreach (var btn in new List<ToolStripButton>() { Btn_Layer1, Btn_Layer2, Btn_Layer3, Btn_Layer4, Btn_Ruler, Btn_Grid })
+            foreach (var btn in new List<ToolStripButton>() { BtnLayer1, BtnLayer2, BtnLayer3, BtnLayer4, BtnRuler, BtnGrid })
             {
                 btn.Click += Btn_Click;
                 btn.Checked = true;
@@ -163,23 +163,23 @@ namespace NDraw
         /// </summary>
         void Parse()
         {
-            rtbLog.Clear();
+            RtbLog.Clear();
 
             try
             {
                 Parser p = new();
                 p.ParseFile(_fn);
 
-                if (p.Errors.Count > 0)
+                if (p.Errors.Count == 0)
+                {
+                    Canvas.Init(p.Page, _settings);
+                }
+                else
                 {
                     foreach (var err in p.Errors)
                     {
                         Log($"Err: {err}");
                     }
-                }
-                else
-                {
-                    canvas.Init(p.Page, _settings);
                 }
             }
             catch (Exception ex)
@@ -283,12 +283,12 @@ namespace NDraw
                 case "3":
                 case "4":
                     int n = int.Parse(b.Text);
-                    canvas.SetLayer(n - 1, b.Checked);
+                    Canvas.SetLayer(n - 1, b.Checked);
                     break;
 
                 case "Ruler":
                 case "Grid":
-                    canvas.SetVisibility(Btn_Ruler.Checked, Btn_Grid.Checked);
+                    Canvas.SetVisibility(BtnRuler.Checked, BtnGrid.Checked);
                     break;
             }
         }
@@ -300,8 +300,8 @@ namespace NDraw
         /// <param name="e"></param>
         void Render_Click(object sender, EventArgs e)
         {
-            Bitmap bmp = new(canvas.Width, canvas.Height);
-            canvas.DrawToBitmap(bmp, new Rectangle(0, 0, canvas.Width, canvas.Height));
+            Bitmap bmp = new(Canvas.Width, Canvas.Height);
+            Canvas.DrawToBitmap(bmp, new Rectangle(0, 0, Canvas.Width, Canvas.Height));
             bmp.Save(_fn.Replace(".nd", ".png"), System.Drawing.Imaging.ImageFormat.Png);
         }
 
@@ -311,9 +311,9 @@ namespace NDraw
         /// <param name="s"></param>
         void Log(string s)
         {
-            rtbLog.AppendText(s);
-            rtbLog.AppendText(Environment.NewLine);
-            rtbLog.ScrollToCaret();
+            RtbLog.AppendText(s);
+            RtbLog.AppendText(Environment.NewLine);
+            RtbLog.ScrollToCaret();
         }
         #endregion
     }
