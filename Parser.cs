@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,7 +44,13 @@ namespace NDraw
         #region Enum mappings
         readonly Dictionary<string, PointStyle> _pointStyle = new()
         {
-            { "n", PointStyle.None }, { "a", PointStyle.Arrow }, { "t", PointStyle.Tee }
+            { "a", PointStyle.Arrow }, { "t", PointStyle.Tee }
+        };
+        
+        readonly Dictionary<string, HatchStyle> _hatchStyle = new()
+        {
+            { "ho", HatchStyle.Horizontal },       { "ve", HatchStyle.Vertical },    { "fd", HatchStyle.ForwardDiagonal },
+            { "bd", HatchStyle.BackwardDiagonal }, { "lg", HatchStyle.LargeGrid },   { "dc", HatchStyle.DiagonalCross },
         };
 
         readonly Dictionary<string, ContentAlignment> _alignment = new()
@@ -278,8 +285,9 @@ namespace NDraw
         void InitShapeCommon(Shape shape, Dictionary<string, string> elemParams)
         {
             // Common.
-            shape.Layer = elemParams.ContainsKey("lr") ? int.Parse(elemParams["lr"]) : 0;
+            shape.Layer = elemParams.ContainsKey("lr") ? int.Parse(elemParams["lr"]) : 1;
             shape.Text = elemParams.ContainsKey("tx") ? ParseText(elemParams["tx"]) : null;
+            shape.Hatch = elemParams.ContainsKey("ht") ? _hatchStyle[elemParams["ht"]] : Shape.NO_HATCH;
             shape.LineThickness = elemParams.ContainsKey("lt") ? float.Parse(elemParams["lt"]) : _lt;
             shape.LineColor = elemParams.ContainsKey("lc") ? Color.FromName(elemParams["lc"]) : _lc;
             shape.FillColor = elemParams.ContainsKey("fc") ? Color.FromName(elemParams["fc"]) : _fc;

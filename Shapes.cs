@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using NBagOfTricks.Utils;
+using System.Drawing.Drawing2D;
 
 
 // Deals exclusively in virtual (page) units.
@@ -28,6 +29,11 @@ namespace NDraw
     [Serializable]
     public abstract class Shape
     {
+        #region Constants
+        /// <summary>No fill hatch.</summary>
+        public const HatchStyle NO_HATCH = (HatchStyle)255;
+        #endregion
+
         #region Properties
         /// <summary>Arbitrary id.</summary>
         public string Id { get; set; } = "???";
@@ -52,6 +58,10 @@ namespace NDraw
         /// <summary>Fill Color</summary>
         [JsonConverter(typeof(ColorConverter))]
         public Color FillColor { get; set; } = Color.Black;
+
+        /// <summary>Shape fill hatch.</summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public HatchStyle Hatch { get; set; } = NO_HATCH;
 
         /// <summary>Dynamic state.</summary>
         [JsonIgnore]

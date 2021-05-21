@@ -60,6 +60,7 @@ namespace NDraw
         float _yMax = float.MinValue;
         #endregion
 
+
         #region Constants
         /// <summary>How many layers.</summary>
         const int NUM_LAYERS = 4;
@@ -240,6 +241,7 @@ namespace NDraw
                 if (shape.ContainedIn(virtVisible, true) && _layers[shape.Layer - 1])
                 {
                     using Pen penLine = new(shape.LineColor, shape.LineThickness);
+
                     // Map to display coordinates.
                     var bounds = shape.ToRect();
                     var disptl = VirtualToDisplay(bounds.Location);
@@ -251,10 +253,20 @@ namespace NDraw
                     switch (shape)
                     {
                         case RectShape shapeRect:
+                            if(shape.Hatch != Shape.NO_HATCH)
+                            {
+                                using HatchBrush brush = new(shape.Hatch, shape.LineColor, _settings.BackColor);
+                                e.Graphics.FillRectangle(brush, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
+                            }
                             e.Graphics.DrawRectangle(penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
                             break;
 
                         case EllipseShape shapeEllipse:
+                            if (shape.Hatch != Shape.NO_HATCH)
+                            {
+                                using HatchBrush brush = new(shape.Hatch, shape.LineColor, _settings.BackColor);
+                                e.Graphics.FillEllipse(brush, dispRect);
+                            }
                             e.Graphics.DrawEllipse(penLine, dispRect);
                             break;
 
@@ -439,7 +451,7 @@ namespace NDraw
                 Invalidate();
             }
 
-            InfoEvent?.Invoke(this, $"Disp:{e.Location}  Virt:{DisplayToVirtual(e.Location)}  OffsetX:{_offsetX}  OffsetY:{_offsetY}  Zoom:{_zoom}");
+            //InfoEvent?.Invoke(this, $"Disp:{e.Location}  Virt:{DisplayToVirtual(e.Location)}  OffsetX:{_offsetX}  OffsetY:{_offsetY}  Zoom:{_zoom}");
         }
 
         /// <summary>

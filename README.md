@@ -36,7 +36,8 @@ Expression may contain N and T types, and +- operators only e.g. `my_val=some_lo
 | C    | Color name - html known
 | N    | Numerical value: float \| integer \| expression
 | T    | Text value: quoted string \| float \| integer \| expression
-| P    | Point style: n(one) \| a(rrow) \| t(ee)
+| P    | Point style: a(rrow) \| t(ee)
+| H    | Hatch style: ho \| ve \| fd \| bd \| lg \| dc
 | A    | Text alignment: tl \| tc \| tr \| ml \| mc \| mr \| bl \| bc \| br 
 
 
@@ -90,6 +91,7 @@ id    |  D   |  N  | Identifier
 lr    |  I   |  N  | 1 to N or 0 for all
 tx    |  T   |  N  | Display text
 fc    |  C   |  N  | Fill color
+ft    |  H   |  N  | Hatch type
 lc    |  C   |  N  | Line color
 lt    |  F   |  N  | Line thickness
 tp    |  A   |  N  | Text alignment

@@ -16,6 +16,7 @@ namespace NDraw
 {
     public partial class MainForm : Form
     {
+        #region Fields
         /// <summary>Settings.</summary>
         UserSettings _settings;
 
@@ -24,6 +25,7 @@ namespace NDraw
 
         /// <summary>Current file name.</summary>
         string _fn = "";
+        #endregion
 
         #region Lifecycle
         /// <summary>

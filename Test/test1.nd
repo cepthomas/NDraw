@@ -33,4 +33,4 @@ angle_line=line, lr=1, sx=90, sy=140, ex=140, ey=90, tx="45 deg", es=a, ss=a
 
 $lt=6
 
-my_circle=ellipse, lr=2, x=50, y=50, w=20, h=20, tx="I'm rrrround", tp=mc
+my_circle=ellipse, lr=2, x=50, y=50, w=20, h=20, tx="I'm rrrround", tp=mc, ht=lg
