@@ -91,7 +91,7 @@ id    |  D   |  N  | Identifier
 lr    |  I   |  N  | 1 to N or 0 for all
 tx    |  T   |  N  | Display text
 fc    |  C   |  N  | Fill color
-ft    |  H   |  N  | Hatch type
+ht    |  H   |  N  | Hatch type
 lc    |  C   |  N  | Line color
 lt    |  F   |  N  | Line thickness
 tp    |  A   |  N  | Text alignment

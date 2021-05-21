@@ -171,6 +171,7 @@ namespace NDraw
             {
                 Parser p = new();
                 p.ParseFile(_fn);
+                //p.Page.Save("xyz.json");
 
                 if (p.Errors.Count == 0)
                 {

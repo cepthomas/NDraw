@@ -30,8 +30,8 @@ namespace NDraw
     public abstract class Shape
     {
         #region Constants
-        /// <summary>No fill hatch.</summary>
-        public const HatchStyle NO_HATCH = (HatchStyle)255;
+        /// <summary>Since there is no None value, use this one.</summary>
+        public const HatchStyle NO_HATCH = HatchStyle.Percent90; // (HatchStyle)255;
         #endregion
 
         #region Properties
