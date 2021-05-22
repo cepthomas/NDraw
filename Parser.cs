@@ -36,7 +36,7 @@ namespace NDraw
         Color _fc = Color.LightBlue;
         Color _lc = Color.Red;
         float _lt = 2.5f;
-        ContentAlignment _tp = ContentAlignment.MiddleCenter;
+        ContentAlignment _ta = ContentAlignment.MiddleCenter;
         PointStyle _ss = PointStyle.None;
         PointStyle _es = PointStyle.None;
         #endregion
@@ -180,7 +180,7 @@ namespace NDraw
                         case "$fc": _fc = Color.FromName(elval); break;
                         case "$lc": _lc = Color.FromName(elval); break;
                         case "$lt": _lt = float.Parse(elval); break;
-                        case "$tp": _tp = _alignment[elval]; break;
+                        case "$ta": _ta = _alignment[elval]; break;
                         case "$ss": _ss = _pointStyle[elval]; break;
                         case "$es": _es = _pointStyle[elval]; break;
 
@@ -291,7 +291,7 @@ namespace NDraw
             shape.LineThickness = elemParams.ContainsKey("lt") ? float.Parse(elemParams["lt"]) : _lt;
             shape.LineColor = elemParams.ContainsKey("lc") ? Color.FromName(elemParams["lc"]) : _lc;
             shape.FillColor = elemParams.ContainsKey("fc") ? Color.FromName(elemParams["fc"]) : _fc;
-            shape.TextAlignment = elemParams.ContainsKey("tp") ? _alignment[elemParams["tp"]] : _tp;
+            shape.TextAlignment = elemParams.ContainsKey("ta") ? _alignment[elemParams["ta"]] : _ta;
         }
 
         /// <summary>

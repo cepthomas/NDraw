@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Windows.Forms;
 using NBagOfTricks.PNUT;
 using NDraw;
 
@@ -122,7 +123,7 @@ namespace NDraw.Test
             }
             catch (Exception ex)
             {
-                //MessageBox.Show($"Fail: {ex}");
+                MessageBox.Show($"Fail: {ex}");
             }
         }
     }    

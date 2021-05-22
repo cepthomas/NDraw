@@ -12,25 +12,37 @@ size_1_w=10
 size_1_h=15
 size_2_w=size_1_w - 2.33
 size_2_h=45
-loc_1_x=pabc - 5.11
+loc_1_x=pabc - 15.11
 loc_1_y=84.12
 loc_2_x=pabc + size_2_w - 2.2 + 19
 loc_2_y=loc_1_x + 2
 loc_3_x=12.7
 loc_3_y=loc_1_y + 23
-
+hatches_x=100
+hatches_h=15
+hatches_w=30
 
 // shapes: id=type, param=value, ...
-my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", tp=tl
+my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", ta=tl
 
-my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, tp=tl, es=t, ss=t
+my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, ta=tl, es=t, ss=t
 
 base_line=line, lr=1, sx=60, sy=10, ex=84, ey=50, tx="base line", es=t, ss=a
 
 $lc=purple
 
-angle_line=line, lr=1, sx=90, sy=140, ex=140, ey=90, tx="45 deg", es=a, ss=a
+angle_line=line, lr=1, sx=10, sy=120, ex=60, ey=70, tx="45 deg", es=t, ss=a
 
 $lt=6
 
-my_circle=ellipse, lr=2, x=50, y=50, w=20, h=20, tx="I'm rrrround", tp=mc, ht=lg
+my_circle=ellipse, lr=2, x=20, y=50, w=30, h=30, tx="I'm rrrround", ta=mc
+
+// all the hatches 
+hatch_ho=rect, lr=3, x=hatches_x, y=loc_2_y+0, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="No Hatch"
+hatch_ho=rect, lr=3, x=hatches_x, y=loc_2_y+20, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Horizontal", ht=ho
+hatch_ve=rect, lr=3, x=hatches_x, y=loc_2_y+40, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Vertical", ht=ve
+hatch_fd=rect, lr=3, x=hatches_x, y=loc_2_y+60, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Forward Diagonal", ht=fd
+hatch_bd=rect, lr=3, x=hatches_x, y=loc_2_y+80, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Backward Diagonal", ht=bd
+hatch_lg=rect, lr=3, x=hatches_x, y=loc_2_y+100, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Large Grid", ht=lg
+hatch_dc=rect, lr=3, x=hatches_x, y=loc_2_y+120, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Diagonal Cross", ht=dc
+

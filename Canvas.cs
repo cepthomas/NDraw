@@ -240,6 +240,7 @@ namespace NDraw
                 if (shape.ContainedIn(virtVisible, true) && _layers[shape.Layer - 1])
                 {
                     using Pen penLine = new(shape.LineColor, shape.LineThickness);
+                    using Brush brush = shape.Hatch == Shape.NO_HATCH ? new SolidBrush(shape.FillColor) : new HatchBrush(shape.Hatch, shape.LineColor, shape.FillColor);
 
                     // Map to display coordinates.
                     var bounds = shape.ToRect();
@@ -252,20 +253,12 @@ namespace NDraw
                     switch (shape)
                     {
                         case RectShape shapeRect:
-                            if(shape.Hatch != Shape.NO_HATCH)
-                            {
-                                using HatchBrush brush = new(shape.Hatch, shape.LineColor, _settings.BackColor);
-                                e.Graphics.FillRectangle(brush, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
-                            }
+                            e.Graphics.FillRectangle(brush, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
                             e.Graphics.DrawRectangle(penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
                             break;
 
                         case EllipseShape shapeEllipse:
-                            if (shape.Hatch != Shape.NO_HATCH)
-                            {
-                                using HatchBrush brush = new(shape.Hatch, shape.LineColor, _settings.BackColor);
-                                e.Graphics.FillEllipse(brush, dispRect);
-                            }
+                            e.Graphics.FillEllipse(brush, dispRect);
                             e.Graphics.DrawEllipse(penLine, dispRect);
                             break;
 

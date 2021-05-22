@@ -68,7 +68,7 @@ Field | Type | Req | Description
 $fc   |  C   |  N  | Fill color
 $lc   |  C   |  N  | Line color
 $lt   |  F   |  N  | Line thickness
-$tp   |  A   |  N  | Text alignment
+$ta   |  A   |  N  | Text alignment
 $ss   |  P   |  N  | Start point style
 $es   |  P   |  N  | End point style
 
@@ -94,14 +94,14 @@ fc    |  C   |  N  | Fill color
 ht    |  H   |  N  | Hatch type
 lc    |  C   |  N  | Line color
 lt    |  F   |  N  | Line thickness
-tp    |  A   |  N  | Text alignment
+ta    |  A   |  N  | Text alignment
 
 
 ## Rectangle
 Render a rectangle.
 
 ```
-my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", tp=tl
+my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", ta=tl
 ```
 
 Field | Type | Req | Description
@@ -116,7 +116,7 @@ h     |  N   |  Y  | Height
 Render an ellipse.
 
 ```
-my_circle=ellipse, x=50, y=50, w=20, h=20, tx="I'm rrrround", tp=mc
+my_circle=ellipse, x=50, y=50, w=20, h=20, tx="I'm rrrround", ta=mc
 
 ```
 
@@ -132,7 +132,7 @@ h     |  N   |  Y  | Height
 Render a line.
 
 ```
-my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, tp=tl, ss=a, es=t
+my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, ta=tl, ss=a, es=t
 
 ```
 
