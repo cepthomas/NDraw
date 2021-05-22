@@ -142,5 +142,10 @@ sx    |  N   |  Y  | Start x
 sy    |  N   |  Y  | Start y
 ex    |  N   |  Y  | End x
 ey    |  N   |  Y  | End y
-ss    |  N   |  N  | Start point style
-es    |  N   |  N  | End point style
+ss    |  P   |  N  | Start point style
+es    |  P   |  N  | End point style
+
+# Third Party
+This application uses these FOSS components:
+- Main icon: [Charlotte Schmidt](http://pattedemouche.free.fr/) (Copyright © 2009 of Charlotte Schmidt).
+- Button icons: [Glyphicons Free](http://glyphicons.com/) (CC BY 3.0).

@@ -60,7 +60,6 @@ namespace NDraw
         float _yMax = float.MinValue;
         #endregion
 
-
         #region Constants
         /// <summary>How many layers.</summary>
         const int NUM_LAYERS = 4;
@@ -451,7 +450,7 @@ namespace NDraw
                 Invalidate();
             }
 
-            //InfoEvent?.Invoke(this, $"Disp:{e.Location}  Virt:{DisplayToVirtual(e.Location)}  OffsetX:{_offsetX}  OffsetY:{_offsetY}  Zoom:{_zoom}");
+            InfoEvent?.Invoke(this, $"Disp:{e.Location}  Virt:{DisplayToVirtual(e.Location)}  OffsetX:{_offsetX}  OffsetY:{_offsetY}  Zoom:{_zoom}");
         }
 
         /// <summary>
@@ -460,8 +459,6 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            //(e as HandledMouseEventArgs).Handled = true; // This prevents the mouse wheel event from getting back to the parent. ???
-
             bool redraw = false;
 
             // Number of detents the mouse wheel has rotated, multiplied by the WHEEL_DELTA constant.
