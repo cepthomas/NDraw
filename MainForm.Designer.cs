@@ -36,6 +36,7 @@ namespace NDraw
             this.RecentMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RenderMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.BtnGrid = new System.Windows.Forms.ToolStripButton();
             this.BtnRuler = new System.Windows.Forms.ToolStripButton();
             this.BtnLayer1 = new System.Windows.Forms.ToolStripButton();
@@ -46,7 +47,6 @@ namespace NDraw
             this.Canvas = new NDraw.Canvas();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.RtbLog = new System.Windows.Forms.RichTextBox();
-            this.AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -110,6 +110,12 @@ namespace NDraw
             this.SettingsMenuItem.Name = "SettingsMenuItem";
             this.SettingsMenuItem.Size = new System.Drawing.Size(145, 26);
             this.SettingsMenuItem.Text = "Settings";
+            // 
+            // AboutMenuItem
+            // 
+            this.AboutMenuItem.Name = "AboutMenuItem";
+            this.AboutMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.AboutMenuItem.Text = "About";
             // 
             // BtnGrid
             // 
@@ -183,6 +189,7 @@ namespace NDraw
             // 
             // Canvas
             // 
+            this.Canvas.BackColor = System.Drawing.Color.WhiteSmoke;
             this.Canvas.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Canvas.Location = new System.Drawing.Point(0, 0);
             this.Canvas.Name = "Canvas";
@@ -218,12 +225,6 @@ namespace NDraw
             this.RtbLog.Size = new System.Drawing.Size(271, 626);
             this.RtbLog.TabIndex = 0;
             this.RtbLog.Text = "";
-            // 
-            // AboutMenuItem
-            // 
-            this.AboutMenuItem.Name = "AboutMenuItem";
-            this.AboutMenuItem.Size = new System.Drawing.Size(145, 26);
-            this.AboutMenuItem.Text = "About";
             // 
             // MainForm
             // 

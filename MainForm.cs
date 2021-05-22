@@ -46,6 +46,7 @@ namespace NDraw
             // Receive key events before the event is passed to the control that has focus.
             KeyPreview = true;
 
+            // Open settings.
             string appDir = MiscUtils.GetAppDataDir("NDraw");
             DirectoryInfo di = new(appDir);
             di.Create();
@@ -55,6 +56,9 @@ namespace NDraw
             Width = _settings.FormWidth;
             Height = _settings.FormHeight;
 
+            PopulateRecentMenu();
+
+            // Hook events.
             Canvas.InfoEvent += (_, msg) => TxtInfo.Text = msg;
 
             OpenMenuItem.Click += Open_Click;
@@ -128,8 +132,11 @@ namespace NDraw
         void Recent_Click(object sender, EventArgs e)
         {
             string fn = sender.ToString();
-            OpenFile(fn);
-            Parse();
+            if (fn != "Recent")
+            {
+                OpenFile(fn);
+                Parse();
+            }
         }
 
         /// <summary>
@@ -304,9 +311,12 @@ namespace NDraw
         /// <param name="e"></param>
         void Render_Click(object sender, EventArgs e)
         {
-            Bitmap bmp = new(Canvas.Width, Canvas.Height);
-            Canvas.DrawToBitmap(bmp, new Rectangle(0, 0, Canvas.Width, Canvas.Height));
-            bmp.Save(_fn.Replace(".nd", ".png"), System.Drawing.Imaging.ImageFormat.Png);
+            if(_fn != "")
+            {
+                Bitmap bmp = new(Canvas.Width, Canvas.Height);
+                Canvas.DrawToBitmap(bmp, new Rectangle(0, 0, Canvas.Width, Canvas.Height));
+                bmp.Save(_fn.Replace(".nd", ".png"), System.Drawing.Imaging.ImageFormat.Png);
+            }
         }
 
         /// <summary>

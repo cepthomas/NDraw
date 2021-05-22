@@ -108,6 +108,7 @@ namespace NDraw
         #endregion
 
         #region Events
+        /// <summary>Display stuff.</summary>
         public event EventHandler<string> InfoEvent;
         #endregion
 

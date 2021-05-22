@@ -42,6 +42,7 @@ namespace NDraw
             // 
             // Canvas
             // 
+            this.BackColor = System.Drawing.Color.WhiteSmoke;
             this.Name = "Canvas";
             this.Size = new System.Drawing.Size(731, 437);
             this.ResumeLayout(false);
