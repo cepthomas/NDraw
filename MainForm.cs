@@ -34,6 +34,8 @@ namespace NDraw
         public MainForm()
         {
             InitializeComponent();
+
+            //this.OnKeyDown(KeyEventArgs)
         }
 
         /// <summary>
@@ -276,6 +278,20 @@ namespace NDraw
             {
                 Parse();
             });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.H:
+                    Canvas.Reset();
+                    break;
+            }
         }
 
         /// <summary>

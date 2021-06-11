@@ -156,8 +156,6 @@ namespace NDraw
 
             // Init geometry.
             Reset();
-
-            Invalidate();
         }
         #endregion
 
@@ -185,6 +183,17 @@ namespace NDraw
         {
             _ruler = ruler;
             _grid = grid;
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Defaults.
+        /// </summary>
+        public void Reset()
+        {
+            _zoom = 1.0f;
+            _offsetX = SCROLL_NEGATIVE;
+            _offsetY = SCROLL_NEGATIVE;
             Invalidate();
         }
         #endregion
@@ -511,19 +520,11 @@ namespace NDraw
         /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            bool redraw = false;
-
             switch (e.KeyCode)
             {
                 case Keys.H: // reset
                     Reset();
-                    redraw = true;
                     break;
-            }
-
-            if (redraw)
-            {
-                Invalidate();
             }
 
            // ShowInfo();
@@ -573,16 +574,6 @@ namespace NDraw
         bool ShiftPressed()
         {
             return (ModifierKeys & Keys.Shift) > 0;
-        }
-
-        /// <summary>
-        /// Defaults.
-        /// </summary>
-        void Reset()
-        {
-            _zoom = 1.0f;
-            _offsetX = SCROLL_NEGATIVE;
-            _offsetY = SCROLL_NEGATIVE;
         }
 
         /// <summary>
