@@ -9,7 +9,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using NBagOfTricks.Utils;
+using NBagOfTricks;
+using NBagOfTricks.UI;
 
 
 namespace NDraw
@@ -382,23 +383,5 @@ namespace NDraw
             new Process { StartInfo = new ProcessStartInfo(fn) { UseShellExecute = true } }.Start();
         }
         #endregion
-    }
-
-    /// <summary>UI helper.</summary>
-    class TsRenderer : ToolStripProfessionalRenderer
-    {
-        protected override void OnRenderButtonBackground(ToolStripItemRenderEventArgs e)
-        {
-            if (e.Item is ToolStripButton btn && btn.CheckOnClick)
-            {
-                using var brush = new SolidBrush(btn.Checked ? Color.LightSalmon : SystemColors.Control);
-                Rectangle bounds = new(Point.Empty, e.Item.Size);
-                e.Graphics.FillRectangle(brush, bounds);
-            }
-            else
-            {
-                base.OnRenderButtonBackground(e);
-            }
-        }
     }
 }

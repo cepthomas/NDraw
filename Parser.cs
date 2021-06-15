@@ -9,7 +9,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using NBagOfTricks.Utils;
+using NBagOfTricks;
 
 
 namespace NDraw
@@ -204,7 +204,7 @@ namespace NDraw
             {
                 // Try parse expression.
                 var ops = "+-";
-                var parts = SplitKeepDelims(s, ops);
+                var parts = s.SplitKeepDelims(ops);
 
                 string op = "";
 
@@ -292,45 +292,6 @@ namespace NDraw
             shape.LineColor = elemParams.ContainsKey("lc") ? Color.FromName(elemParams["lc"]) : _lc;
             shape.FillColor = elemParams.ContainsKey("fc") ? Color.FromName(elemParams["fc"]) : _fc;
             shape.TextAlignment = elemParams.ContainsKey("ta") ? _alignment[elemParams["ta"]] : _ta;
-        }
-
-        /// <summary>
-        /// Split by one of the delims but keep the delim.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="delims"></param>
-        /// <returns></returns>
-        public List<string> SplitKeepDelims(string s, string delims)
-        {
-            var parts = new List<string>();
-            StringBuilder acc = new();
-
-            for (int i = 0; i < s.Length; i++)
-            {
-                if (!char.IsWhiteSpace(s[i])) // skip ws
-                {
-                    if (delims.Contains(s[i])) // at delim
-                    {
-                        if (acc.Length > 0)
-                        {
-                            parts.Add(acc.ToString());
-                            acc.Clear();
-                        }
-                        parts.Add(s[i].ToString());
-                    }
-                    else
-                    {
-                        acc.Append(s[i]);
-                    }
-                }
-            }
-
-            if (acc.Length > 0) // straggler?
-            {
-                parts.Add(acc.ToString());
-            }
-
-            return parts;
         }
     }
 }

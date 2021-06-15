@@ -8,11 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using NBagOfTricks.Utils;
 using System.Drawing.Drawing2D;
-
-
-// Deals exclusively in virtual (page) units.
 
 
 namespace NDraw
@@ -25,7 +21,7 @@ namespace NDraw
     public enum PointStyle { None, Arrow, Tee };
     #endregion
 
-    /// <summary>Base/abstract class for all shape types.</summary>
+    /// <summary>Base/abstract class for all shape types. Deals exclusively in virtual (page) units.</summary>
     [Serializable]
     public abstract class Shape
     {

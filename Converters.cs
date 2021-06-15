@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Globalization;
-using NBagOfTricks.Utils;
+using NBagOfTricks;
 
 
 namespace NDraw

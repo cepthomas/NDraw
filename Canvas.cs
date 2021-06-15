@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using NBagOfTricks;
-using NBagOfTricks.Utils;
+
 
 namespace NDraw
 {
@@ -152,7 +152,7 @@ namespace NDraw
             _yMin = Box(_yMin).low;
             _yMax = Box(_yMax).high;
 
-            _numericalFormat = FormatSpecifier(MathF.Max(_xMax, _yMax));
+            _numericalFormat = StringUtils.FormatSpecifier(MathF.Max(_xMax, _yMax));
 
             // Init geometry.
             Reset();
@@ -598,33 +598,6 @@ namespace NDraw
         {
             var v = val - (val % _page.Grid);
             return (v, v + _page.Grid);
-        }
-
-        /// <summary>Sets the format specifier based upon the range of data.</summary>
-        /// <param name="range">Data range</param>
-        /// <returns>Format specifier</returns>
-        string FormatSpecifier(float range)
-        {
-            string format = "";
-
-            if (range >= 100)
-            {
-                format = "0;-0;0";
-            }
-            else if (range < 100 && range >= 10)
-            {
-                format = "0.0;-0.0;0";
-            }
-            else if (range < 10 && range >= 1)
-            {
-                format = "0.00;-0.00;0";
-            }
-            else if (range < 1)
-            {
-                format = "0.000;-0.000;0";
-            }
-
-            return format;
         }
         #endregion
     }
