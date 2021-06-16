@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Linq;
 using NBagOfTricks;
 using NBagOfTricks.UI;
 
@@ -354,33 +355,7 @@ namespace NDraw
         /// <param name="e"></param>
         void About_Click(object sender, EventArgs e)
         {
-            // Make some markdown.
-            List<string> mdText = new();
-
-            // Main help file.
-            mdText.Add(File.ReadAllText(@".\README.md"));
-
-            // Put it together.
-            List<string> htmlText = new()
-            {
-                // Boilerplate
-                $"<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
-                $"<style>body {{ background-color: white; font-family: \"Arial\", Helvetica, sans-serif; }}",
-                $"</style></head><body>"
-            };
-
-            // Meat.
-            string mdHtml = string.Join(Environment.NewLine, mdText);
-            htmlText.Add(mdHtml);
-
-            // Bottom.
-            string ss = "<!-- Markdeep: --><style class=\"fallback\">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src=\"markdeep.min.js\" charset=\"utf-8\"></script><script src=\"https://casual-effects.com/markdeep/latest/markdeep.min.js\" charset=\"utf-8\"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility=\"visible\")</script>";
-            htmlText.Add(ss);
-            htmlText.Add($"</body></html>");
-
-            string fn = Path.Combine(Path.GetTempPath(), "NDraw.html");
-            File.WriteAllText(fn, string.Join(Environment.NewLine, htmlText));
-            new Process { StartInfo = new ProcessStartInfo(fn) { UseShellExecute = true } }.Start();
+            Tools.MarkdownToHtml(File.ReadAllLines(@".\README.md").ToList(), "lightcyan", "helvetica", true);
         }
         #endregion
     }
