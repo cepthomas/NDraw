@@ -51,7 +51,7 @@ namespace NDraw
             KeyPreview = true;
 
             // Open settings.
-            string appDir = MiscUtils.GetAppDataDir("NDraw");
+            string appDir = MiscUtils.GetAppDataDir("NDraw", "Ephemera");
             DirectoryInfo di = new(appDir);
             di.Create();
             _settings = UserSettings.Load(appDir);
