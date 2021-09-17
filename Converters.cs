@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Globalization;
 using NBagOfTricks;
-
+using System.Windows.Forms;
 
 namespace NDraw
 {
@@ -49,6 +49,26 @@ namespace NDraw
         public override void Write(Utf8JsonWriter writer, Font font, JsonSerializerOptions options)
         {
             writer.WriteStringValue($"{font.FontFamily.Name},{font.Size}");
+        }
+    }
+
+    /// <summary>Toolstrip checkbox button colorizer.</summary>
+    public class TsRenderer : ToolStripProfessionalRenderer
+    {
+        protected override void OnRenderButtonBackground(ToolStripItemRenderEventArgs e)
+        {
+            if (e.Item is ToolStripButton btn && btn.CheckOnClick)
+            {
+                using (var brush = new SolidBrush(btn.Checked ? Color.LightSalmon : SystemColors.Control))
+                {
+                    var bounds = new Rectangle(Point.Empty, e.Item.Size);
+                    e.Graphics.FillRectangle(brush, bounds);
+                }
+            }
+            else
+            {
+                base.OnRenderButtonBackground(e);
+            }
         }
     }
 }

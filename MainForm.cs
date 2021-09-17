@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
 using NBagOfTricks;
-using NBagOfTricks.UI;
 
 
 namespace NDraw

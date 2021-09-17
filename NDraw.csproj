@@ -30,9 +30,6 @@
     <Reference Include="NBagOfTricks">
       <HintPath>lib\NBagOfTricks.dll</HintPath>
     </Reference>
-    <Reference Include="NBagOfTricks.UI">
-      <HintPath>..\NBagOfTricks\bin\NBagOfTricks.UI.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
