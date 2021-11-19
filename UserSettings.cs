@@ -22,11 +22,11 @@ namespace NDraw
         public Font Font { get; set; } = new Font("Consolas", 10);
 
         /// <summary>Form color.</summary>
-        [JsonConverter(typeof(ColorConverter))]
+        [JsonConverter(typeof(JsonColorConverter))]
         public Color BackColor { get; set; } = Color.LightGray;
 
         /// <summary>Form color.</summary>
-        [JsonConverter(typeof(ColorConverter))]
+        [JsonConverter(typeof(JsonColorConverter))]
         public Color GridColor { get; set; } = Color.Gray;
 
         /// <summary>How fast the mouse wheel goes.</summary>

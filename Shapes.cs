@@ -48,11 +48,11 @@ namespace NDraw
         public float LineThickness { get; set; } = 1.0f;
 
         /// <summary>Line Color</summary>
-        [JsonConverter(typeof(ColorConverter))]
+        [JsonConverter(typeof(JsonColorConverter))]
         public Color LineColor { get; set; } = Color.Green;
 
         /// <summary>Fill Color</summary>
-        [JsonConverter(typeof(ColorConverter))]
+        [JsonConverter(typeof(JsonColorConverter))]
         public Color FillColor { get; set; } = Color.Black;
 
         /// <summary>Shape fill hatch.</summary>
