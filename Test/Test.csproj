@@ -13,9 +13,6 @@
     <Reference Include="NBagOfTricks">
       <HintPath>..\lib\NBagOfTricks.dll</HintPath>
     </Reference>
-    <Reference Include="NBagOfTricks.PNUT">
-      <HintPath>..\lib\NBagOfTricks.PNUT.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

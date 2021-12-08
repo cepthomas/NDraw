@@ -9,6 +9,7 @@ using System.Windows.Forms.Design;
 using System.Drawing.Design;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using NBagOfTricks;
 
 
 namespace NDraw
@@ -18,7 +19,8 @@ namespace NDraw
     {
         #region Properties - editable
         /// <summary>Display font.</summary>
-        [JsonConverter(typeof(FontConverter))]
+        // TODO broken in NBOT [JsonConverter(typeof(FontConverter))]
+        [JsonIgnore]
         public Font Font { get; set; } = new Font("Consolas", 10);
 
         /// <summary>Form color.</summary>

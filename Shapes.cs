@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Drawing.Drawing2D;
+using NBagOfTricks;
 
 
 namespace NDraw
@@ -133,11 +134,11 @@ namespace NDraw
     {
         #region Properties
         /// <summary>Line start.</summary>
-        [JsonConverter(typeof(PointFConverter))]
+        [JsonConverter(typeof(JsonPointFConverter))]
         public PointF Start { get; set; } = new(0, 0);
 
         /// <summary>Line end.</summary>
-        [JsonConverter(typeof(PointFConverter))]
+        [JsonConverter(typeof(JsonPointFConverter))]
         public PointF End { get; set; } = new(0, 0);
 
         /// <summary>Start type.</summary>
@@ -185,7 +186,7 @@ namespace NDraw
     {
         #region Properties
         /// <summary>Rectangle top left.</summary>
-        [JsonConverter(typeof(PointFConverter))]
+        [JsonConverter(typeof(JsonPointFConverter))]
         public PointF Location { get; set; } = new(0, 0);
 
         /// <summary>Width</summary>
@@ -290,7 +291,7 @@ namespace NDraw
     {
         #region Properties
         /// <summary>Center</summary>
-        [JsonConverter(typeof(PointFConverter))]
+        [JsonConverter(typeof(JsonPointFConverter))]
         public PointF Center { get; set; } = new(0, 0);
 
         /// <summary>Width</summary>
