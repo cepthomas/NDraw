@@ -217,6 +217,7 @@ namespace NDraw
             // 
             // RtbLog
             // 
+            this.RtbLog.BackColor = System.Drawing.Color.Ivory;
             this.RtbLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.RtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.RtbLog.Location = new System.Drawing.Point(0, 0);

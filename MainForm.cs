@@ -55,9 +55,8 @@ namespace NDraw
             di.Create();
             _settings = UserSettings.Load(appDir);
 
-            Location = new(_settings.FormX, _settings.FormY);
-            Width = _settings.FormWidth;
-            Height = _settings.FormHeight;
+            Location = new Point(_settings.FormGeometry.X, _settings.FormGeometry.Y);
+            Size = new Size(_settings.FormGeometry.Width, _settings.FormGeometry.Height);
 
             PopulateRecentMenu();
 
@@ -97,10 +96,7 @@ namespace NDraw
         /// <param name="e"></param>
         void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            _settings.FormX = Location.X;
-            _settings.FormY = Location.Y;
-            _settings.FormWidth = Width;
-            _settings.FormHeight = Height;
+            _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Size.Width, Size.Height);
 
             _settings.Save();
             _settings.Dispose();

@@ -19,8 +19,7 @@ namespace NDraw
     {
         #region Properties - editable
         /// <summary>Display font.</summary>
-        // TODO broken in NBOT [JsonConverter(typeof(FontConverter))]
-        [JsonIgnore]
+        [JsonConverter(typeof(JsonFontConverter))]
         public Font Font { get; set; } = new Font("Consolas", 10);
 
         /// <summary>Form color.</summary>
@@ -40,21 +39,9 @@ namespace NDraw
         [Browsable(false)]
         public List<string> RecentFiles { get; set; } = new List<string>();
 
-        /// <summary>Form geometry</summary>
         [Browsable(false)]
-        public int FormX { get; set; } = 50;
-
-        /// <summary>Form geometry</summary>
-        [Browsable(false)]
-        public int FormY { get; set; } = 50;
-
-        /// <summary>Form geometry</summary>
-        [Browsable(false)]
-        public int FormWidth { get; set; } = 1000;
-
-        /// <summary>Form geometry</summary>
-        [Browsable(false)]
-        public int FormHeight { get; set; } = 700;
+        [JsonConverter(typeof(JsonRectangleConverter))]
+        public Rectangle FormGeometry { get; set; } = new Rectangle(50, 50, 600, 400);
         #endregion
 
         #region Fields
