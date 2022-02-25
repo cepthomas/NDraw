@@ -69,9 +69,6 @@ namespace NDraw
             SettingsMenuItem.Click += Settings_Click;
             AboutMenuItem.Click += About_Click;
 
-            //ToolStrip.Renderer = new TsRenderer();
-            // ?? = NBagOfTricks.UI.CheckBoxRenderer() { SelectedColor = UserSettings.TheSettings.SelectedColor };
-
             foreach (var btn in new List<ToolStripButton>() { BtnLayer1, BtnLayer2, BtnLayer3, BtnLayer4, BtnRuler, BtnGrid })
             {
                 btn.Click += Btn_Click;

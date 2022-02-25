@@ -1,7 +1,8 @@
 # NDraw
 - Translates text description of a 2D drawing into a picture.
 - Rectangles, ellipses, and simple lines supported.
-- Targets .NET 5 and C# 9. No dependencies on third party components.
+- Requires VS2019 and .NET5.
+- No dependencies on third party components.
 
 
 # Usage
