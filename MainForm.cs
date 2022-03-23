@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
 using NBagOfTricks;
+using NBagOfUis;
 
 
 namespace NDraw
@@ -51,9 +52,7 @@ namespace NDraw
 
             // Open settings.
             string appDir = MiscUtils.GetAppDataDir("NDraw", "Ephemera");
-            DirectoryInfo di = new(appDir);
-            di.Create();
-            _settings = UserSettings.Load(appDir);
+            _settings = (UserSettings)Settings.Load(appDir, typeof(UserSettings));
 
             Location = new Point(_settings.FormGeometry.X, _settings.FormGeometry.Y);
             Size = new Size(_settings.FormGeometry.Width, _settings.FormGeometry.Height);
@@ -235,26 +234,12 @@ namespace NDraw
         /// <param name="e"></param>
         void Settings_Click(object sender, EventArgs e)
         {
-            using Form f = new()
-            {
-                Text = "User Settings",
-                Size = new Size(350, 400),
-                StartPosition = FormStartPosition.Manual,
-                Location = new Point(200, 200),
-                FormBorderStyle = FormBorderStyle.FixedToolWindow,
-                ShowIcon = false,
-                ShowInTaskbar = false
-            };
+            var changes = _settings.Edit("User Settings");
 
-            PropertyGrid pg = new()
+            if (changes.Count > 0)
             {
-                Dock = DockStyle.Fill,
-                PropertySort = PropertySort.NoSort,
-                SelectedObject = _settings
-            };
-
-            f.Controls.Add(pg);
-            f.ShowDialog();
+                MessageBox.Show("Restart required for device changes to take effect");
+            }
 
             _settings.Save();
         }
