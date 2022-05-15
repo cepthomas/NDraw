@@ -333,7 +333,7 @@ namespace NDraw
         /// <param name="e"></param>
         void About_Click(object sender, EventArgs e)
         {
-            Tools.MarkdownToHtml(File.ReadAllLines(@".\README.md").ToList(), "lightcyan", "helvetica", true);
+            MiscUtils.ShowReadme("NDraw");
         }
         #endregion
     }
