@@ -237,7 +237,6 @@ namespace NDraw
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Form1";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.ToolStrip.ResumeLayout(false);
             this.ToolStrip.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);

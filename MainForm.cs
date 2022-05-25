@@ -80,9 +80,8 @@ namespace NDraw
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="sender"></param>
         /// <param name="e"></param>
-        void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Size.Width, Size.Height);
 
