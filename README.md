@@ -4,6 +4,10 @@
 - Requires VS2019 and .NET5.
 - No dependencies on third party components.
 
+Uses:
+- [NBagOfTricks](https://github.com/cepthomas/NBagOfTricks/blob/main/README.md)
+- [NBagOfUis](https://github.com/cepthomas/NBagOfUis/blob/main/README.md)
+
 
 # Usage
 - Open the NDraw file (*.nd) in both the application and your favorite text editor. When you edit/save the file it is

@@ -238,7 +238,6 @@ namespace NDraw
             this.Name = "MainForm";
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.Load += new System.EventHandler(this.MainForm_Load);
             this.ToolStrip.ResumeLayout(false);
             this.ToolStrip.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
