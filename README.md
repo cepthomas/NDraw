@@ -4,10 +4,6 @@
 - Requires VS2019 and .NET5.
 - No dependencies on third party components.
 
-Uses:
-- [NBagOfTricks](https://github.com/cepthomas/NBagOfTricks/blob/main/README.md)
-- [NBagOfUis](https://github.com/cepthomas/NBagOfUis/blob/main/README.md)
-
 
 # Usage
 - Open the NDraw file (*.nd) in both the application and your favorite text editor. When you edit/save the file it is
@@ -150,7 +146,10 @@ ey    |  N   |  Y  | End y
 ss    |  P   |  N  | Start point style
 es    |  P   |  N  | End point style
 
+
 # Third Party
 This application uses these FOSS components:
 - Main icon: [Charlotte Schmidt](http://pattedemouche.free.fr/) (Copyright © 2009 of Charlotte Schmidt).
 - Button icons: [Glyphicons Free](http://glyphicons.com/) (CC BY 3.0).
+- [NBagOfTricks](https://github.com/cepthomas/NBagOfTricks/blob/main/README.md)
+- [NBagOfUis](https://github.com/cepthomas/NBagOfUis/blob/main/README.md)
