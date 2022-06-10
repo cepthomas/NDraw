@@ -35,7 +35,7 @@ namespace NDraw
 
         #region Fields
         /// <summary>The file name.</summary>
-        string _fn = null;
+        string _fn = "";
         #endregion
 
         #region Persistence
@@ -48,14 +48,17 @@ namespace NDraw
         }
 
         /// <summary>Create object from file.</summary>
-        public static Page Load(string fn)
+        public static Page? Load(string fn)
         {
-            Page page = null;
+            Page? page = null;
             if (File.Exists(fn))
             {
                 string json = File.ReadAllText(fn);
                 page = JsonSerializer.Deserialize<Page>(json);
-                page._fn = fn;
+                if(page is not null)
+                {
+                    page._fn = fn;
+                }
             }
             return page;
         }

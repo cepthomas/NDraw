@@ -15,7 +15,7 @@ using NBagOfTricks;
 namespace NDraw
 {
     #region Enums
-    /// <summar>Presentation state.</summary>
+    /// <summary>Presentation state.</summary>
     public enum ShapeState { Default, Highlighted };
 
     /// <summary>Cosmetics.</summary>

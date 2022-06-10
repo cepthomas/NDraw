@@ -23,7 +23,7 @@ namespace NDraw
         /// <summary>Parsing errors.</summary>
         public List<string> Errors { get; private set; } = new();
 
-        /// <summary>User assigned values: <name, value></name></summary>
+        /// <summary>User assigned values.</summary>
         public Dictionary<string, float> UserVals { get; private set; } = new();
         #endregion
 
@@ -248,7 +248,7 @@ namespace NDraw
 
             if(s.StartsWith("\"") && s.EndsWith("\""))
             {
-                s = s.Substring(1, s.Length - 2);
+                s = s[1..^1];
             }
             else
             {
@@ -274,7 +274,7 @@ namespace NDraw
         (string lhs, string rhs) SplitParam(string p)
         {
             var pp = p.SplitByToken("=");
-            return pp.Count > 1 ? (pp[0], pp[1]) : (null, pp[0]);
+            return pp.Count > 1 ? (pp[0], pp[1]) : (pp[0], "");
         }
 
         /// <summary>
@@ -286,7 +286,7 @@ namespace NDraw
         {
             // Common.
             shape.Layer = elemParams.ContainsKey("lr") ? int.Parse(elemParams["lr"]) : 1;
-            shape.Text = elemParams.ContainsKey("tx") ? ParseText(elemParams["tx"]) : null;
+            shape.Text = elemParams.ContainsKey("tx") ? ParseText(elemParams["tx"]) : "";
             shape.Hatch = elemParams.ContainsKey("ht") ? _hatchStyle[elemParams["ht"]] : Shape.NO_HATCH;
             shape.LineThickness = elemParams.ContainsKey("lt") ? float.Parse(elemParams["lt"]) : _lt;
             shape.LineColor = elemParams.ContainsKey("lc") ? Color.FromName(elemParams["lc"]) : _lc;

@@ -109,7 +109,7 @@ namespace NDraw
 
         #region Events
         /// <summary>Display stuff.</summary>
-        public event EventHandler<string> InfoEvent;
+        public event EventHandler<string>? InfoEvent;
         #endregion
 
         #region Lifecycle
@@ -126,6 +126,7 @@ namespace NDraw
         /// Perform initialization.
         /// </summary>
         /// <param name="page"></param>
+        /// <param name="settings"></param>
         public void Init(Page page, UserSettings settings)
         {
             _page = page;
@@ -228,7 +229,6 @@ namespace NDraw
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="sender">Object that sent triggered the event.</param>
         /// <param name="e">The particular PaintEventArgs.</param>
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -286,9 +286,12 @@ namespace NDraw
                     }
 
                     // Text.
-                    var (vert, hor) = _alignment[shape.TextAlignment];
-                    using StringFormat fmt = new() { Alignment = hor, LineAlignment = vert };
-                    e.Graphics.DrawString(shape.Text, _settings.Font, Brushes.Black, dispRect, fmt);
+                    if(shape.Text != "")
+                    {
+                        var (vert, hor) = _alignment[shape.TextAlignment];
+                        using StringFormat fmt = new() { Alignment = hor, LineAlignment = vert };
+                        e.Graphics.DrawString(shape.Text, _settings.Font, Brushes.Black, dispRect, fmt);
+                    }
 
                     // Highlight features.
                     if (shape.State == ShapeState.Highlighted)
@@ -308,6 +311,7 @@ namespace NDraw
         /// </summary>
         /// <param name="g">The Graphics object to use.</param>
         /// <param name="pt">Origin for rotate.</param>
+        /// <param name="pen">The tool.</param>
         /// <param name="ps">End type.</param>
         /// <param name="degrees">The rotation of the axis.</param>
         void DrawPoint(Graphics g, Pen pen, PointF pt, PointStyle ps, float degrees)
@@ -393,20 +397,21 @@ namespace NDraw
             }
         }
 
-        /// <summary>
-        /// Draw text using the specified transformations.
-        /// </summary>
-        /// <param name="g">The Graphics object to use.</param>
-        /// <param name="pt">Origin for rotate.</param>
-        /// <param name="text">The text of the label.</param>
-        /// <param name="degrees">The rotation of the axis.</param>
-        void DrawText(Graphics g, PointF pt, string text, Font font, int degrees)
-        {
-            g.TranslateTransform(pt.X, pt.Y);
-            g.RotateTransform(degrees);
-            g.DrawString(text, font, Brushes.Black, 0, 0);
-            g.ResetTransform();
-        }
+        ///// <summary>
+        ///// Draw text using the specified transformations.
+        ///// </summary>
+        ///// <param name="g">The Graphics object to use.</param>
+        ///// <param name="pt">Origin for rotate.</param>
+        ///// <param name="text">The text of the label.</param>
+        ///// <param name="font">The tool.</param>
+        ///// <param name="degrees">The rotation of the axis.</param>
+        //void DrawText(Graphics g, PointF pt, string text, Font font, int degrees)
+        //{
+        //    g.TranslateTransform(pt.X, pt.Y);
+        //    g.RotateTransform(degrees);
+        //    g.DrawString(text, font, Brushes.Black, 0, 0);
+        //    g.ResetTransform();
+        //}
         #endregion
 
         #region Mouse events
@@ -417,7 +422,7 @@ namespace NDraw
         protected override void OnMouseMove(MouseEventArgs e)
         {
             bool redraw = false;
-            Shape toHighlight = null;
+            Shape? toHighlight = null;
 
             var virtLoc = DisplayToVirtual(e.Location);
             float range = SELECT_RANGE / _zoom / _page.Scale; // This really should be done in display domain.

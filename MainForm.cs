@@ -20,7 +20,7 @@ namespace NDraw
     {
         #region Fields
         /// <summary>Settings.</summary>
-        UserSettings _settings;
+        readonly UserSettings _settings;
 
         /// <summary>Detect changed script files.</summary>
         readonly MultiFileWatcher _watcher = new();
@@ -64,7 +64,7 @@ namespace NDraw
             {
                 btn.Click += Btn_Click;
                 btn.Checked = true;
-                Btn_Click(btn, null);
+                Btn_Click(btn, EventArgs.Empty);
             }
 
             _watcher.FileChangeEvent += Watcher_Changed;
@@ -87,6 +87,7 @@ namespace NDraw
 
             _settings.Save();
             _settings.Dispose();
+            base.OnFormClosing(e);
         }
         #endregion
 
@@ -96,7 +97,7 @@ namespace NDraw
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Open_Click(object sender, EventArgs e)
+        void Open_Click(object? sender, EventArgs e)
         {
             OpenFileDialog openDlg = new()
             {
@@ -116,13 +117,16 @@ namespace NDraw
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Recent_Click(object sender, EventArgs e)
+        void Recent_Click(object? sender, EventArgs e)
         {
-            string fn = sender.ToString();
-            if (fn != "Recent")
+            if(sender is not null)
             {
-                OpenFile(fn);
-                Parse();
+                string fn = sender.ToString()!;
+                if (fn != "Recent")
+                {
+                    OpenFile(fn);
+                    Parse();
+                }
             }
         }
 
@@ -146,12 +150,12 @@ namespace NDraw
                 }
                 catch (Exception ex)
                 {
-                    Log($"Open Fail: {ex.Message}");
+                    Tell($"Open Fail: {ex.Message}");
                 }
             }
             else
             {
-                Log($"Invalid NDraw File: {fn}");
+                Tell($"Invalid NDraw File: {fn}");
             }
         }
 
@@ -176,13 +180,13 @@ namespace NDraw
                 {
                     foreach (var err in p.Errors)
                     {
-                        Log($"Err: {err}");
+                        Tell($"Err: {err}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log($"Parse Fail: {ex}");
+                Tell($"Parse Fail: {ex}");
             }
         }
         #endregion
@@ -223,7 +227,7 @@ namespace NDraw
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Settings_Click(object sender, EventArgs e)
+        void Settings_Click(object? sender, EventArgs e)
         {
             var changes = _settings.Edit("User Settings");
 
@@ -242,7 +246,7 @@ namespace NDraw
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Watcher_Changed(object sender, MultiFileWatcher.FileChangeEventArgs e)
+        void Watcher_Changed(object? sender, MultiFileWatcher.FileChangeEventArgs e)
         {
             // Kick over to main UI thread.
             BeginInvoke((MethodInvoker)delegate()
@@ -270,24 +274,27 @@ namespace NDraw
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Btn_Click(object sender, EventArgs e)
+        void Btn_Click(object? sender, EventArgs e)
         {
-            var b = sender as ToolStripButton;
-
-            switch (b.Text)
+            if (sender is not null)
             {
-                case "1":
-                case "2":
-                case "3":
-                case "4":
-                    int n = int.Parse(b.Text);
-                    Canvas.SetLayer(n - 1, b.Checked);
-                    break;
+                var b = sender as ToolStripButton;
 
-                case "Ruler":
-                case "Grid":
-                    Canvas.SetVisibility(BtnRuler.Checked, BtnGrid.Checked);
-                    break;
+                switch (b!.Text)
+                {
+                    case "1":
+                    case "2":
+                    case "3":
+                    case "4":
+                        int n = int.Parse(b.Text);
+                        Canvas.SetLayer(n - 1, b.Checked);
+                        break;
+
+                    case "Ruler":
+                    case "Grid":
+                        Canvas.SetVisibility(BtnRuler.Checked, BtnGrid.Checked);
+                        break;
+                }
             }
         }
 
@@ -296,7 +303,7 @@ namespace NDraw
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Render_Click(object sender, EventArgs e)
+        void Render_Click(object? sender, EventArgs e)
         {
             if(_fn != "")
             {
@@ -310,7 +317,7 @@ namespace NDraw
         /// 
         /// </summary>
         /// <param name="s"></param>
-        void Log(string s)
+        void Tell(string s)
         {
             RtbLog.AppendText(s);
             RtbLog.AppendText(Environment.NewLine);
@@ -322,7 +329,7 @@ namespace NDraw
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void About_Click(object sender, EventArgs e)
+        void About_Click(object? sender, EventArgs e)
         {
             MiscUtils.ShowReadme("NDraw");
         }

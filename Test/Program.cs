@@ -86,7 +86,7 @@ namespace NDraw.Test
                 {
                     case 0:
                         Parser p = new();
-                        p.ParseFile(@"C:\Dev\repos\NDraw\Test\test1.nd");
+                        p.ParseFile(@"..\..\test1.nd");
 
                         if (p.Errors.Count > 0)
                         {
@@ -118,7 +118,7 @@ namespace NDraw.Test
                         break;
 
                     case 4:
-                        page = Page.Load("page.json");
+                        page = Page.Load("page.json")!;
                         break;
                 }
             }
