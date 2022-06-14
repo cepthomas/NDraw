@@ -16,7 +16,7 @@ using NBagOfUis;
 namespace NDraw
 {
     [Serializable]
-    public class UserSettings : Settings, IDisposable
+    public sealed class UserSettings : Settings, IDisposable
     {
         #region Properties - editable
         /// <summary>Display font.</summary>
@@ -40,7 +40,6 @@ namespace NDraw
         public void Dispose()
         {
             Font.Dispose();
-            GC.SuppressFinalize(this);
         }
         #endregion
     }
