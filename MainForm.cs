@@ -249,10 +249,7 @@ namespace NDraw
         void Watcher_Changed(object? sender, MultiFileWatcher.FileChangeEventArgs e)
         {
             // Kick over to main UI thread.
-            BeginInvoke((MethodInvoker)delegate()
-            {
-                Parse();
-            });
+            this.InvokeIfRequired(_ => { Parse(); });
         }
 
         /// <summary>
