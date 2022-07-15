@@ -99,7 +99,7 @@ namespace NDraw
         /// <param name="e"></param>
         void Open_Click(object? sender, EventArgs e)
         {
-            OpenFileDialog openDlg = new()
+            using OpenFileDialog openDlg = new()
             {
                 Filter = "NDraw files (*.nd)|*.nd",
                 Title = "Select a NDraw file"
