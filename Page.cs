@@ -15,6 +15,7 @@ namespace NDraw
     [Serializable]
     public class Page
     {
+        #region Properties
         /// <summary>Grid spacing in virtual units.</summary>
         public float Grid { get; set; } = 5.0f;
 
@@ -32,6 +33,7 @@ namespace NDraw
 
         /// <summary>All the shapes.</summary>
         public List<EllipseShape> Ellipses { get; set; } = new();
+        #endregion
 
         #region Fields
         /// <summary>The file name.</summary>
