@@ -264,6 +264,7 @@ namespace NDraw
                     Canvas.Reset();
                     break;
             }
+            base.OnKeyDown(e);
         }
 
         /// <summary>

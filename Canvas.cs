@@ -207,6 +207,7 @@ namespace NDraw
         protected override void OnResize(EventArgs e)
         {
             Invalidate();
+            base.OnResize(e);
         }
 
         /// <summary>
@@ -222,6 +223,7 @@ namespace NDraw
             }
 
             Invalidate();
+            base.OnLostFocus(e);
         }
         #endregion
 
@@ -459,6 +461,7 @@ namespace NDraw
             }
 
             InfoEvent?.Invoke(this, $"Disp:{e.Location}  Virt:{DisplayToVirtual(e.Location)}  OffsetX:{_offsetX}  OffsetY:{_offsetY}  Zoom:{_zoom}");
+            base.OnMouseMove(e);
         }
 
         /// <summary>
@@ -515,6 +518,7 @@ namespace NDraw
             {
                 Invalidate();
             }
+            base.OnMouseWheel(e);
         }
         #endregion
 
@@ -532,7 +536,8 @@ namespace NDraw
                     break;
             }
 
-           // ShowInfo();
+            // ShowInfo();
+            base.OnKeyDown(e);
         }
         #endregion
 
