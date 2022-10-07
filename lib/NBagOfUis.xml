@@ -4,202 +4,6 @@
         <name>NBagOfUis</name>
     </assembly>
     <members>
-        <member name="T:NBagOfUis.BarBar">
-            <summary>The control.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarBar._length">
-            <summary>Total length.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarBar._start">
-            <summary>First valid point.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarBar._end">
-            <summary>Last valid point.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarBar._current">
-            <summary>Current.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarBar._lastXPos">
-            <summary>For tracking mouse moves.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarBar._toolTip">
-            <summary>Tooltip for mousing.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarBar._brush">
-            <summary>The brush.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarBar._penMarker">
-            <summary>The pen.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarBar._format">
-            <summary>For drawing text.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.BeatsPerBar">
-            <summary>Our signature. Only tested with 4.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.SubdivsPerBeat">
-            <summary>Our resolution.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.Snap">
-            <summary>How to snap.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.Length">
-            <summary>Total length.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.Start">
-            <summary>First valid point.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.End">
-            <summary>Last valid point.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.Current">
-            <summary>Where we be now.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.ProgressColor">
-            <summary>For styling.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.MarkerColor">
-            <summary>For styling.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.FontLarge">
-            <summary>Big font.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarBar.FontSmall">
-            <summary>Baby font.</summary>
-        </member>
-        <member name="E:NBagOfUis.BarBar.CurrentTimeChanged">
-            <summary>Value changed by user.</summary>
-        </member>
-        <member name="M:NBagOfUis.BarBar.#ctor">
-            <summary>
-            Normal constructor.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.BarBar.Dispose(System.Boolean)">
-            <summary> 
-            Clean up any resources being used.
-            </summary>
-            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        </member>
-        <member name="M:NBagOfUis.BarBar.OnPaint(System.Windows.Forms.PaintEventArgs)">
-            <summary>
-            Draw the control.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.BarBar.OnKeyDown(System.Windows.Forms.KeyEventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.BarBar.OnMouseMove(System.Windows.Forms.MouseEventArgs)">
-            <summary>
-            Handle mouse position changes.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.BarBar.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
-            <summary>
-            Handle dragging.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.BarBar.IncrementCurrent(System.Int32)">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.BarBar.GetSubdivFromMouse(System.Int32)">
-            <summary>
-            Convert x pos to subdiv.
-            </summary>
-            <param name="x"></param>
-        </member>
-        <member name="M:NBagOfUis.BarBar.Scale(NBagOfUis.BarSpan)">
-            <summary>
-            Map from time to UI pixels.
-            </summary>
-            <param name="val"></param>
-            <returns></returns>
-        </member>
-        <member name="T:NBagOfUis.BarSpan">
-            <summary>Sort of like TimeSpan.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarSpan.Zero">
-            <summary>A useful constant.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarSpan.OneSubdiv">
-            <summary>A useful constant.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarSpan._id">
-            <summary>For hashing.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarSpan._all_ids">
-            <summary>Increment for unique value.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarSpan._beatsPerBar">
-            <summary>Global - set before using. Only tested with 4.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarSpan._subdivsPerBeat">
-            <summary>Global - set before using. Our resolution.</summary>
-        </member>
-        <member name="F:NBagOfUis.BarSpan._snapType">
-            <summary>Global - set before using.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarSpan.TotalSubdivs">
-            <summary>The core.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarSpan.Bar">
-            <summary>The bar.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarSpan.Beat">
-            <summary>The beat.</summary>
-        </member>
-        <member name="P:NBagOfUis.BarSpan.Subdiv">
-            <summary>The subdiv.</summary>
-        </member>
-        <member name="M:NBagOfUis.BarSpan.#ctor(System.Int32,System.Int32,System.Int32)">
-            <summary>
-            Constructor from args.
-            </summary>
-            <param name="bar"></param>
-            <param name="beat"></param>
-            <param name="subdiv"></param>
-        </member>
-        <member name="M:NBagOfUis.BarSpan.#ctor(System.Int32)">
-            <summary>
-            Constructor from args.
-            </summary>
-            <param name="subdivs"></param>
-        </member>
-        <member name="M:NBagOfUis.BarSpan.Reset">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.BarSpan.Constrain(NBagOfUis.BarSpan,NBagOfUis.BarSpan)">
-            <summary>
-            
-            </summary>
-            <param name="lower"></param>
-            <param name="upper"></param>
-        </member>
-        <member name="M:NBagOfUis.BarSpan.Increment(System.Int32)">
-            <summary>
-            
-            </summary>
-            <param name="num"></param>
-        </member>
-        <member name="M:NBagOfUis.BarSpan.DoSnap(System.Int32)">
-            <summary>
-            Snap to closest boundary.
-            </summary>
-            <param name="subdiv"></param>
-        </member>
-        <member name="M:NBagOfUis.BarSpan.ToString">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
         <member name="T:NBagOfUis.ClickGrid">
             <summary>
             ClickGrid control.
@@ -236,13 +40,6 @@
             <summary>
             Creates a new default control.
             </summary>
-        </member>
-        <member name="M:NBagOfUis.ClickGrid.ClickGrid_Load(System.Object,System.EventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
         </member>
         <member name="M:NBagOfUis.ClickGrid.Dispose(System.Boolean)">
             <summary>
@@ -381,13 +178,6 @@
             Constructor.
             </summary>
         </member>
-        <member name="M:NBagOfUis.CpuMeter.CpuMeter_Load(System.Object,System.EventArgs)">
-            <summary>
-            Initialize everything.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
         <member name="M:NBagOfUis.CpuMeter.Dispose(System.Boolean)">
             <summary>
             Clean up any resources being used.
@@ -424,44 +214,26 @@
         <member name="T:NBagOfUis.FilTree">
             <summary>
             Tree control with file type filters.
-            TODO: limit/lazy L/R population, filter pattern matching, include/exclude, filter specs global/local.
             </summary>
         </member>
-        <member name="P:NBagOfUis.FilTree.RootDirs">
-            <summary>Base path(s) for the tree.</summary>
-        </member>
-        <member name="P:NBagOfUis.FilTree.FilterExts">
-            <summary>Show only these file types.</summary>
-        </member>
-        <member name="P:NBagOfUis.FilTree.SingleClickSelect">
-            <summary>Generate event with single or double click.</summary>
+        <member name="P:NBagOfUis.FilTree.Settings">
+            <summary>Stuff of interest to the user.</summary>
         </member>
         <member name="E:NBagOfUis.FilTree.FileSelectedEvent">
             <summary>User has selected a file.</summary>
+        </member>
+        <member name="T:NBagOfUis.FilTree.ListFileInfo">
+            <summary>Convenience container.</summary>
         </member>
         <member name="M:NBagOfUis.FilTree.#ctor">
             <summary>
             Default constructor.
             </summary>
         </member>
-        <member name="M:NBagOfUis.FilTree.FilTree_Load(System.Object,System.EventArgs)">
-            <summary>
-            Initialize controls.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
         <member name="M:NBagOfUis.FilTree.Init">
             <summary>
             Populate everything from the properties.
             </summary>
-        </member>
-        <member name="M:NBagOfUis.FilTree.TreeView_NodeMouseClick(System.Object,System.Windows.Forms.TreeNodeMouseClickEventArgs)">
-            <summary>
-            Drill down through dirs/files.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
         </member>
         <member name="M:NBagOfUis.FilTree.PopulateTreeView">
             <summary>
@@ -475,51 +247,35 @@
             <param name="dirs"></param>
             <param name="parentNode"></param>
         </member>
-        <member name="M:NBagOfUis.FilTree.PopulateFiles(System.Windows.Forms.TreeNode)">
+        <member name="M:NBagOfUis.FilTree.TreeView_NodeMouseClick(System.Object,System.Windows.Forms.TreeNodeMouseClickEventArgs)">
+            <summary>
+            Drill down through dirs/files.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:NBagOfUis.FilTree.PopulateFileList(System.Windows.Forms.TreeNode)">
             <summary>
             Populate the file selector.
             </summary>
-            <param name="node">Selected directory.</param>
+            <param name="node">Selected node.</param>
         </member>
-        <member name="M:NBagOfUis.FilTree.ListFiles_MouseClick(System.Object,System.Windows.Forms.MouseEventArgs)">
+        <member name="M:NBagOfUis.FilTree.FileSelected(System.Windows.Forms.MouseEventArgs)">
             <summary>
-            Single click file selection.
+            Handler for single or double mouse clicks.
             </summary>
-            <param name="sender"></param>
             <param name="e"></param>
         </member>
-        <member name="M:NBagOfUis.FilTree.ListFiles_MouseDoubleClick(System.Object,System.Windows.Forms.MouseEventArgs)">
-            <summary>
-            Double click file selection.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.FilTree.MenuFiles_Opening(System.Object,System.ComponentModel.CancelEventArgs)">
-            <summary>
-            Populate the context menu.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.FilTree.MenuFiles_Click(System.Object,System.EventArgs)">
+        <member name="M:NBagOfUis.FilTree.GetInfo(System.Windows.Forms.Control,System.String)">
             <summary>
             Context menu handler.
-            Select the tags for this file.
             </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
+            <param name="ctl"></param>
+            <param name="which"></param>
         </member>
-        <member name="M:NBagOfUis.FilTree.TreeView_DrawNode(System.Object,System.Windows.Forms.DrawTreeNodeEventArgs)">
+        <member name="M:NBagOfUis.FilTree.Edit_Click(System.Object,System.EventArgs)">
             <summary>
-            See above.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.FilTree.FilTree_Resize(System.Object,System.EventArgs)">
-            <summary>
-            
+            Edit the settings.
             </summary>
             <param name="sender"></param>
             <param name="e"></param>
@@ -540,6 +296,9 @@
             Required method for Designer support - do not modify 
             the contents of this method with the code editor.
             </summary>
+        </member>
+        <member name="P:NBagOfUis.FilTreeSettings.IgnoreDirs">
+            <summary></summary>
         </member>
         <member name="T:NBagOfUis.GraphicsUtils">
             <summary>
@@ -629,7 +388,7 @@
         </member>
         <member name="M:NBagOfUis.KeyUtils.TestForNumber_KeyPress(System.Object,System.Windows.Forms.KeyPressEventArgs)">
             <summary>
-            Generic UI helper. Allows user to enter only integer or double values.
+            Generic UI helper. Allows user to enter only integer or floating point values.
             s</summary>
             <param name="sender">Sender control.</param>
             <param name="e">Event args.</param>
@@ -705,16 +464,16 @@
             Basic volume meter.
             </summary>
         </member>
-        <member name="M:NBagOfUis.Meter.Meter_Load(System.Object,System.EventArgs)">
-            <summary>
-            Init stuff.
-            </summary>
-        </member>
         <member name="M:NBagOfUis.Meter.Dispose(System.Boolean)">
             <summary>
             Clean up any resources being used.
             </summary>
             <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:NBagOfUis.Meter.InitializeComponent">
+            <summary>
+            Designer.
+            </summary>
         </member>
         <member name="M:NBagOfUis.Meter.AddValue(System.Double)">
             <summary>
@@ -731,6 +490,55 @@
             <summary>
             Update drawing area.
             </summary>
+        </member>
+        <member name="T:NBagOfUis.ToolStripMeter">
+            <summary>Simple toolstrip container for the meter.</summary>
+        </member>
+        <member name="F:NBagOfUis.ToolStripMeter._meter">
+            <summary>Contained control.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripMeter.Label">
+            <summary>Optional label.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripMeter.DrawColor">
+            <summary>For styling.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripMeter.MeterType">
+            <summary>How the meter responds.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripMeter.Minimum">
+            <summary>Minimum Value of the slider.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripMeter.Maximum">
+            <summary>Maximum Value of the slider.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripMeter.BorderStyle">
+            <summary>Optional border.</summary>
+        </member>
+        <member name="M:NBagOfUis.ToolStripMeter.#ctor">
+            <summary>
+            Make one.
+            </summary>
+        </member>
+        <member name="M:NBagOfUis.ToolStripMeter.AddValue(System.Double)">
+            <summary>
+            Add a new data point. If Log, this will convert for you.
+            </summary>
+            <param name="val"></param>
+        </member>
+        <member name="P:NBagOfUis.MultipleChoiceSelector.SelectedOption">
+            <summary>What the user picked.</summary>
+        </member>
+        <member name="M:NBagOfUis.MultipleChoiceSelector.#ctor">
+            <summary>
+            Coonstructor.
+            </summary>
+        </member>
+        <member name="M:NBagOfUis.MultipleChoiceSelector.SetOptions(System.Collections.Generic.List{System.String})">
+            <summary>
+            Make selection buttons.
+            </summary>
+            <param name="options"></param>
         </member>
         <member name="F:NBagOfUis.OptionsEditor._values">
             <summary>Working values so we don't destroy originals.</summary>
@@ -749,13 +557,6 @@
             Constructor.
             </summary>
         </member>
-        <member name="M:NBagOfUis.OptionsEditor.OptionsEditor_Load(System.Object,System.EventArgs)">
-            <summary>
-            Initialization. If editing not allowed, adjust the ui.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
         <member name="M:NBagOfUis.OptionsEditor.Add_Click(System.Object,System.EventArgs)">
             <summary>
             User is adding a new value.
@@ -770,11 +571,10 @@
             <param name="sender"></param>
             <param name="e"></param>
         </member>
-        <member name="M:NBagOfUis.OptionsEditor.OptionsEditor_FormClosing(System.Object,System.Windows.Forms.FormClosingEventArgs)">
+        <member name="M:NBagOfUis.OptionsEditor.OnFormClosing(System.Windows.Forms.FormClosingEventArgs)">
             <summary>
             Collect list contents.
             </summary>
-            <param name="sender"></param>
             <param name="e"></param>
         </member>
         <member name="F:NBagOfUis.OptionsEditor.components">
@@ -819,21 +619,19 @@
         </member>
         <member name="M:NBagOfUis.Pan.#ctor">
             <summary>
-            Creates a new PanSlider control.
+            Creates a new Pan control.
             </summary>
-        </member>
-        <member name="M:NBagOfUis.Pan.Pan_Load(System.Object,System.EventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
         </member>
         <member name="M:NBagOfUis.Pan.Dispose(System.Boolean)">
             <summary>
             Clean up any resources being used.
             </summary>
             <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:NBagOfUis.Pan.InitializeComponent">
+            <summary>
+            Designer.
+            </summary>
         </member>
         <member name="M:NBagOfUis.Pan.OnPaint(System.Windows.Forms.PaintEventArgs)">
             <summary>
@@ -862,6 +660,72 @@
             </summary>
             <param name="e"></param>
         </member>
+        <member name="T:NBagOfUis.PixelBitmap">
+            <summary>
+            Fast pixel read/write. Borrowed from https://stackoverflow.com/a/34801225.
+            </summary>
+        </member>
+        <member name="F:NBagOfUis.PixelBitmap._buff">
+            <summary>Unmanaged buffer.</summary>
+        </member>
+        <member name="F:NBagOfUis.PixelBitmap._hBuff">
+            <summary>Unmanaged buffer handle.</summary>
+        </member>
+        <member name="F:NBagOfUis.PixelBitmap._disposed">
+            <summary>Resource management.</summary>
+        </member>
+        <member name="P:NBagOfUis.PixelBitmap.Bitmap">
+            <summary>Managed image for client consumption.</summary>
+        </member>
+        <member name="M:NBagOfUis.PixelBitmap.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Normal constructor.
+            </summary>
+            <param name="width"></param>
+            <param name="height"></param>
+        </member>
+        <member name="M:NBagOfUis.PixelBitmap.Finalize">
+            <summary>
+            Override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:NBagOfUis.PixelBitmap.Dispose">
+            <summary>
+            Boilerplate.
+            </summary>
+        </member>
+        <member name="M:NBagOfUis.PixelBitmap.Dispose(System.Boolean)">
+            <summary>
+            Boilerplate.
+            </summary>
+        </member>
+        <member name="M:NBagOfUis.PixelBitmap.SetPixel(System.Int32,System.Int32,System.Drawing.Color)">
+            <summary>
+            
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="colour"></param>
+        </member>
+        <member name="M:NBagOfUis.PixelBitmap.SetPixel(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="a"></param>
+            <param name="r"></param>
+            <param name="g"></param>
+            <param name="b"></param>
+        </member>
+        <member name="M:NBagOfUis.PixelBitmap.GetPixel(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
         <member name="T:NBagOfUis.Taper">
             <summary></summary>
         </member>
@@ -870,14 +734,8 @@
             Control potentiometer.
             </summary>
         </member>
-        <member name="F:NBagOfUis.Pot._minimum">
-            <summary> </summary>
-        </member>
-        <member name="F:NBagOfUis.Pot._maximum">
-            <summary> </summary>
-        </member>
-        <member name="F:NBagOfUis.Pot._value">
-            <summary> </summary>
+        <member name="F:NBagOfUis.Pot._resetVal">
+            <summary>If user resets. This is the first value assigned to Value.</summary>
         </member>
         <member name="F:NBagOfUis.Pot._beginDragValue">
             <summary> </summary>
@@ -903,14 +761,14 @@
         <member name="P:NBagOfUis.Pot.Taper">
             <summary>Taper.</summary>
         </member>
-        <member name="P:NBagOfUis.Pot.DecPlaces">
-            <summary>Number of decimal places to display.</summary>
+        <member name="P:NBagOfUis.Pot.Resolution">
+            <summary>Per step resolution of this pot.</summary>
         </member>
         <member name="P:NBagOfUis.Pot.Minimum">
-            <summary>Minimum Value of the Pot.</summary>
+            <summary>Minimum Value of the pot.</summary>
         </member>
         <member name="P:NBagOfUis.Pot.Maximum">
-            <summary>Maximum Value of the Pot.</summary>
+            <summary>Maximum Value of the pot.</summary>
         </member>
         <member name="P:NBagOfUis.Pot.Value">
             <summary>The current value of the pot.</summary>
@@ -923,18 +781,21 @@
             Creates a new pot control.
             </summary>
         </member>
-        <member name="M:NBagOfUis.Pot.Pot_Load(System.Object,System.EventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
         <member name="M:NBagOfUis.Pot.Dispose(System.Boolean)">
             <summary> 
             Clean up any resources being used.
             </summary>
             <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:NBagOfUis.Pot.InitializeComponent">
+            <summary>
+            Designer.
+            </summary>
+        </member>
+        <member name="M:NBagOfUis.Pot.Rescale">
+            <summary>
+            If min or max or resolution changed by client.
+            </summary>
         </member>
         <member name="M:NBagOfUis.Pot.OnPaint(System.Windows.Forms.PaintEventArgs)">
             <summary>
@@ -1023,45 +884,23 @@
             <param name="which">Name of the property.</param>
             <param name="visible">True or false.</param>
         </member>
-        <member name="F:NBagOfUis.Settings._fp">
-            <summary>The fully  qualified file path.</summary>
-        </member>
-        <member name="M:NBagOfUis.Settings.Load(System.String,System.Type,System.String)">
-            <summary>
-            Create object from file.
-            </summary>
-            <param name="dir">Where the file lives.</param>
-            <param name="t">Derived type please.</param>
-            <param name="fn">The file name, default is settings.json.</param>
-            <returns></returns>
-        </member>
-        <member name="M:NBagOfUis.Settings.Save">
-            <summary>
-            Save object to file.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.Settings.Edit(System.String)">
+        <member name="M:NBagOfUis.SettingsEditor.Edit(NBagOfTricks.SettingsCore,System.String,System.Int32,System.Boolean)">
             <summary>
             Edit the properties in a dialog.
             </summary>
+            <param name="settings">To edit.</param>
             <param name="title">To show.</param>
-            <returns>List of tuples of name,ccategory.</returns>
-        </member>
-        <member name="M:NBagOfUis.Settings.Cleanup">
-            <summary>
-            Remove duplicate and invalid file names.
-            </summary>
+            <param name="height">Adjustable.</param>
+            <param name="expand">Default expansion.</param>
+            <returns>List of tuples of name, category.</returns>
         </member>
         <member name="T:NBagOfUis.Slider">
             <summary>
             Slider control.
             </summary>
         </member>
-        <member name="F:NBagOfUis.Slider._value">
-            <summary> </summary>
-        </member>
         <member name="F:NBagOfUis.Slider._resetVal">
-            <summary> </summary>
+            <summary>If user resets. This is the first value assigned to Value.</summary>
         </member>
         <member name="F:NBagOfUis.Slider._brush">
             <summary>The brush.</summary>
@@ -1075,44 +914,42 @@
         <member name="P:NBagOfUis.Slider.DrawColor">
             <summary>For styling.</summary>
         </member>
-        <member name="P:NBagOfUis.Slider.DecPlaces">
-            <summary>Number of decimal places to display.</summary>
-        </member>
         <member name="P:NBagOfUis.Slider.Orientation">
             <summary>Fader orientation</summary>
         </member>
-        <member name="P:NBagOfUis.Slider.Maximum">
-            <summary>Maximum value of this slider.</summary>
+        <member name="P:NBagOfUis.Slider.Resolution">
+            <summary>Per step resolution of this slider.</summary>
         </member>
         <member name="P:NBagOfUis.Slider.Minimum">
-            <summary>Minimum value of this slider.</summary>
+            <summary>Minimum Value of the slider.</summary>
         </member>
-        <member name="P:NBagOfUis.Slider.ResetValue">
-            <summary>Reset value of this slider.</summary>
+        <member name="P:NBagOfUis.Slider.Maximum">
+            <summary>Maximum Value of the slider.</summary>
         </member>
         <member name="P:NBagOfUis.Slider.Value">
-            <summary>The value for this slider.</summary>
+            <summary>The current value of the slider.</summary>
         </member>
         <member name="E:NBagOfUis.Slider.ValueChanged">
-            <summary>
-            Slider value changed event.
-            </summary>
+            <summary>Slider value changed event.</summary>
         </member>
         <member name="M:NBagOfUis.Slider.#ctor">
             <summary>
             Creates a new Slider control.
             </summary>
         </member>
-        <member name="M:NBagOfUis.Slider.Slider_Load(System.Object,System.EventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
         <member name="M:NBagOfUis.Slider.Dispose(System.Boolean)">
             <summary>
             Clean up any resources being used.
+            </summary>
+        </member>
+        <member name="M:NBagOfUis.Slider.InitializeComponent">
+            <summary>
+            From Designer.
+            </summary>
+        </member>
+        <member name="M:NBagOfUis.Slider.Rescale">
+            <summary>
+            If min or max or resolution changed by client.
             </summary>
         </member>
         <member name="M:NBagOfUis.Slider.OnPaint(System.Windows.Forms.PaintEventArgs)">
@@ -1142,7 +979,42 @@
             </summary>
             <param name="e"></param>
         </member>
-        <member name="P:NBagOfUis.TextViewer.Colors">
+        <member name="T:NBagOfUis.ToolStripSlider">
+            <summary>Simple toolstrip container for the slider.</summary>
+        </member>
+        <member name="F:NBagOfUis.ToolStripSlider._slider">
+            <summary>Contained control.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripSlider.Label">
+            <summary>Optional label.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripSlider.DrawColor">
+            <summary>For styling.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripSlider.Resolution">
+            <summary>Per step resolution of this slider.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripSlider.Minimum">
+            <summary>Minimum Value of the slider.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripSlider.Maximum">
+            <summary>Maximum Value of the slider.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripSlider.Value">
+            <summary>The current value of the slider.</summary>
+        </member>
+        <member name="P:NBagOfUis.ToolStripSlider.BorderStyle">
+            <summary>Optional border.</summary>
+        </member>
+        <member name="E:NBagOfUis.ToolStripSlider.ValueChanged">
+            <summary>Slider value changed event.</summary>
+        </member>
+        <member name="M:NBagOfUis.ToolStripSlider.#ctor">
+            <summary>
+            Make one.
+            </summary>
+        </member>
+        <member name="P:NBagOfUis.TextViewer.MatchColors">
             <summary>The colors to display when text is matched.</summary>
         </member>
         <member name="P:NBagOfUis.TextViewer.MaxText">
@@ -1151,8 +1023,14 @@
         <member name="P:NBagOfUis.TextViewer.BackColor">
             <summary>Cosmetics.</summary>
         </member>
+        <member name="P:NBagOfUis.TextViewer.Font">
+            <summary>Cosmetics.</summary>
+        </member>
         <member name="P:NBagOfUis.TextViewer.WordWrap">
-            <summary></summary>
+            <summary>Word wrap toggle.</summary>
+        </member>
+        <member name="P:NBagOfUis.TextViewer.Prompt">
+            <summary>Optional prompt.</summary>
         </member>
         <member name="F:NBagOfUis.TextViewer._rtb">
             <summary>Contained control.</summary>
@@ -1160,6 +1038,17 @@
         <member name="M:NBagOfUis.TextViewer.#ctor">
             <summary>
             Constructor sets some defaults.
+            </summary>
+        </member>
+        <member name="M:NBagOfUis.TextViewer.OnLoad(System.EventArgs)">
+            <summary>
+            Ready to see.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:NBagOfUis.TextViewer.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
             </summary>
         </member>
         <member name="M:NBagOfUis.TextViewer.Clear">
@@ -1177,147 +1066,12 @@
             </summary>
             <param name="text">The message.</param>
         </member>
-        <member name="T:NBagOfUis.TimeBar">
-            <summary>The control.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar._length">
-            <summary>Total length.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar._current">
-            <summary>Current time/position.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar._start">
-            <summary>One marker.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar._end">
-            <summary>Other marker.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar._lastXPos">
-            <summary>For tracking mouse moves.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar._toolTip">
-            <summary>Tooltip for mousing.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar._brush">
-            <summary>The brush.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar._penMarker">
-            <summary>The pen.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar._format">
-            <summary>For drawing text.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar.LARGE_CHANGE">
-            <summary>Constant.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar.SMALL_CHANGE">
-            <summary>Constant.</summary>
-        </member>
-        <member name="F:NBagOfUis.TimeBar.TS_FORMAT">
-            <summary>For viewing purposes.</summary>
-        </member>
-        <member name="P:NBagOfUis.TimeBar.Current">
-            <summary>Where we be now.</summary>
-        </member>
-        <member name="P:NBagOfUis.TimeBar.Length">
-            <summary>Total length.</summary>
-        </member>
-        <member name="P:NBagOfUis.TimeBar.Start">
-            <summary>One marker.</summary>
-        </member>
-        <member name="P:NBagOfUis.TimeBar.End">
-            <summary>Other marker.</summary>
-        </member>
-        <member name="P:NBagOfUis.TimeBar.SnapMsec">
-            <summary>Snap to this increment value.</summary>
-        </member>
-        <member name="P:NBagOfUis.TimeBar.ProgressColor">
-            <summary>For styling.</summary>
-        </member>
-        <member name="P:NBagOfUis.TimeBar.MarkerColor">
-            <summary>For styling.</summary>
-        </member>
-        <member name="P:NBagOfUis.TimeBar.FontLarge">
-            <summary>Big font.</summary>
-        </member>
-        <member name="P:NBagOfUis.TimeBar.FontSmall">
-            <summary>Baby font.</summary>
-        </member>
-        <member name="E:NBagOfUis.TimeBar.CurrentTimeChanged">
-            <summary>Value changed by user.</summary>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.#ctor">
+        <member name="M:NBagOfUis.TextViewer.Rtb_KeyDown(System.Object,System.Windows.Forms.KeyEventArgs)">
             <summary>
-            Constructor.
+            Catch a few keys.
             </summary>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.Dispose(System.Boolean)">
-            <summary> 
-            Clean up any resources being used.
-            </summary>
-            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.IncrementCurrent(System.Int32)">
-            <summary>
-            Offset current by msec.
-            </summary>
-            <param name="msec"></param>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.OnPaint(System.Windows.Forms.PaintEventArgs)">
-            <summary>
-            Draw the slider.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.OnKeyDown(System.Windows.Forms.KeyEventArgs)">
-            <summary>
-            
-            </summary>
+            <param name="sender"></param>
             <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.OnPreviewKeyDown(System.Windows.Forms.PreviewKeyDownEventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.OnMouseMove(System.Windows.Forms.MouseEventArgs)">
-            <summary>
-            Handle mouse position changes.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
-            <summary>
-            Handle dragging.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.GetTimeFromMouse(System.Int32)">
-            <summary>
-            Convert x pos to TimeSpan.
-            </summary>
-            <param name="x"></param>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.DoSnap(System.Int32)">
-            <summary>
-            
-            </summary>
-            <param name="msec"></param>
-            <returns></returns>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.Constrain(System.TimeSpan,System.TimeSpan,System.TimeSpan)">
-            <summary>
-            
-            </summary>
-            <param name="val"></param>
-            <param name="lower"></param>
-            <param name="upper"></param>
-            <returns></returns>
-        </member>
-        <member name="M:NBagOfUis.TimeBar.Scale(System.TimeSpan)">
-            <summary>
-            Map from time to UI pixels.
-            </summary>
-            <param name="val"></param>
-            <returns></returns>
         </member>
         <member name="T:NBagOfUis.StringListEditor">
             <summary>Generic property editor for lists of strings.</summary>
@@ -1325,7 +1079,7 @@
         <member name="T:NBagOfUis.MonospaceFontEditor">
             <summary>Selector for monospaced fonts.</summary>
         </member>
-        <member name="T:NBagOfUis.PathListEditor_Future">
+        <member name="T:NBagOfUis.PathListEditor">
             <summary>Broken - don't use.</summary>
         </member>
         <member name="T:NBagOfUis.CheckBoxRenderer">
@@ -1340,290 +1094,17 @@
             </summary>
             <param name="e"></param>
         </member>
-        <member name="T:NBagOfUis.VirtualKeyboard">
-            <summary>
-            Virtual keyboard control borrowed from Leslie Sanford with extras.
-            </summary>
-        </member>
-        <member name="P:NBagOfUis.VirtualKeyboard.ShowNoteNames">
-            <summary>Draw the names on the keys.</summary>
-        </member>
-        <member name="T:NBagOfUis.VirtualKeyboard.KeyboardEventArgs">
-            <summary>Device has received something.</summary>
-        </member>
-        <member name="P:NBagOfUis.VirtualKeyboard.KeyboardEventArgs.ChannelNumber">
-            <summary>Channel number. Client can set it.</summary>
-        </member>
-        <member name="P:NBagOfUis.VirtualKeyboard.KeyboardEventArgs.NoteId">
-            <summary>Midi note id.</summary>
-        </member>
-        <member name="P:NBagOfUis.VirtualKeyboard.KeyboardEventArgs.Velocity">
-            <summary>Midi velocity. 0 means note off.</summary>
-        </member>
-        <member name="F:NBagOfUis.VirtualKeyboard._keys">
-            <summary>All the created piano keys.</summary>
-        </member>
-        <member name="F:NBagOfUis.VirtualKeyboard._keyMap">
-            <summary>Map from Keys value to the index in _keys.</summary>
-        </member>
-        <member name="F:NBagOfUis.VirtualKeyboard._keyDown">
-            <summary>Known bug?</summary>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.#ctor">
-            <summary>
-            Constructor.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.Keyboard_Load(System.Object,System.EventArgs)">
-            <summary>
-            Initialize everything.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.Keyboard_Resize(System.Object,System.EventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.Dispose(System.Boolean)">
-            <summary>
-            Clean up any resources being used.
-            </summary>
-            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.IsNatural(System.Int32)">
-            <summary>
-            Is it a white key?
-            </summary>
-            <param name="notenum">Which note</param>
-            <returns>True/false</returns>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.CreateKeyMap">
-            <summary>
-            Create the midi note/keyboard mapping.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.Keyboard_KeyDown(System.Object,System.Windows.Forms.KeyEventArgs)">
-            <summary>
-            Use alpha keyboard to drive piano.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.Keyboard_KeyUp(System.Object,System.Windows.Forms.KeyEventArgs)">
-            <summary>
-            Use alpha keyboard to drive piano.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.Keyboard_VKeyEvent(System.Object,NBagOfUis.VirtualKey.VKeyEventArgs)">
-            <summary>
-            Pass along an event from a virtual key.
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.CreateKeys">
-            <summary>
-            Create the key controls.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.VirtualKeyboard.DrawKeys">
-            <summary>
-            Re/draw the keys.
-            </summary>
-        </member>
-        <member name="T:NBagOfUis.VirtualKey">
-            <summary>One individual key.</summary>
-        </member>
-        <member name="F:NBagOfUis.VirtualKey._owner">
-            <summary>Hook to owner.</summary>
-        </member>
-        <member name="F:NBagOfUis.VirtualKey._noteNames">
-            <summary>For showing names.</summary>
-        </member>
-        <member name="P:NBagOfUis.VirtualKey.IsPressed">
-            <summary>Key status.</summary>
-        </member>
-        <member name="P:NBagOfUis.VirtualKey.IsNatural">
-            <summary>Key status.</summary>
-        </member>
-        <member name="P:NBagOfUis.VirtualKey.NoteId">
-            <summary>Associated midi note.</summary>
-        </member>
-        <member name="T:NBagOfUis.VirtualKey.VKeyEventArgs">
-            <summary>Notify handlers of key change.</summary>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.#ctor(NBagOfUis.VirtualKeyboard,System.Boolean,System.Int32)">
-            <summary>
-            Normal constructor.
-            </summary>
-            <param name="owner"></param>
-            <param name="isNatural"></param>
-            <param name="noteId"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.PressVKey(System.Int32)">
-            <summary>
-            
-            </summary>
-            <param name="velocity"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.ReleaseVKey">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.CalcVelocity">
-            <summary>
-            Calc velocity from Y position.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.OnMouseEnter(System.EventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.OnMouseLeave(System.EventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.OnMouseUp(System.Windows.Forms.MouseEventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.OnMouseMove(System.Windows.Forms.MouseEventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.VirtualKey.OnPaint(System.Windows.Forms.PaintEventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="e"></param>
-        </member>
         <member name="T:NBagOfUis.WaitCursor">
             <summary>Class that provides a better wait cursor. Clients should use it with using (new WaitCursor()) { slow code }</summary>
         </member>
         <member name="F:NBagOfUis.WaitCursor.m_cursorOld">
             <summary>Restore original cursor</summary>
         </member>
-        <member name="F:NBagOfUis.WaitCursor._start">
-            <summary>For metrics</summary>
-        </member>
         <member name="M:NBagOfUis.WaitCursor.#ctor">
             <summary>Constructor</summary>
         </member>
         <member name="M:NBagOfUis.WaitCursor.Dispose">
             <summary>Dispose</summary>
-        </member>
-        <member name="F:NBagOfUis.WaveViewer._rawVals">
-            <summary>From client.</summary>
-        </member>
-        <member name="F:NBagOfUis.WaveViewer._rawMax">
-            <summary>Maximum value of _rawVals (+-).</summary>
-        </member>
-        <member name="F:NBagOfUis.WaveViewer._scaledBuff">
-            <summary>Storage for display.</summary>
-        </member>
-        <member name="F:NBagOfUis.WaveViewer._penDraw">
-            <summary>For drawing.</summary>
-        </member>
-        <member name="F:NBagOfUis.WaveViewer._penMarker">
-            <summary>For drawing.</summary>
-        </member>
-        <member name="F:NBagOfUis.WaveViewer._textFont">
-            <summary>For drawing text.</summary>
-        </member>
-        <member name="F:NBagOfUis.WaveViewer._format">
-            <summary>For drawing text.</summary>
-        </member>
-        <member name="F:NBagOfUis.WaveViewer._smplPerPixel">
-            <summary>Ratio of data point to visual point.</summary>
-        </member>
-        <member name="P:NBagOfUis.WaveViewer.DrawColor">
-            <summary>For styling.</summary>
-        </member>
-        <member name="P:NBagOfUis.WaveViewer.MarkerColor">
-            <summary>For styling.</summary>
-        </member>
-        <member name="P:NBagOfUis.WaveViewer.Mode">
-            <summary>How to draw.</summary>
-        </member>
-        <member name="P:NBagOfUis.WaveViewer.Marker1">
-            <summary>Marker 1 data index or -1 to disable.</summary>
-        </member>
-        <member name="P:NBagOfUis.WaveViewer.Marker2">
-            <summary>Marker 2 data index or -1 to disable.</summary>
-        </member>
-        <member name="M:NBagOfUis.WaveViewer.#ctor">
-            <summary>
-            Constructor.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.WaveViewer.WaveViewer_Load(System.Object,System.EventArgs)">
-            <summary>
-            
-            </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:NBagOfUis.WaveViewer.Dispose(System.Boolean)">
-            <summary>
-            Clean up any resources being used.
-            </summary>
-            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        </member>
-        <member name="M:NBagOfUis.WaveViewer.Init(System.Single[],System.Single)">
-            <summary>
-            Populate with data.
-            </summary>
-            <param name="vals"></param>
-            <param name="max"></param>
-        </member>
-        <member name="M:NBagOfUis.WaveViewer.Reset">
-            <summary>
-            Hard reset.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.WaveViewer.OnPaint(System.Windows.Forms.PaintEventArgs)">
-            <summary>
-            Paints the waveform.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.WaveViewer.Rescale">
-            <summary>
-            Scale raw values to fit in available space.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.WaveViewer.OnResize(System.EventArgs)">
-            <summary>
-            Update drawing area.
-            </summary>
-        </member>
-        <member name="M:NBagOfUis.WaveViewer.Dump(System.Single[],System.String)">
-            <summary>
-            Simple utility.
-            </summary>
-            <param name="data"></param>
-            <param name="fn"></param>
         </member>
     </members>
 </doc>

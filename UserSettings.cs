@@ -16,7 +16,7 @@ using NBagOfUis;
 namespace NDraw
 {
     [Serializable]
-    public sealed class UserSettings : Settings, IDisposable
+    public sealed class UserSettings : SettingsCore, IDisposable
     {
         #region Properties - editable
         /// <summary>Display font.</summary>

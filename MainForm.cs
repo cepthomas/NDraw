@@ -44,7 +44,7 @@ namespace NDraw
 
             // Open settings.
             string appDir = MiscUtils.GetAppDataDir("NDraw", "Ephemera");
-            _settings = (UserSettings)Settings.Load(appDir, typeof(UserSettings));
+            _settings = (UserSettings)SettingsCore.Load(appDir, typeof(UserSettings));
 
             Location = new Point(_settings.FormGeometry.X, _settings.FormGeometry.Y);
             Size = new Size(_settings.FormGeometry.Width, _settings.FormGeometry.Height);
@@ -229,7 +229,7 @@ namespace NDraw
         /// <param name="e"></param>
         void Settings_Click(object? sender, EventArgs e)
         {
-            var changes = _settings.Edit("User Settings");
+            var changes = SettingsEditor.Edit(_settings, "User Settings", 400);
 
             if (changes.Count > 0)
             {
