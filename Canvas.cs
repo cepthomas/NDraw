@@ -14,7 +14,7 @@ using NBagOfTricks;
 
 namespace NDraw
 {
-    public partial class Canvas : UserControl // Should be Control but breaks in designer.
+    public partial class Canvas : UserControl
     {
         #region Fields
         /// <summary>Current drawing.</summary>
@@ -22,6 +22,9 @@ namespace NDraw
 
         /// <summary>The settings.</summary>
         UserSettings _settings = new();
+
+        /// <summary>Display font.</summary>
+        Font _font = new("Consolas", 10);
 
         /// <summary>All the shapes.</summary>
         readonly List<Shape> _shapes = new();
@@ -292,7 +295,7 @@ namespace NDraw
                     {
                         var (vert, hor) = _alignment[shape.TextAlignment];
                         using StringFormat fmt = new() { Alignment = hor, LineAlignment = vert };
-                        e.Graphics.DrawString(shape.Text, _settings.Font, Brushes.Black, dispRect, fmt);
+                        e.Graphics.DrawString(shape.Text, _font, Brushes.Black, dispRect, fmt);
                     }
 
                     // Highlight features.
@@ -370,7 +373,7 @@ namespace NDraw
 
                     if (_ruler)
                     {
-                        g.DrawString(x.ToString(_numericalFormat), _settings.Font, Brushes.Black, xd - TICK_SIZE, 0);
+                        g.DrawString(x.ToString(_numericalFormat), _font, Brushes.Black, xd - TICK_SIZE, 0);
                     }
                 }
             }
@@ -393,7 +396,7 @@ namespace NDraw
 
                     if (_ruler)
                     {
-                        g.DrawString(y.ToString(_numericalFormat), _settings.Font, Brushes.Black, 0, yd - TICK_SIZE);
+                        g.DrawString(y.ToString(_numericalFormat), _font, Brushes.Black, 0, yd - TICK_SIZE);
                     }
                 }
             }

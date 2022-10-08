@@ -16,13 +16,9 @@ using NBagOfUis;
 namespace NDraw
 {
     [Serializable]
-    public sealed class UserSettings : SettingsCore, IDisposable
+    public sealed class UserSettings : SettingsCore
     {
         #region Properties - editable
-        /// <summary>Display font.</summary>
-        [JsonConverter(typeof(JsonFontConverter))]
-        public Font Font { get; set; } = new Font("Consolas", 10);
-
         /// <summary>Form color.</summary>
         [JsonConverter(typeof(JsonColorConverter))]
         public Color BackColor { get; set; } = Color.LightGray;
@@ -33,14 +29,6 @@ namespace NDraw
 
         /// <summary>How fast the mouse wheel goes.</summary>
         public int WheelResolution { get; set; } = 8;
-        #endregion
-
-        #region Lifecycle
-        /// <summary>Clean up.</summary>
-        public void Dispose()
-        {
-            Font.Dispose();
-        }
         #endregion
     }
 }

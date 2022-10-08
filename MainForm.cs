@@ -86,7 +86,6 @@ namespace NDraw
             _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Size.Width, Size.Height);
 
             _settings.Save();
-            _settings.Dispose();
             base.OnFormClosing(e);
         }
         #endregion
