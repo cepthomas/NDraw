@@ -1,5 +1,5 @@
 ﻿
-namespace NDraw
+namespace Ephemera.NDraw
 {
     partial class MainForm
     {
@@ -81,7 +81,7 @@ namespace NDraw
             this.RenderMenuItem,
             this.SettingsMenuItem,
             this.AboutMenuItem});
-            this.FileDropDownButton.Image = global::NDraw.Properties.Resources.glyphicons_37_file;
+            this.FileDropDownButton.Image = global::Ephemera.NDraw.Properties.Resources.glyphicons_37_file;
             this.FileDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.FileDropDownButton.Name = "FileDropDownButton";
             this.FileDropDownButton.Size = new System.Drawing.Size(34, 24);

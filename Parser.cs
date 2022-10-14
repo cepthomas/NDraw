@@ -9,10 +9,10 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using NBagOfTricks;
+using Ephemera.NBagOfTricks;
 
 
-namespace NDraw
+namespace Ephemera.NDraw
 {
     public class Parser
     {

@@ -7,12 +7,12 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Forms;
-using NBagOfTricks;
-using NBagOfTricks.PNUT;
-using NDraw;
+using Ephemera.NBagOfTricks;
+using Ephemera.NBagOfTricks.PNUT;
+using Ephemera.NDraw;
 
 
-namespace NDraw.Test
+namespace Ephemera.NDraw.Test
 {
     class Program
     {

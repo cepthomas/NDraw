@@ -9,11 +9,11 @@ using System.Windows.Forms.Design;
 using System.Drawing.Design;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using NBagOfTricks;
-using NBagOfUis;
+using Ephemera.NBagOfTricks;
+using Ephemera.NBagOfUis;
 
 
-namespace NDraw
+namespace Ephemera.NDraw
 {
     [Serializable]
     public sealed class UserSettings : SettingsCore

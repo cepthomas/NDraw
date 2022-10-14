@@ -1,5 +1,5 @@
 ﻿
-namespace NDraw
+namespace Ephemera.NDraw
 {
     partial class Canvas
     {

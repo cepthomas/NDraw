@@ -5,8 +5,8 @@
         <TargetFramework>net6.0-windows</TargetFramework>
         <UseWindowsForms>true</UseWindowsForms>
         <ApplicationIcon>Resources\Morso.ico</ApplicationIcon>
-        <RootNamespace>NDraw</RootNamespace>
-        <AssemblyName>NDraw</AssemblyName>
+        <RootNamespace>Ephemera.NDraw</RootNamespace>
+        <AssemblyName>Ephemera.NDraw</AssemblyName>
         <Deterministic>False</Deterministic>
         <Description>NDraw</Description>
         <Copyright>MIT License</Copyright>
@@ -41,11 +41,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="NBagOfTricks">
-            <HintPath>lib\NBagOfTricks.dll</HintPath>
+        <Reference Include="Ephemera.NBagOfTricks">
+            <HintPath>lib\Ephemera.NBagOfTricks.dll</HintPath>
         </Reference>
-        <Reference Include="NBagOfUis">
-            <HintPath>lib\NBagOfUis.dll</HintPath>
+        <Reference Include="Ephemera.NBagOfUis">
+            <HintPath>lib\Ephemera.NBagOfUis.dll</HintPath>
         </Reference>
     </ItemGroup>
 

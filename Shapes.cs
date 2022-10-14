@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Drawing.Drawing2D;
-using NBagOfTricks;
+using Ephemera.NBagOfTricks;
 
 
-namespace NDraw
+namespace Ephemera.NDraw
 {
     #region Enums
     /// <summary>Presentation state.</summary>

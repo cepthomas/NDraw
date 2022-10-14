@@ -4,8 +4,8 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net6.0-windows</TargetFramework>
         <UseWindowsForms>true</UseWindowsForms>
-        <RootNamespace>NDraw.Test</RootNamespace>
-        <AssemblyName>NDraw.Test</AssemblyName>
+        <RootNamespace>Ephemera.NDraw.Test</RootNamespace>
+        <AssemblyName>Ephemera.NDraw.Test</AssemblyName>
         <Deterministic>False</Deterministic>
         <Description>NDraw.Test</Description>
         <Copyright>MIT License</Copyright>
@@ -14,7 +14,7 @@
         <WarningLevel>4</WarningLevel>
         <NoWarn>CS1591</NoWarn>
         <Nullable>enable</Nullable>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
         <!-- en none -->
     </PropertyGroup>
@@ -28,8 +28,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="NBagOfTricks">
-            <HintPath>..\lib\NBagOfTricks.dll</HintPath>
+        <Reference Include="Ephemera.NBagOfTricks">
+            <HintPath>..\lib\Ephemera.NBagOfTricks.dll</HintPath>
         </Reference>
     </ItemGroup>
 

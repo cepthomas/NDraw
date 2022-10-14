@@ -10,11 +10,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
-using NBagOfTricks;
-using NBagOfUis;
+using Ephemera.NBagOfTricks;
+using Ephemera.NBagOfUis;
 
 
-namespace NDraw
+namespace Ephemera.NDraw
 {
     public partial class MainForm : Form
     {
