@@ -214,7 +214,7 @@ namespace Ephemera.NDraw
         {
             if (fn.EndsWith(".nd") && File.Exists(fn))
             {
-                _settings.RecentFiles.UpdateMru(fn);
+                _settings.UpdateMru(fn);
                 PopulateRecentMenu();
             }
         }
