@@ -110,11 +110,6 @@ namespace Ephemera.NDraw
         };
         #endregion
 
-        #region Events
-        /// <summary>Display stuff.</summary>
-        public event EventHandler<string>? InfoEvent;
-        #endregion
-
         #region Lifecycle
         /// <summary>
         /// 
@@ -463,7 +458,6 @@ namespace Ephemera.NDraw
                 Invalidate();
             }
 
-            InfoEvent?.Invoke(this, $"Disp:{e.Location}  Virt:{DisplayToVirtual(e.Location)}  OffsetX:{_offsetX}  OffsetY:{_offsetY}  Zoom:{_zoom}");
             base.OnMouseMove(e);
         }
 

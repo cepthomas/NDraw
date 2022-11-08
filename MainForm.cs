@@ -51,9 +51,6 @@ namespace Ephemera.NDraw
 
             PopulateRecentMenu();
 
-            // Hook events.
-            Canvas.InfoEvent += (_, msg) => TxtInfo.Text = msg;
-
             OpenMenuItem.Click += Open_Click;
             RecentMenuItem.Click += Recent_Click;
             RenderMenuItem.Click += Render_Click;
@@ -67,7 +64,7 @@ namespace Ephemera.NDraw
                 Btn_Click(btn, EventArgs.Empty);
             }
 
-            _watcher.FileChangeEvent += Watcher_Changed;
+            _watcher.FileChange += Watcher_Changed;
 
             var args = Environment.GetCommandLineArgs();
             if(args.Length >= 2)
