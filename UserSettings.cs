@@ -13,7 +13,7 @@ using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfUis;
 
 
-namespace Ephemera.NDraw
+namespace NDraw
 {
     [Serializable]
     public sealed class UserSettings : SettingsCore

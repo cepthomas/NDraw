@@ -12,7 +12,7 @@ using System.Windows.Forms;
 using Ephemera.NBagOfTricks;
 
 
-namespace Ephemera.NDraw
+namespace NDraw
 {
     public class Parser
     {

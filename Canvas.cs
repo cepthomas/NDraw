@@ -12,7 +12,7 @@ using System.Diagnostics;
 using Ephemera.NBagOfTricks;
 
 
-namespace Ephemera.NDraw
+namespace NDraw
 {
     public partial class Canvas : UserControl
     {

@@ -14,7 +14,7 @@ using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfUis;
 
 
-namespace Ephemera.NDraw
+namespace NDraw
 {
     public partial class MainForm : Form
     {

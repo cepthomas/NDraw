@@ -12,7 +12,7 @@ using System.Drawing.Drawing2D;
 using Ephemera.NBagOfTricks;
 
 
-namespace Ephemera.NDraw
+namespace NDraw
 {
     #region Enums
     /// <summary>Presentation state.</summary>

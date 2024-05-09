@@ -9,10 +9,10 @@ using System.Text;
 using System.Windows.Forms;
 using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfTricks.PNUT;
-using Ephemera.NDraw;
+using NDraw;
 
 
-namespace Ephemera.NDraw.Test
+namespace NDraw.Test
 {
     class Program
     {

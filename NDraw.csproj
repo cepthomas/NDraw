@@ -5,8 +5,8 @@
         <TargetFramework>net6.0-windows</TargetFramework>
         <UseWindowsForms>true</UseWindowsForms>
         <ApplicationIcon>Resources\Morso.ico</ApplicationIcon>
-        <RootNamespace>Ephemera.NDraw</RootNamespace>
-        <AssemblyName>Ephemera.NDraw</AssemblyName>
+        <RootNamespace>NDraw</RootNamespace>
+        <AssemblyName>NDraw</AssemblyName>
         <Deterministic>False</Deterministic>
         <Description>NDraw</Description>
         <Copyright>MIT License</Copyright>
