@@ -14,6 +14,13 @@ using Ephemera.NBagOfTricks;
 
 namespace NDraw
 {
+    class SyntaxException : Exception
+    {
+        public SyntaxException(string msg) : base(msg)
+        {
+        }
+    }
+
     public class Parser
     {
         #region Properties
@@ -102,26 +109,30 @@ namespace NDraw
             string s = sf.Trim();
             int pos = s.IndexOf("//");
 
-            if (pos < 0 && s.Length > 0) // no comment
+            if (pos < 0 && s.Length > 0) // not a comment
             {
                 //s = s;
             }
             else if (pos > 0) // part line comment
             {
-                s = s.Substring(0, pos); // strip
+                s = s[..pos]; // strip
             }
-            else
+            else // full line comment, skip
             {
-                return; // continue; // skip this
+                return;
             }
 
             ///// Get the statement values.
             var parts = s.SplitByToken(",");
 
-            // The first one describes the type.
-            var (elid, elval) = SplitParam(parts[0]);
+            if (parts.Count <= 0)
+            {
+                throw new SyntaxException("No statement values");
+            }
 
-            // The rest are the params.
+            var (lhs, rhs) = SplitParam(parts[0]);
+
+            // The rest are the params, gather them.
             var elemParams = new Dictionary<string, string>();
             foreach (var elem in parts.GetRange(1, parts.Count - 1))
             {
@@ -130,7 +141,7 @@ namespace NDraw
             }
 
             ///// Section parsers.
-            switch (elval)
+            switch (lhs)
             {
                 case "page":
                     Page.UnitsName = elemParams.ContainsKey("un") ? ParseText(elemParams["un"]) : "";
@@ -139,7 +150,7 @@ namespace NDraw
                     break;
 
                 case "line":
-                    LineShape line = new() { Id = elid };
+                    LineShape line = new() { Id = lhs };
                     InitShapeCommon(line, elemParams);
                     line.Start = new PointF(ParseValue(elemParams["sx"]), ParseValue(elemParams["sy"])); // required
                     line.End = new PointF(ParseValue(elemParams["ex"]), ParseValue(elemParams["ey"])); // required
@@ -149,7 +160,7 @@ namespace NDraw
                     break;
 
                 case "rect":
-                    RectShape rect = new() { Id = elid };
+                    RectShape rect = new() { Id = lhs };
                     InitShapeCommon(rect, elemParams);
                     rect.Location = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
                     rect.Width = ParseValue(elemParams["w"]); // required
@@ -162,7 +173,7 @@ namespace NDraw
                     break;
 
                 case "ellipse":
-                    EllipseShape ellipse = new() { Id = elid };
+                    EllipseShape ellipse = new() { Id = lhs };
                     InitShapeCommon(ellipse, elemParams);
                     ellipse.Center = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
                     ellipse.Width = ParseValue(elemParams["w"]); // required
@@ -174,18 +185,18 @@ namespace NDraw
                     Page.Ellipses.Add(ellipse);
                     break;
 
-                default: // a value type
-                    switch (elid) // global  TODO broken for junk
+                default: // assume a user value type
+                    switch (lhs) // global  TODO broken for junk
                     {
-                        case "$fc": _fc = Color.FromName(elval); break;
-                        case "$lc": _lc = Color.FromName(elval); break;
-                        case "$lt": _lt = float.Parse(elval); break;
-                        case "$ta": _ta = _alignment[elval]; break;
-                        case "$ss": _ss = _pointStyle[elval]; break;
-                        case "$es": _es = _pointStyle[elval]; break;
+                        case "$fc": _fc = Color.FromName(rhs); break;
+                        case "$lc": _lc = Color.FromName(rhs); break;
+                        case "$lt": _lt = float.Parse(rhs); break;
+                        case "$ta": _ta = _alignment[rhs]; break;
+                        case "$ss": _ss = _pointStyle[rhs]; break;
+                        case "$es": _es = _pointStyle[rhs]; break;
 
                         default: // user scalar or expression
-                            UserVals[elid] = ParseValue(elval);
+                            UserVals[lhs] = ParseValue(rhs);
                             break;
                     }
                     break;
@@ -221,7 +232,14 @@ namespace NDraw
                     }
                     else // named
                     {
-                        f = UserVals[p];
+                        if (UserVals.ContainsKey(p))
+                        {
+                            f = UserVals[p];
+                        }
+                        else
+                        {
+                            throw new SyntaxException($"Unknown name for value {p}");
+                        }
                     }
 
                     if (!float.IsNaN(f))

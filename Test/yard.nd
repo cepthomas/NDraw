@@ -1,7 +1,7 @@
- dim: 10  4.5  0.5  10.5 = 25.5
+ //dim: 10  4.5  0.5  10.5 = 25.5
 
 // page: units grid scale
-yard=page, un="feet", gr=1.0, sc=50
+page=yard, un="feet", gr=1.0, sc=50
 
 // global values: can be changed any time
 $lt=2
@@ -35,20 +35,20 @@ deck_h=10.5
 
 
 
-{Rect:main  Location:0, 0  Width:23  Height:25.5}
+//{Rect:main  Location:0, 0  Width:23  Height:25.5}
 
-{X = -1.4 Y = 0.04 Width = 26.38 Height = 17.06}
+//{X = -1.4 Y = 0.04 Width = 26.38 Height = 17.06}
 
 // shapes
 // main=rect, lr=1, x=0, y=0, w=width, h=9, lt=3
-main=rect, lr=1, x=0, y=0, w=width, h=height, lt=3
+rect=main, lr=1, x=0, y=0, w=width, h=height, lt=3
 
-tree=ellipse, lr=1, x=tree_x, y=tree_y, w=3, h=3, tx="Tree", ht=fd
+ellipse=tree, lr=1, x=tree_x, y=tree_y, w=3, h=3, tx="Tree", ht=fd
 
-access=rect, lr=1, x=0, y=access_y, w=width, h=access_h, tx="Access Area"
+rect=access, lr=1, x=0, y=access_y, w=width, h=access_h, tx="Access Area"
 
-drainage=rect, lr=1, x=0, y=drainage_y, w=width, h=drainage_h, tx="Drainage Area", ht=lg
+rect=drainage, lr=1, x=0, y=drainage_y, w=width, h=drainage_h, tx="Drainage Area", ht=lg
 
-wall=rect, lr=1, x=0, y=wall_y, w=width, h=wall_h, tx="Wall", ht=lg
+rect=wall, lr=1, x=0, y=wall_y, w=width, h=wall_h, tx="Wall", ht=lg
 
-deck=rect, lr=1, x=0, y=deck_y, w=width, h=deck_h, tx="Deck", ht=lg
+rect=deck, lr=1, x=0, y=deck_y, w=width, h=deck_h, tx="Deck", ht=lg

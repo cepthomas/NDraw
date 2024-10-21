@@ -39,6 +39,8 @@ namespace NDraw
 
             //this.OnKeyDown(KeyEventArgs)
 
+            Text = "NDraw - no file";
+
             // Receive key events before the event is passed to the control that has focus.
             KeyPreview = true;
 
@@ -46,6 +48,7 @@ namespace NDraw
             string appDir = MiscUtils.GetAppDataDir("NDraw", "Ephemera");
             _settings = (UserSettings)SettingsCore.Load(appDir, typeof(UserSettings));
 
+            StartPosition = FormStartPosition.Manual;
             Location = new Point(_settings.FormGeometry.X, _settings.FormGeometry.Y);
             Size = new Size(_settings.FormGeometry.Width, _settings.FormGeometry.Height);
 
@@ -148,15 +151,19 @@ namespace NDraw
                     _watcher.Add(fn);
 
                     AddToRecentDefs(fn);
+
+                    Text = $"NDraw - {fn}";
                 }
                 catch (Exception ex)
                 {
                     Tell($"Open Fail: {ex.Message}");
+                    Text = "NDraw - no file";
                 }
             }
             else
             {
                 Tell($"Invalid NDraw File: {fn}");
+                Text = "NDraw - no file";
             }
         }
 
@@ -182,7 +189,7 @@ namespace NDraw
                 {
                     foreach (var err in p.Errors)
                     {
-                        Tell($"Err: {err}");
+                        Tell($"Error: {err}");
                     }
                 }
             }
