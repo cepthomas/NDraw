@@ -72,6 +72,11 @@ namespace NDraw
                 OpenFile(args[1]);
                 Parse();
             }
+            else if(_settings.OpenLastFile && _settings.MruSize > 0)
+            {
+                OpenFile(_settings.RecentFiles[0]);
+                Parse();
+            }
         }
 
         /// <summary>
@@ -160,10 +165,11 @@ namespace NDraw
         /// </summary>
         void Parse()
         {
-            RtbLog.Clear();
+            //RtbLog.Clear();
 
             try
             {
+                Tell($"Parsing {_fn}");
                 Parser p = new();
                 p.ParseFile(_fn);
                 //p.Page.Save("xyz.json");
@@ -245,7 +251,11 @@ namespace NDraw
         void Watcher_Changed(object? sender, MultiFileWatcher.FileChangeEventArgs e)
         {
             // Kick over to main UI thread.
-            this.InvokeIfRequired(_ => { Parse(); });
+            this.InvokeIfRequired(_ =>
+            {
+                Tell($"File changed {_fn}");
+                Parse();
+            });
         }
 
         /// <summary>
@@ -299,11 +309,20 @@ namespace NDraw
         /// <param name="e"></param>
         void Render_Click(object? sender, EventArgs e)
         {
-            if(_fn != "")
+            var fn = _fn == "" ? Path.GetTempFileName().Replace(".tmp", ".png") : _fn.Replace(".nd", ".png");
+
+            using SaveFileDialog saveDlg = new()
+            {
+                Filter = "Image files (*.png)|*.png",
+                Title = "Export to image file",
+                FileName = fn
+            };
+
+            if (saveDlg.ShowDialog() == DialogResult.OK)
             {
                 Bitmap bmp = new(Canvas.Width, Canvas.Height);
                 Canvas.DrawToBitmap(bmp, new Rectangle(0, 0, Canvas.Width, Canvas.Height));
-                bmp.Save(_fn.Replace(".nd", ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                bmp.Save(saveDlg.FileName, System.Drawing.Imaging.ImageFormat.Png);
             }
         }
 

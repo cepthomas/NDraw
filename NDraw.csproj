@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net6.0-windows</TargetFramework>
+        <TargetFramework>net8.0-windows</TargetFramework>
         <UseWindowsForms>true</UseWindowsForms>
         <ApplicationIcon>Resources\Morso.ico</ApplicationIcon>
         <RootNamespace>NDraw</RootNamespace>
@@ -15,14 +15,17 @@
         <WarningLevel>4</WarningLevel>
         <NoWarn>CS1591;CA1822;IDE0052</NoWarn>
         <Nullable>enable</Nullable>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
         <!-- en none -->
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Remove="lib\**" />
         <Compile Remove="Test\**" />
+        <EmbeddedResource Remove="lib\**" />
         <EmbeddedResource Remove="Test\**" />
+        <None Remove="lib\**" />
         <None Remove="Test\**" />
     </ItemGroup>
 

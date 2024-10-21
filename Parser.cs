@@ -84,7 +84,7 @@ namespace NDraw
                     Errors.Add($"Parse error at row {_row}: {ex.Message}");
 
                     // Don't torture the author.
-                    if(Errors.Count >= 5)
+                    if (Errors.Count >= 5)
                     {
                         return;
                     }
@@ -154,10 +154,10 @@ namespace NDraw
                     rect.Location = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
                     rect.Width = ParseValue(elemParams["w"]); // required
                     rect.Height = ParseValue(elemParams["h"]); // required
-                    if (rect.Width < 1 || rect.Height < 1)
-                    {
-                        throw new Exception("Invalid rectangle");
-                    }
+                    //if (rect.Width < 1 || rect.Height < 1)
+                    //{
+                    //    throw new Exception("Invalid rectangle");
+                    //}
                     Page.Rects.Add(rect);
                     break;
 
@@ -167,15 +167,15 @@ namespace NDraw
                     ellipse.Center = new PointF(ParseValue(elemParams["x"]), ParseValue(elemParams["y"])); // required
                     ellipse.Width = ParseValue(elemParams["w"]); // required
                     ellipse.Height = ParseValue(elemParams["h"]); // required
-                    if (ellipse.Width < 1 || ellipse.Height < 1)
-                    {
-                        throw new Exception("Invalid ellipse");
-                    }
+                    //if (ellipse.Width < 1 || ellipse.Height < 1)
+                    //{
+                    //    throw new Exception("Invalid ellipse");
+                    //}
                     Page.Ellipses.Add(ellipse);
                     break;
 
                 default: // a value type
-                    switch (elid) // global
+                    switch (elid) // global  TODO broken for junk
                     {
                         case "$fc": _fc = Color.FromName(elval); break;
                         case "$lc": _lc = Color.FromName(elval); break;

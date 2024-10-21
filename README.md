@@ -28,18 +28,18 @@ These types are supported in the shape definitions.
 Expression may contain N and T types, and +- operators only e.g. `my_val=some_location - 2.33 + some_offset`.
 
 
-| Type | Description
-| ---- | ------
-| D    | Identifier
-| I    | Integer
-| F    | Float
-| S    | String
-| C    | Color name - html known
-| N    | Numerical value: float \| integer \| expression
-| T    | Text value: quoted string \| float \| integer \| expression
-| P    | Point style: a(rrow) \| t(ee)
-| H    | Hatch style: ho \| ve \| fd \| bd \| lg \| dc
-| A    | Text alignment: tl \| tc \| tr \| ml \| mc \| mr \| bl \| bc \| br 
+| Type | Description      | Options        |
+| ---- | -----------      | -------        |
+| D    | Identifier       |                |
+| I    | Integer          |                |
+| F    | Float            |                |
+| S    | String           |                |
+| C    | Color name       | html known     |
+| N    | Numerical value  | float OR integer OR expression |
+| T    | Text value       | quoted string OR float OR integer OR expression |
+| P    | Point style      | a(rrow) OR t(ee) |
+| H    | Hatch style      | ho OR ve OR fd OR bd OR lg OR dc |
+| A    | Text alignment   | tl OR tc OR tr OR ml OR mc OR mr OR bl OR bc OR br |
 
 
 ## Page

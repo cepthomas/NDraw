@@ -29,6 +29,9 @@ namespace NDraw
 
         /// <summary>How fast the mouse wheel goes.</summary>
         public int WheelResolution { get; set; } = 8;
+
+        /// <summary>Open the last used file when starting.</summary>
+        public bool OpenLastFile { get; set; } = true;
         #endregion
     }
 }

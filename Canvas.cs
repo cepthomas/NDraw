@@ -83,7 +83,7 @@ namespace NDraw
         const float SELECT_RANGE = 10;
 
         /// <summary>Allow negative scrolling by this much. Looks better.</summary>
-        const int SCROLL_NEGATIVE = 20;
+        const int SCROLL_NEGATIVE = 0;//20;
 
         /// <summary>Maximum zoom in limit.</summary>
         const float ZOOM_MAX = 10.0f;
@@ -247,7 +247,8 @@ namespace NDraw
             foreach (var shape in _shapes)
             {
                 // Is it visible?
-                if (shape.ContainedIn(virtVisible, true) && _layers[shape.Layer - 1])
+                //if (shape.ContainedIn(virtVisible, true) && _layers[shape.Layer - 1])
+                if (_layers[shape.Layer - 1])
                 {
                     using Pen penLine = new(shape.LineColor, shape.LineThickness);
                     using Brush brush = shape.Hatch == Shape.NO_HATCH ? new SolidBrush(shape.FillColor) : new HatchBrush(shape.Hatch, shape.LineColor, shape.FillColor);
@@ -427,7 +428,7 @@ namespace NDraw
             var virtLoc = DisplayToVirtual(e.Location);
             float range = SELECT_RANGE / _zoom / _page.Scale; // This really should be done in display domain.
 
-            foreach (Shape shape in _shapes)
+            foreach (Shape shape in _shapes) // TODO if joined shapes this gets both.
             {
                 int fp = shape.IsFeaturePoint(virtLoc, range);
 
