@@ -33,7 +33,7 @@ namespace NDraw
 
         #region Properties
         /// <summary>Arbitrary id.</summary>
-        public string Id { get; set; } = "???";
+        public int Id { get { return _id; } }
 
         /// <summary>Layer 1-4.</summary>
         public int Layer { get; set; } = 1;
@@ -67,7 +67,15 @@ namespace NDraw
 
         #region Fields
         protected int _lastFeature = 0;
+        // Hand out unique id.
+        protected int _id;
+        protected static int _nextId = 1;
         #endregion
+
+        protected Shape()
+        {
+            _id = _nextId++;
+        }
 
         #region Common functions
         /// <summary>
@@ -176,7 +184,7 @@ namespace NDraw
         public override string ToString()
         {
             string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
-            return $"Line:{Id}{fp}  Start:{Start.X}, {Start.Y}  End:{End.X}, {End.Y}";
+            return $"Line:{_id}{fp}  Start:{Start.X}, {Start.Y}  End:{End.X}, {End.Y}";
         }
     }
 
@@ -281,7 +289,7 @@ namespace NDraw
         public override string ToString()
         {
             string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
-            return $"Rect:{Id}{fp}  Location:{Location.X}, {Location.Y}  Width:{Width}  Height:{Height}";
+            return $"Rect:{_id}{fp}  Location:{Location.X}, {Location.Y}  Width:{Width}  Height:{Height}";
         }
     }
 
@@ -353,7 +361,7 @@ namespace NDraw
         public override string ToString()
         {
             string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
-            return $"Ellipse:{Id}{fp}  Center:{Center.X}, {Center.Y}  Width:{Width}  Height:{Height}";
+            return $"Ellipse:{_id}{fp}  Center:{Center.X}, {Center.Y}  Width:{Width}  Height:{Height}";
         }
 
         /// <summary>Helper.</summary>

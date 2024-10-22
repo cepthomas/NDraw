@@ -19,18 +19,26 @@ namespace NDraw
     public sealed class UserSettings : SettingsCore
     {
         #region Properties - editable
-        /// <summary>Form color.</summary>
+        [DisplayName("Form Color")]
+        [Description("Form Color")]
+        [Browsable(true)]
         [JsonConverter(typeof(JsonColorConverter))]
         public Color BackColor { get; set; } = Color.LightGray;
 
-        /// <summary>Form color.</summary>
+        [DisplayName("Grid Color")]
+        [Description("Grid Color")]
+        [Browsable(true)]
         [JsonConverter(typeof(JsonColorConverter))]
         public Color GridColor { get; set; } = Color.Gray;
 
-        /// <summary>How fast the mouse wheel goes.</summary>
+        [DisplayName("Wheel Resolution")]
+        [Description("How fast the mouse wheel goes.")]
+        [Browsable(true)]
         public int WheelResolution { get; set; } = 8;
 
-        /// <summary>Open the last used file when starting.</summary>
+        [DisplayName("Open Last File")]
+        [Description("Open the last used file when starting.")]
+        [Browsable(true)]
         public bool OpenLastFile { get; set; } = true;
         #endregion
     }
