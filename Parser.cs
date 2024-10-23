@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Ephemera.NBagOfTricks;
 
+// [](C:\Users\cepth\OneDrive\OneDriveDocuments\condo\physical\yard.nd)
+
 
 namespace NDraw
 {
@@ -23,28 +25,21 @@ namespace NDraw
         public Page Page { get; private set; } = new();
 
         /// <summary>Parsing errors.</summary>
-        public List<string> Errors { get; private set; } = new();
+        public List<string> Errors { get; private set; } = [];
 
         /// <summary>User assigned values.</summary>
-        public Dictionary<string, float> UserVals { get; private set; } = new();
+        public Dictionary<string, float> UserVals { get; private set; } = [];
         #endregion
 
         #region Fields
         /// <summary>Where we are currently.</summary>
         int _row = 0;
-        #endregion
 
-        // Parms for current line.
-        Dictionary<string, string> _params = new();
-        Dictionary<string, string> _globals = new();
+        /// <summary>Parms for current line.</summary>
+        readonly Dictionary<string, string> _params = [];
 
-        #region Global defaults
-        Color _fc = Color.LightBlue;
-        Color _lc = Color.Red;
-        float _lt = 2.5f;
-        ContentAlignment _ta = ContentAlignment.MiddleCenter;
-        PointStyle _ss = PointStyle.None;
-        PointStyle _es = PointStyle.None;
+        /// <summary>Identified globals. Probably not really necessary.</summary>
+        readonly Dictionary<string, string> _globals = [];
         #endregion
 
         #region Enum mappings
@@ -68,7 +63,7 @@ namespace NDraw
         #endregion
 
         /// <summary>
-        /// 
+        /// Do a file.
         /// </summary>
         /// <param name="fn"></param>
         public void ParseFile(string fn)
@@ -131,9 +126,13 @@ namespace NDraw
 
             // Get the first element which describes the line type. The rest are the actual params.
             var hs = parts[0].SplitByToken("=");
+            if (hs.Count != 2)
+            {
+                throw new SyntaxException($"Bad value: {parts[0]}");
+            }
+
             var lhs = hs[0];
             var rhs = hs[1];
-
 
             foreach (var elem in parts)
             {
@@ -142,10 +141,12 @@ namespace NDraw
                 {
                     _params[pp[0]] = pp[1];
                 }
-                throw new SyntaxException($"Badly formed param: {elem}");
+                else
+                {
+                    throw new SyntaxException($"Badly formed param: {elem}");
+                }
             }
 
-            // [](C:\Users\cepth\OneDrive\OneDriveDocuments\condo\physical\yard.nd)
             ///// Process line contents based on type. Some are required so have no default arg.
             switch (lhs)
             {
@@ -184,7 +185,7 @@ namespace NDraw
                     break;
 
                 default: // Assume value assignment.
-                    if (lhs.StartsWith("$"))
+                    if (lhs.StartsWith('$'))
                     {
                         _globals[lhs] = rhs;
                     }
@@ -203,9 +204,9 @@ namespace NDraw
         void InitShapeCommon(Shape shape)
         {
             shape.Layer = (int)ParseNumeric("lr", 1);
-            shape.Text = ParseText("tx");
+            shape.Text = ParseText("tx", "");
             shape.Hatch = ParseHatch("ht", "");
-            shape.LineThickness = ParseNumeric("lt", "$lt");
+            shape.LineThickness = ParseNumericS("lt", "$lt");
             shape.LineColor = ParseColor("lc", "$lc");
             shape.FillColor = ParseColor("fc", "$fc");
             shape.TextAlignment = ParseAlignment("ta", "$ta");
@@ -238,14 +239,7 @@ namespace NDraw
                     }
                     else // named
                     {
-                        if (UserVals.ContainsKey(p)) // TODO check type?
-                        {
-                            f = UserVals[p];
-                        }
-                        else
-                        {
-                            throw new SyntaxException($"Unknown name for value {p}");
-                        }
+                        f = UserVals.TryGetValue(p, out float value) ? value : throw new SyntaxException($"Unknown name for value {p}");
                     }
 
                     // Do the math.
@@ -292,7 +286,7 @@ namespace NDraw
         /// <param name="def"></param>
         /// <returns></returns>
         /// <exception cref="SyntaxException"></exception>
-        float ParseNumeric(string paramName, string? def = null)
+        float ParseNumericS(string paramName, string? def = null) // TODO a bit klunky.
         {
             string? valName = GetParamValueOrDefault(paramName, def);
             if (valName is not null)
@@ -349,7 +343,7 @@ namespace NDraw
                 y = Evaluate(yval); // may throw
             }
 
-            if (x != float.NaN && y != float.NaN)
+            if (!float.IsNaN(x) && !float.IsNaN(y))
             {
                 return new(x, y);
             }
@@ -451,13 +445,11 @@ namespace NDraw
         /// <returns></returns>
         string? GetParamValueOrDefault(string paramName, string? def)
         {
-            string? val = null;
-
-            _params.TryGetValue(paramName, out val); // valid name?
+            _params.TryGetValue(paramName, out string? val); // valid name?
 
             if (val is null && def is not null) // try default - global or literal
             {
-                if (!_globals.TryGetValue(paramName, out val))
+                if (!_globals.TryGetValue(def, out val))
                 {
                     // Assume literal.
                     val = def;
@@ -466,6 +458,5 @@ namespace NDraw
 
             return val;
         }
-       
     }
 }

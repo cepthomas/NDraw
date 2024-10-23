@@ -1,0 +1,38 @@
+
+// Tests with various errors.
+
+loose text
+
+// page: units grid scale
+page=pg_1, un="feet", gr=10.0, sc=5
+
+// global values: can be changed any time
+$lt=3
+$lc=salmon
+
+// define user values: id=value (float or simple expression)
+pabc=23.5
+size_1_w=10
+size_1_h=15
+size_2_w=size_1_w - 2.33
+size_2_h=45
+loc_1_x=pabc - 15.11
+loc_1_y=84.12
+loc_2_x=pabc + size_2_w - 2.2 + 19
+loc_2_y=loc_1_x + 2
+loc_3_x=12.7
+loc_3_y=loc_1_y + 23
+hatches_x=100
+hatches_h=15
+hatches_w=30
+
+// shapes: id=type, param=value, ...
+rect=my_rect1, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", ta=tl, ht=ho
+
+$lc=purple
+
+line=my_line1, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, ta=tl, es=t, ss=t
+
+$lt=6
+
+ellipse=my_circle, lr=2, x=20, y=50, w=30, h=30, tx="I'm rrrround", ta=mc, ht=lg
