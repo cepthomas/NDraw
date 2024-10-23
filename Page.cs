@@ -20,7 +20,7 @@ namespace NDraw
         public float Grid { get; set; } = 5.0f;
 
         /// <summary>Pixels per unit.</summary>
-        public int Scale { get; set; } = 10;
+        public float Scale { get; set; } = 10.0f;
 
         /// <summary>Real world.</summary>
         public string UnitsName { get; set; } = "feet";

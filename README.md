@@ -46,7 +46,7 @@ Expression may contain N and T types, and +- operators only e.g. `my_val=some_lo
 Page section describes aspects of the page itself.
 
 ```
-pg_1=page, un="feet", gr=10.0, sc=5
+page=pg_1, un="feet", gr=10.0, sc=5
 ```
 
 Field | Type | Req | Description
@@ -88,8 +88,7 @@ All shapes have a common set of parameters.
 
 Field | Type | Req | Description
 ----  | ---- | --- | ----------
-id    |  D   |  N  | Identifier
-lr    |  I   |  N  | 1 to N or 0 for all
+lr    |  I   |  N  | Layer 1 to 4 or 0 for all
 tx    |  T   |  N  | Display text
 fc    |  C   |  N  | Fill color
 ht    |  H   |  N  | Hatch type
@@ -102,7 +101,7 @@ ta    |  A   |  N  | Text alignment
 Render a rectangle.
 
 ```
-my_rect1=rect, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", ta=tl
+rect=my_rect1, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", ta=tl
 ```
 
 Field | Type | Req | Description
@@ -117,7 +116,7 @@ h     |  N   |  Y  | Height
 Render an ellipse.
 
 ```
-my_circle=ellipse, x=50, y=50, w=20, h=20, tx="I'm rrrround", ta=mc
+ellipse=my_circle, x=50, y=50, w=20, h=20, tx="I'm rrrround", ta=mc
 
 ```
 
@@ -133,7 +132,7 @@ h     |  N   |  Y  | Height
 Render a line.
 
 ```
-my_line1=line, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, ta=tl, ss=a, es=t
+line=my_line1, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, ta=tl, ss=a, es=t
 
 ```
 

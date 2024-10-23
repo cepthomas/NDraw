@@ -34,6 +34,10 @@ namespace NDraw
         int _row = 0;
         #endregion
 
+        // Parms for current line.
+        Dictionary<string, string> _params = new();
+        Dictionary<string, string> _globals = new();
+
         #region Global defaults
         Color _fc = Color.LightBlue;
         Color _lc = Color.Red;
@@ -95,7 +99,7 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Parse a single line. Really only used for testing.
+        /// Parse a single line.
         /// </summary>
         /// <param name="sf"></param>
         public void ParseLine(string sf)
@@ -117,155 +121,129 @@ namespace NDraw
                 return;
             }
 
-            ///// Get the statement elements.
+            ///// Collect the line contents.
+            _params.Clear();
             var parts = s.SplitByToken(",");
             if (parts.Count <= 0)
             {
-                throw new SyntaxException("No statement values");
+                throw new SyntaxException("No values");
             }
 
-            // The first entry is statement type and name.
-            var (stype, sname) = SplitParam(parts[0]);
-
-            // The rest are the params, gather them.
-            var parms = new Dictionary<string, string>();
-            foreach (var elem in parts.GetRange(1, parts.Count - 1))
+            foreach (var elem in parts)
             {
-                var (pname, pval) = SplitParam(elem);
-                parms.Add(pname is null ? parms.Count.ToString() : pname, pval);
+                var pp = elem.SplitByToken("=");
+                if (pp.Count == 2)
+                {
+                    _params.Add((pp[0], pp[1]));
+                }
+                throw new SyntaxException($"Badly formed param {p}");
             }
 
-            ///// Param parsers per statement type.
-            switch (stype)
+            // [](C:\Users\cepth\OneDrive\OneDriveDocuments\condo\physical\yard.nd)
+            ///// Process line contents based on type. Some are required so have no default arg.
+            // The first describes the line type. The rest are the actual params.
+            var (lhs, rhs) = _params[0];
+
+            switch (lhs)
             {
                 case "page":
-                    Page.UnitsName = ParseString(parms, "un", "");// parms.ContainsKey("un") ? ParseText(parms["un"]) : "";
-                    Page.Scale = ParseInt(parms, "sc");// int.Parse(parms["sc"]); // required
-                    Page.Grid = ParseFloat(parms, "gr");// float.Parse(parms["gr"]); // required
+                    Page.UnitsName = ParseText("un", "");
+                    Page.Scale = ParseNumeric("sc", 1.0f);
+                    Page.Grid = ParseNumeric("gr", 1.0f);
                     break;
 
                 case "line":
                     LineShape line = new();
-                    InitShapeCommon(line, parms);
-                    line.Start = ParsePoint(parms, "sx", "sy");// new PointF(ParseValue(parms["sx"]), ParseValue(parms["sy"])); // required
-                    line.End = ParsePoint(parms, "ex", "ey");// new PointF(ParseValue(parms["ex"]), ParseValue(parms["ey"])); // required
-                    line.StartStyle = ParsePointStyle(parms, "ss", PointStyle.None);// parms.ContainsKey("ss") ? _pointStyle[parms["ss"]] : _ss;
-                    line.EndStyle = ParsePointStyle(parms, "es", PointStyle.None);//parms.ContainsKey("es") ? _pointStyle[parms["es"]] : _es;
+                    InitShapeCommon(line);
+                    line.Start = ParsePoint("sx", "sy");
+                    line.End = ParsePoint("ex", "ey");
+                    line.StartStyle = ParsePointStyle("ss", "$ss");
+                    line.EndStyle = ParsePointStyle("es", "$es");
                     Page.Lines.Add(line);
                     break;
 
                 case "rect":
                     RectShape rect = new();
-                    InitShapeCommon(rect, parms);
-                    rect.Location = ParsePoint(parms, "x", "y");//new PointF(ParseValue(parms["x"]), ParseValue(parms["y"])); // required
-                    rect.Width = ParseFloat(parms, "w");// ParseValue(parms["w"]); // required
-                    rect.Height = ParseFloat(parms, "h");//ParseValue(parms["h"]); // required
+                    InitShapeCommon(rect);
+                    rect.Location = ParsePoint("x", "y");
+                    rect.Width = ParseNumeric("w");
+                    rect.Height = ParseNumeric("h");
                     Page.Rects.Add(rect);
                     break;
 
                 case "ellipse":
                     EllipseShape ellipse = new();
-                    InitShapeCommon(ellipse, parms);
-                    ellipse.Center = ParsePoint(parms, "x", "y");//new PointF(ParseValue(parms["x"]), ParseValue(parms["y"])); // required
-                    ellipse.Width = ParseFloat(parms, "w");//ParseValue(parms["w"]); // required
-                    ellipse.Height = ParseFloat(parms, "h");//ParseValue(parms["h"]); // required
+                    InitShapeCommon(ellipse);
+                    ellipse.Center = ParsePoint("x", "y");
+                    ellipse.Width = ParseNumeric("w");
+                    ellipse.Height = ParseNumeric("h");
                     Page.Ellipses.Add(ellipse);
                     break;
 
-
-                //$lt=3
-                //$lc=salmon
-                //ParseColor(parms, "lc", _lc);
-
-                case "$fc": _fc = Color.FromName(sname); break;
-                case "$lc": _lc = Color.FromName(sname); break;
-                case "$lt": _lt = float.Parse(sname); break;
-                case "$ta": _ta = _alignment[sname]; break;
-                case "$ss": _ss = _pointStyle[sname]; break;
-                case "$es": _es = _pointStyle[sname]; break;
-
-                default: // variable or expression
-                    //size_1_w=10
-                    //size_2_w=size_1_w - 2.33
-                    UserVals[stype] = ParseValue(sname);
+                default: // Assume value assignment.
+                    if (lhs.StartsWith("$"))
+                    {
+                        _globals[lhs] = rhs;
+// Field | Type | Req | Description
+// ----  | ---- | --- | ----------
+// $fc   |  C   |  N  | Fill color
+// $lc   |  C   |  N  | Line color
+// $lt   |  F   |  N  | Line thickness
+// $ta   |  A   |  N  | Text alignment
+// $ss   |  P   |  N  | Start point style
+// $es   |  P   |  N  | End point style
+                    }
+                    else
+                    {
+                        UserVals[lhs] = Evaluate(rhs);
+                    }
                     break;
-
-                //default: // assume a user value type
-                //    switch (stype) // global  TODO broken for junk
-                //    {
-                //        case "$fc": _fc = Color.FromName(sname); break;
-                //        case "$lc": _lc = Color.FromName(sname); break;
-                //        case "$lt": _lt = float.Parse(sname); break;
-                //        case "$ta": _ta = _alignment[sname]; break;
-                //        case "$ss": _ss = _pointStyle[sname]; break;
-                //        case "$es": _es = _pointStyle[sname]; break;
-                //
-                //        default: // user scalar or expression
-                //            UserVals[stype] = ParseValue(sname);
-                //            break;
-                //    }
-                //    break;
             }
         }
 
         /// <summary>
-        /// Utility to chop up named params.
-        /// </summary>
-        /// <param name="p"></param>
-        /// <returns></returns>
-        (string lhs, string rhs) SplitParam(string p)
-        {
-            var pp = p.SplitByToken("=");
-            return pp.Count > 1 ? (pp[0], pp[1]) : (pp[0], "");
-        }
-
-        /// <summary>
-        /// Populates column elements of shapes.
+        /// Populates common elements of shapes.
         /// </summary>
         /// <param name="shape"></param>
-        /// <param name="parms"></param>
-        void InitShapeCommon(Shape shape, Dictionary<string, string> parms)
+        void InitShapeCommon(Shape shape)
         {
+// Field | Type | Req | Description
+// ----  | ---- | --- | ----------
+// lr    |  I   |  N  | Layer 1 to 4 or 0 for all
+// tx    |  T   |  N  | Display text
+// fc    |  C   |  N  | Fill color
+// ht    |  H   |  N  | Hatch type
+// lc    |  C   |  N  | Line color
+// lt    |  F   |  N  | Line thickness
+// ta    |  A   |  N  | Text alignment
+
             // Common.
-            shape.Layer = ParseInt(parms, "lr", 1);// parms.ContainsKey("lr") ? int.Parse(parms["lr"]) : 1;
-            shape.Text = ParseString(parms, "tx");// parms.ContainsKey("tx") ? ParseText(parms["tx"]) : "";
-            shape.Hatch = ParseHatch(parms, "ht", Shape.NO_HATCH);// parms.ContainsKey("ht") ? _hatchStyle[parms["ht"]] : Shape.NO_HATCH;
-            shape.LineThickness = ParseFloat(parms, "lt", _lt);// parms.ContainsKey("lt") ? float.Parse(parms["lt"]) : _lt;
-            shape.LineColor = ParseColor(parms, "lc", _lc);// parms.ContainsKey("lc") ? Color.FromName(parms["lc"]) : _lc;
-            shape.FillColor = ParseColor(parms, "fc", _fc);// parms.ContainsKey("fc") ? Color.FromName(parms["fc"]) : _fc;
-            shape.TextAlignment = ParseAlignment(parms, "ta", _ta);// parms.ContainsKey("ta") ? _alignment[parms["ta"]] : _ta;
-            //shape.Layer = parms.ContainsKey("lr") ? int.Parse(parms["lr"]) : 1;
-            //shape.Text = parms.ContainsKey("tx") ? ParseText(parms["tx"]) : "";
-            //shape.Hatch = parms.ContainsKey("ht") ? _hatchStyle[parms["ht"]] : Shape.NO_HATCH;
-            //shape.LineThickness = parms.ContainsKey("lt") ? float.Parse(parms["lt"]) : _lt;
-            //shape.LineColor = parms.ContainsKey("lc") ? Color.FromName(parms["lc"]) : _lc;
-            //shape.FillColor = parms.ContainsKey("fc") ? Color.FromName(parms["fc"]) : _fc;
-            //shape.TextAlignment = parms.ContainsKey("ta") ? _alignment[parms["ta"]] : _ta;
+            shape.Layer = ParseNumeric("lr", 1);
+            shape.Text = ParseText("tx");
+            shape.Hatch = ParseHatch("ht", Shape.NO_HATCH);
+            shape.LineThickness = ParseNumeric("lt", "$lt");
+            shape.LineColor = ParseColor("lc", "$lc");
+            shape.FillColor = ParseColor("fc", "$fc");
+            shape.TextAlignment = ParseAlignment("ta", "$ta");
         }
 
-
-
-
-
         /// <summary>
-        /// Parse a numerical value - scalar or simple expression.
+        /// Evaluate the scalar or simple expression.
         /// </summary>
         /// <param name="s"></param>
-        /// <returns>The value or NaN if invalid.</returns>
-        float ParseValue(string s)
+        /// <returns>The value or throws if invalid.</returns>
+        float Evaluate(string s)
         {
             // Try simple float.
             if (!float.TryParse(s, out float v))
             {
                 // Try parse expression.
                 var ops = "+-";
-                var parts = s.SplitKeepDelims(ops);
-
                 string op = "";
 
-                foreach (string p in parts)
+                foreach (var p in s.SplitKeepDelims(ops))
                 {
-                    float f = float.NaN;
+                    float f;// = float.NaN;
                     if (ops.Contains(p)) // op
                     {
                         op = p;
@@ -276,7 +254,7 @@ namespace NDraw
                     }
                     else // named
                     {
-                        if (UserVals.ContainsKey(p))
+                        if (UserVals.ContainsKey(p)) // TODO check type?
                         {
                             f = UserVals[p];
                         }
@@ -286,13 +264,11 @@ namespace NDraw
                         }
                     }
 
-                    if (!float.IsNaN(f))
-                    {
-                        if (op == "-") v -= f;
-                        else if (op == "+") v += f;
-                        else v = f;
-                        op = "";
-                    }
+                    // Do the math.
+                    if (op == "-") v -= f;
+                    else if (op == "+") v += f;
+                    else v = f;
+                    op = "";
                 }
             }
 
@@ -301,204 +277,143 @@ namespace NDraw
 
 
 
+///////=================================================================
 
 
-
-        //////// can be scalar or expression
-        int ParseInt(Dictionary<string, string> parms, string name, int? def = null)
+        float ParseNumeric(string name, float? def = null)
         {
-            if (parms.TryGetValue(name, out var val)) // valid name?
+            if (_params.TryGetValue(name, out var val)) // valid name?
             {
-                var res = ParseValue(val);
-                if (res != float.MaxValue) // valid value type?
-                {
-                    return (int)res;
-                }
+                return Evaluate(val); // may throw
             }
-            // use default?
-            if (def is not null)
-            {
-                return (int)def;
-            }
-            // no good
-            throw new SyntaxException($"Invalid value for {name}");
-        }
-
-        float ParseFloat(Dictionary<string, string> parms, string name, float? def = null)
-        {
-            if (parms.TryGetValue(name, out var val)) // valid name?
-            {
-                var res = ParseValue(val);
-                if (res != float.MaxValue) // valid value type?
-                {
-                    return res;
-                }
-            }
-            // use default?
-            if (def is not null)
+            if (def is not null) // use default?
             {
                 return (float)def;
             }
+
             // no good
-            throw new SyntaxException($"Invalid value for {name}");
+            throw new SyntaxException($"Invalid numeric value: {name}");
         }
 
-        PointF ParsePoint(Dictionary<string, string> parms, string namex, string namey, PointF? def = null)
+        string ParseText(string name, string? def = null)
         {
-            float x = 0;
-            float y = 0;
-
-            if (parms.TryGetValue(namex, out var valx)) // valid name?
+            if (_params.TryGetValue(name, out var val)) // valid name?
             {
-                var res = ParseValue(valx);
-                if (res != float.MaxValue) // valid value type?
-                {
-                    x = res;
-                }
-                else
-                {
-                    throw new SyntaxException($"Invalid value for {namex}");
-                }
+                return val.Trim().Replace("\"", "").Trim();
+            }
+            if (def is not null) // use default?
+            {
+                return (string)def;
             }
 
-            if (parms.TryGetValue(namey, out var valy)) // valid name?
-            {
-                var res = ParseValue(valy);
-                if (res != float.MaxValue) // valid value type?
-                {
-                    y = res;
-                }
-                else
-                {
-                    throw new SyntaxException($"Invalid value for {namey}");
-                }
-            }
-
-            return new(x, y);
+            // no good
+            throw new SyntaxException($"Invalid text: {name}");
         }
 
 
-
-
-
-        // public Color FillColor { get; set; } = ;
-        Color ParseColor(Dictionary<string, string> parms, string name, Color? def = null)
+        PointF ParsePoint(string xname, string yname)
         {
-            var color = Color.FromName(parms["lc"]);
+            float x = float.NaN;
+            float y = float.NaN;
 
-            if (color.IsKnownColor)
+            if (_params.TryGetValue(xname, out var xval)) // valid name?
             {
-                return color;
+                x = Evaluate(xval); // may throw
             }
-            else if (def != null)
+
+            if (_params.TryGetValue(yname, out var yval)) // valid name?
             {
-                return (Color)def;
+                y = Evaluate(yval); // may throw
             }
-            else
+
+            if (x != float.NaN && y != float.NaN)
             {
-                throw new SyntaxException($"Invalid value for {name}");
+                return new(x, y);
             }
+
+            // no good
+            throw new SyntaxException($"Invalid point: {name}");
         }
 
-        ContentAlignment ParseAlignment(Dictionary<string, string> parms, string name, ContentAlignment? def = null)
+        Color ParseColor(string name, string? def = null)
         {
-            if (parms.TryGetValue(name, out var val)) // valid name?
+            // shape.LineColor = ParseColor("lc", "$lc");
+            string? colorName = null;
+
+            _params.TryGetValue(name, out colorName); // valid name?
+
+            if (colorName is null && def is not null) // try default - global or literal
             {
-                if (_alignment.TryGetValue(name, out ContentAlignment val))
+                if (!_globals.TryGetValue(name, out colorName))
+                {
+                    // Assume literal.
+                    colorName = def;
+                }
+            }
+
+            if (colorName is not null)
+            {
+                if (Color.FromName(name).IsKnownColor)
+                {
+                    return color;
+                }
+            }
+
+            // no good
+            throw new SyntaxException($"Invalid color: {name}");
+        }
+
+
+
+
+        ContentAlignment ParseAlignment(string name, string? def = null)
+        {
+            string? alignName = null;
+
+
+            _params.TryGetValue(name, out alignName); // valid name?
+
+            if (alignName is null && def is not null) // try default - global or literal
+            {
+                if (_globals.TryGetValue(name, out alignName))
+                {
+                    // Assume literal.
+                    alignName = def;
+                }
+            }
+
+            if (alignName is not null)
+            {
+                if (_alignment.TryGetValue(alignName, out ContentAlignment val))
                 {
                     return val;
                 }
-
-                // use default?
-                if (def is not null)
-                {
-                    return (float)def;
-                }
-
-                var res = ParseValue(val);
-                if (res != float.MaxValue) // valid value type?
-                {
-                    return res;
-                }
             }
-            // use default?
-            if (def is not null)
-            {
-                return (float)def;
-            }
+
             // no good
-            throw new SyntaxException($"Invalid value for {name}");
-
-
-
-
-            if (_alignment.TryGetValue(name, out ContentAlignment val))
-            {
-                return val;
-            }
-            throw new SyntaxException($"Invalid value for {name}");
+            throw new SyntaxException($"Invalid alignment: {name}");
         }
 
-        HatchStyle ParseHatch(Dictionary<string, string> parms, string name, HatchStyle? def = null)
+
+///////=================================================================
+
+
+        HatchStyle ParseHatch(string name, string? def = null)
         {
             if (_hatchStyle.TryGetValue(name, out HatchStyle val))
             {
                 return val;
             }
-            throw new SyntaxException($"Invalid value for {name}");
+            throw new SyntaxException($"Invalid hatch: {name}");
         }
 
-        PointStyle ParsePointStyle(Dictionary<string, string> parms, string name, PointStyle? def = null)
+        PointStyle ParsePointStyle(string name, string? def = null)
         {
             if (_pointStyle.TryGetValue(name, out PointStyle val))
             {
                 return val;
             }
-            throw new SyntaxException($"Invalid value for {name}");
+            throw new SyntaxException($"Invalid point style: {name}");
         }
-
-        string ParseString(Dictionary<string, string> parms, string name, string? def = null)
-        {
-            //            s = s.Trim().Replace("\"", "").Trim();
-
-            return "";
-        }
-
-
-        /// <summary>
-        /// Parse a string in quotes or a scalar or simple expression.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        //string ParseText(string s)
-        //{
-        //    s = s.Trim().Replace("\"", "").Trim();
-
-
-            //if (s.StartsWith("\"") && s.EndsWith("\""))
-            //{
-            //    s = s[1..^1];
-            //}
-            //else
-            //{
-            //    float f = ParseValue(s);
-            //    if (!float.IsNaN(f))
-            //    {
-            //        s = f.ToString();
-            //    }
-            //    else
-            //    {
-            //        throw new Exception("Invalid string");
-            //    }
-            //}
-
-        //    return s;
-        //}
-
-
-
-
-
-
     }
 }
