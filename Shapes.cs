@@ -26,14 +26,9 @@ namespace NDraw
     [Serializable]
     public abstract class Shape
     {
-        #region Constants
-        /// <summary>Since there is no None value, use this one.</summary>
-        public const HatchStyle NO_HATCH = HatchStyle.Percent90; // (HatchStyle)255; TODO get rid of this
-        #endregion
-
         #region Properties
         /// <summary>Arbitrary id.</summary>
-        public int Id { get { return _id; } }
+        public int Id { get; private set; }
 
         /// <summary>Layer 1-4.</summary>
         public int Layer { get; set; } = 1;
@@ -58,7 +53,7 @@ namespace NDraw
 
         /// <summary>Shape fill hatch.</summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public HatchStyle Hatch { get; set; } = NO_HATCH;
+        public HatchStyle? Hatch { get; set; } = null;
 
         /// <summary>Dynamic state.</summary>
         [JsonIgnore]
@@ -68,13 +63,12 @@ namespace NDraw
         #region Fields
         protected int _lastFeature = 0;
         // Hand out unique id.
-        protected int _id;
         protected static int _nextId = 1;
         #endregion
 
         protected Shape()
         {
-            _id = _nextId++;
+            Id = _nextId++;
         }
 
         #region Common functions
@@ -165,7 +159,7 @@ namespace NDraw
         /// <inheritdoc />
         public override List<PointF> AllFeaturePoints()
         {
-            return new List<PointF>() { Start, End };
+            return [Start, End];
         }
 
         /// <inheritdoc />
@@ -184,7 +178,7 @@ namespace NDraw
         public override string ToString()
         {
             string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
-            return $"Line:{_id}{fp}  Start:{Start.X}, {Start.Y}  End:{End.X}, {End.Y}";
+            return $"Line:{Id}{fp}  Start:{Start.X}, {Start.Y}  End:{End.X}, {End.Y}";
         }
     }
 
@@ -269,14 +263,14 @@ namespace NDraw
         /// <returns></returns>
         public List<(PointF start, PointF end)> GetEdges()
         {
-            List<(PointF start, PointF end)> lines = new() { (Location, TR), (TR, BR), (BR, BL), (BL, Location) };
+            List<(PointF start, PointF end)> lines = [(Location, TR), (TR, BR), (BR, BL), (BL, Location)];
             return lines;
         }
 
         /// <inheritdoc />
         public override List<PointF> AllFeaturePoints()
         {
-            return new List<PointF>() { Location, TR, BR, BL };
+            return [Location, TR, BR, BL];
         }
 
         /// <inheritdoc />
@@ -289,7 +283,7 @@ namespace NDraw
         public override string ToString()
         {
             string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
-            return $"Rect:{_id}{fp}  Location:{Location.X}, {Location.Y}  Width:{Width}  Height:{Height}";
+            return $"Rect:{Id}{fp}  Location:{Location.X}, {Location.Y}  Width:{Width}  Height:{Height}";
         }
     }
 
@@ -348,20 +342,20 @@ namespace NDraw
         /// <inheritdoc />
         public override List<PointF> AllFeaturePoints()
         {
-            return new List<PointF>()
-            {
-                new PointF(Center.X, Center.Y - Height / 2),
-                new PointF(Center.X + Width / 2, Center.Y),
-                new PointF(Center.X, Center.Y + Height / 2),
-                new PointF(Center.X - Width / 2, Center.Y),
-            };
+            return
+            [
+                new(Center.X, Center.Y - Height / 2),
+                new(Center.X + Width / 2, Center.Y),
+                new(Center.X, Center.Y + Height / 2),
+                new(Center.X - Width / 2, Center.Y),
+            ];
         }
 
         /// <summary>For viewing pleasure.</summary>
         public override string ToString()
         {
             string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
-            return $"Ellipse:{_id}{fp}  Center:{Center.X}, {Center.Y}  Width:{Width}  Height:{Height}";
+            return $"Ellipse:{Id}{fp}  Center:{Center.X}, {Center.Y}  Width:{Width}  Height:{Height}";
         }
 
         /// <summary>Helper.</summary>

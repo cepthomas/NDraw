@@ -24,10 +24,7 @@ namespace NDraw
         UserSettings _settings = new();
 
         /// <summary>Display font.</summary>
-        Font _font = new("Consolas", 10);
-
-        /// <summary>All the shapes.</summary>
-        readonly List<Shape> _shapes = new();
+        readonly Font _font = new("Consolas", 10);
 
         /// <summary>Show/hide layers.</summary>
         readonly bool[] _layers = new bool[NUM_LAYERS];
@@ -130,13 +127,9 @@ namespace NDraw
             _page = page;
             _settings = settings;
 
-            _shapes.Clear();
-            _shapes.AddRange(_page.Rects);
-            _shapes.AddRange(_page.Lines);
-            _shapes.AddRange(_page.Ellipses);
 
             // Get ranges.
-            foreach(var shape in _shapes)
+            foreach(var shape in page.Shapes)
             {
                 var rect = shape.ToRect();
                 _xMin = Math.Min(_xMin, rect.Left);
@@ -215,7 +208,7 @@ namespace NDraw
         protected override void OnLostFocus(EventArgs e)
         {
             // Clear any highlights.
-            foreach (Shape shape in _shapes)
+            foreach (Shape shape in _page.Shapes)
             {
                 shape.State = ShapeState.Default;
             }
@@ -244,14 +237,14 @@ namespace NDraw
             e.Graphics.SetClip(new Rectangle(BORDER_SIZE, BORDER_SIZE, ClientRectangle.Width - BORDER_SIZE, ClientRectangle.Height - BORDER_SIZE));
 
             // Draw the shapes.
-            foreach (var shape in _shapes)
+            foreach (var shape in _page.Shapes)
             {
-                // Is it visible?
+                // Is it visible? TODO
                 //if (shape.ContainedIn(virtVisible, true) && _layers[shape.Layer - 1])
                 if (_layers[shape.Layer - 1])
                 {
                     using Pen penLine = new(shape.LineColor, shape.LineThickness);
-                    using Brush brush = shape.Hatch == Shape.NO_HATCH ? new SolidBrush(shape.FillColor) : new HatchBrush(shape.Hatch, shape.LineColor, shape.FillColor);
+                    using Brush brush = shape.Hatch is null ? new SolidBrush(shape.FillColor) : new HatchBrush((HatchStyle)shape.Hatch, shape.LineColor, shape.FillColor);
 
                     // Map to display coordinates.
                     var bounds = shape.ToRect();
@@ -323,7 +316,7 @@ namespace NDraw
             switch (ps)
             {
                 case PointStyle.Arrow:
-                    var pts = new PointF[] { new PointF(0, 0), new PointF(-20, -10), new PointF(-20, 10) };
+                    var pts = new PointF[] { new(0, 0), new(-20, -10), new(-20, 10) };
                     g.FillPolygon(pen.Brush, pts);
                     break;
 
@@ -428,7 +421,7 @@ namespace NDraw
             var virtLoc = DisplayToVirtual(e.Location);
             float range = SELECT_RANGE / _zoom / _page.Scale; // This really should be done in display domain.
 
-            foreach (Shape shape in _shapes) // TODO if joined shapes this gets both.
+            foreach (Shape shape in _page.Shapes) // TODO if adjacent shapes this gets both.
             {
                 int fp = shape.IsFeaturePoint(virtLoc, range);
 

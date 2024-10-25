@@ -26,13 +26,7 @@ namespace NDraw
         public string UnitsName { get; set; } = "feet";
 
         /// <summary>All the shapes.</summary>
-        public List<RectShape> Rects { get; set; } = new();
-
-        /// <summary>All the shapes.</summary>
-        public List<LineShape> Lines { get; set; } = new();
-
-        /// <summary>All the shapes.</summary>
-        public List<EllipseShape> Ellipses { get; set; } = new();
+        public List<Shape> Shapes { get; set; } = [];
         #endregion
 
         #region Fields

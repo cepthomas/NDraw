@@ -99,12 +99,12 @@ namespace NDraw.Test
                         break;
 
                     case 2:
-                        page.Rects.Add(new RectShape() { Text = "foo", Location = new(50, 50),   Width = RECT_SIZE, Height = RECT_SIZE });
-                        page.Rects.Add(new RectShape() { Text = "bar", Location = new(160, 170), Width = RECT_SIZE, Height = RECT_SIZE });
-                        page.Rects.Add(new RectShape() { Text = "abc", Location = new(300, 250), Width = RECT_SIZE, Height = RECT_SIZE });
-                        page.Rects.Add(new RectShape() { Text = "def", Location = new(400, 300), Width = RECT_SIZE, Height = RECT_SIZE });
-                        page.Rects.Add(new RectShape() { Text = "ggg", Location = new(450, 250), Width = RECT_SIZE, Height = RECT_SIZE });
-                        page.Lines.Add(new LineShape() { Text = "bar", Start = new(250, 250), End = new(275, 455) });
+                        page.Shapes.Add(new RectShape() { Text = "foo", Location = new(50, 50),   Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Shapes.Add(new RectShape() { Text = "bar", Location = new(160, 170), Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Shapes.Add(new RectShape() { Text = "abc", Location = new(300, 250), Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Shapes.Add(new RectShape() { Text = "def", Location = new(400, 300), Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Shapes.Add(new RectShape() { Text = "ggg", Location = new(450, 250), Width = RECT_SIZE, Height = RECT_SIZE });
+                        page.Shapes.Add(new LineShape() { Text = "bar", Start = new(250, 250), End = new(275, 455) });
                         break;
 
                     case 3:
@@ -112,7 +112,7 @@ namespace NDraw.Test
                         {
                             for (int y = -50; y < 1000; y += RECT_SPACE)
                             {
-                                page.Rects.Add(new RectShape() { Text = $"R_{x}_{y}", Location = new(x, y), Width = RECT_SIZE, Height = RECT_SIZE });
+                                page.Shapes.Add(new RectShape() { Text = $"R_{x}_{y}", Location = new(x, y), Width = RECT_SIZE, Height = RECT_SIZE });
                             }
                         }
                         break;

@@ -21,7 +21,7 @@ namespace NDraw
         #region Properties
         /// <summary>The parsing product.</summary>
         public Page Page { get; private set; } = new();
-
+        
         /// <summary>Parsing errors.</summary>
         public List<string> Errors { get; private set; } = [];
 
@@ -37,19 +37,19 @@ namespace NDraw
         readonly Dictionary<string, string> _params = [];
 
         #region Globals and defaults
-        Color _fc = Color.LightBlue;
-        Color _lc = Color.LightSalmon;
-        float _lt = 2.5f;
-        ContentAlignment _ta = ContentAlignment.MiddleCenter;
-        PointStyle _ss = PointStyle.None;
-        PointStyle _es = PointStyle.None;
+        Color _fc;
+        Color _lc;
+        float _lt;
+        ContentAlignment _ta;
+        PointStyle _ss;
+        PointStyle _es;
         #endregion
         #endregion
 
         #region Enum mappings
         readonly Dictionary<string, PointStyle> _pointStyle = new()
         {
-            { "a", PointStyle.Arrow }, { "t", PointStyle.Tee }
+            { "n", PointStyle.None }, { "a", PointStyle.Arrow }, { "t", PointStyle.Tee }
         };
         
         readonly Dictionary<string, HatchStyle> _hatchStyle = new()
@@ -73,9 +73,9 @@ namespace NDraw
         public void ParseFile(string fn)
         {
             // Reset.
-            _fc = Color.LightBlue;
-            _lc = Color.LightSalmon;
-            _lt = 2.5f;
+            _fc = Color.GhostWhite;
+            _lc = Color.DimGray;
+            _lt = 2.0f;
             _ta = ContentAlignment.MiddleCenter;
             _ss = PointStyle.None;
             _es = PointStyle.None;
@@ -91,7 +91,7 @@ namespace NDraw
                 {
                     ParseLine(sf);
                 }
-                catch (Exception ex)
+                catch (Exception ex) // SyntaxException KeyNotFoundException FormatException
                 {
                     Errors.Add($"Parse error at row {_row}: {ex.Message}");
 
@@ -168,40 +168,35 @@ namespace NDraw
                     break;
 
                 case "line":
-                    LineShape line = new();
-                    InitShapeCommon(line);
-                    line.Start = ParsePoint("sx", "sy");
-                    line.End = ParsePoint("ex", "ey");
-                    line.StartStyle = ParsePointStyle("ss", _ss);
-                    line.EndStyle = ParsePointStyle("es", _es);
-                    Page.Lines.Add(line);
-                    break;
-
                 case "rect":
-                    RectShape rect = new();
-                    InitShapeCommon(rect);
-                    rect.Location = ParsePoint("x", "y");
-                    rect.Width = ParseNumeric("w");
-                    rect.Height = ParseNumeric("h");
-                    Page.Rects.Add(rect);
-                    break;
-
                 case "ellipse":
-                    EllipseShape ellipse = new();
-                    InitShapeCommon(ellipse);
-                    ellipse.Center = ParsePoint("x", "y");
-                    ellipse.Width = ParseNumeric("w");
-                    ellipse.Height = ParseNumeric("h");
-                    Page.Ellipses.Add(ellipse);
+                    Page.Shapes.Add(CreateShape(lhs));
                     break;
 
-                // Global/default defs. TODO this is fragile - fix
-                case "$fc": _fc = Color.FromName(rhs); break;
-                case "$lc": _lc = Color.FromName(rhs); break;
-                case "$lt": _lt = float.Parse(rhs); break;
-                case "$ta": _ta = _alignment[rhs]; break;
-                case "$ss": _ss = _pointStyle[rhs]; break;
-                case "$es": _es = _pointStyle[rhs]; break;
+                // Global/default defs.
+                case "$fc":
+                    _fc = KnownColor(rhs);
+                    break;
+
+                case "$lc":
+                    _lc = KnownColor(rhs);
+                    break;
+
+                case "$lt":
+                    _lt = float.Parse(rhs);
+                    break;
+
+                case "$ta":
+                    _ta = _alignment[rhs];
+                    break;
+
+                case "$ss":
+                    _ss = _pointStyle[rhs];
+                    break;
+
+                case "$es":
+                    _es = _pointStyle[rhs];
+                    break;
 
                 default: // Assume user value assignment.
                     UserVals[lhs] = Evaluate(rhs);
@@ -210,11 +205,54 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Populates common elements of shapes.
+        /// Shape factory.
         /// </summary>
-        /// <param name="shape"></param>
-        void InitShapeCommon(Shape shape) //TODO better way?
+        /// <param name="stype"></param>
+        /// <returns></returns>
+        /// <exception cref="SyntaxException"></exception>
+        Shape CreateShape(string stype)
         {
+            Shape shape;
+
+            switch (stype)
+            {
+                case "line":
+                    var line = new LineShape
+                    {
+                        Start = ParsePoint("sx", "sy"),
+                        End = ParsePoint("ex", "ey"),
+                        StartStyle = ParsePointStyle("ss", _ss),
+                        EndStyle = ParsePointStyle("es", _es)
+                    };
+                    shape = line;
+                    break;
+
+                case "rect":
+                    var rect = new RectShape
+                    {
+                        Location = ParsePoint("x", "y"),
+                        Width = ParseNumeric("w"),
+                        Height = ParseNumeric("h")
+                    };
+                    shape = rect;
+                    break;
+
+                case "ellipse":
+                    var ellipse = new EllipseShape
+                    {
+                        Center = ParsePoint("x", "y"),
+                        Width = ParseNumeric("w"),
+                        Height = ParseNumeric("h")
+                    };
+                    shape = ellipse;
+                    break;
+
+                default:
+                    throw new SyntaxException($"Invalid shape: {stype}");
+
+            }
+
+            // Common stuff.
             shape.Layer = (int)ParseNumeric("lr", 1);
             shape.Text = ParseText("tx", "");
             shape.Hatch = ParseHatch("ht");
@@ -222,13 +260,16 @@ namespace NDraw
             shape.LineColor = ParseColor("lc", _lc);
             shape.FillColor = ParseColor("fc", _fc);
             shape.TextAlignment = ParseAlignment("ta", _ta);
+
+            return shape;
         }
 
         /// <summary>
-        /// Evaluate the scalar or simple expression.
+        /// Evaluate the float scalar or simple expression.
         /// </summary>
         /// <param name="s"></param>
         /// <returns>The value or throws if invalid.</returns>
+        /// <exception cref="SyntaxException"></exception>
         float Evaluate(string s)
         {
             // Try simple float.
@@ -268,6 +309,7 @@ namespace NDraw
             return v;
         }
 
+        #region Typed parsers
         /// <summary>
         /// Parse a scalar or expression.
         /// </summary>
@@ -354,9 +396,9 @@ namespace NDraw
         /// <exception cref="SyntaxException"></exception>
         Color ParseColor(string paramName, Color? def = null)
         {
-            if (_params.TryGetValue(paramName, out string? colorName) && Color.FromName(colorName).IsKnownColor)
+            if (_params.TryGetValue(paramName, out string? colorName))
             {
-                return Color.FromName(colorName);
+                return KnownColor(colorName);
             }
 
             if (def is not null)
@@ -396,7 +438,7 @@ namespace NDraw
         /// </summary>
         /// <param name="paramName"></param>
         /// <returns></returns>
-        HatchStyle ParseHatch(string paramName)
+        HatchStyle? ParseHatch(string paramName)
         {
             if (_params.TryGetValue(paramName, out string? hatchName) && _hatchStyle.TryGetValue(hatchName, out HatchStyle val))
             {
@@ -404,7 +446,7 @@ namespace NDraw
             }
             else
             {
-                return Shape.NO_HATCH;
+                return null;
             }
         }
 
@@ -430,5 +472,24 @@ namespace NDraw
             // >>> no good
             throw new SyntaxException($"Invalid point style: {paramName}");
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="colorName"></param>
+        /// <returns></returns>
+        /// <exception cref="SyntaxException"></exception>
+        Color KnownColor(string colorName)
+        {
+            if (Color.FromName(colorName).IsKnownColor)
+            {
+                return Color.FromName(colorName);
+            }
+
+            // >>> no good
+            throw new SyntaxException($"Invalid color: {colorName}");
+        }
+
+        #endregion
     }
 }
