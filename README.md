@@ -1,12 +1,12 @@
 # NDraw
 - Translates text description of a 2D drawing into a picture.
 - Rectangles, ellipses, and simple lines supported.
-- Requires VS2022 and .NET6.
+- Requires VS2022 and .NET8.
 - No dependencies on third party components.
 
 
 # Usage
-- Open the NDraw file (*.nd) in both the application and your favorite text editor. When you edit/save the file it is
+- Open an NDraw file in both the application and your favorite text editor. When you edit/save the file it is
   automatically re-parsed and re-drawn.
 - UI  
     - `mousewheel` scrolls up/down.
@@ -17,10 +17,10 @@
 
 
 # The File Format
-- NDraw files consist of single lines describing elements to be drawn. The parameters are a comma separated list of `name=value`.
+- NDraw files consist of text lines describing elements to be drawn. The parameters are a comma separated list of `name=value`.
 - Lines are parsed once from top to bottom.
 - `//` is used for comments.
-- Refer to `test1.nd` in the Test directory for an example.
+- Refer to `Test\test1.nd` as an example.
 
 ## Types
 These types are supported in the shape definitions.
@@ -34,7 +34,7 @@ Expression may contain N and T types, and +- operators only e.g. `my_val=some_lo
 | I    | Integer          |                |
 | F    | Float            |                |
 | S    | String           |                |
-| C    | Color name       | html known     |
+| C    | Color            | html known name    |
 | N    | Numerical value  | float OR integer OR expression |
 | T    | Text value       | quoted string OR float OR integer OR expression |
 | P    | Point style      | a(rrow) OR t(ee) |
@@ -49,11 +49,11 @@ Page section describes aspects of the page itself.
 page=pg_1, un="feet", gr=10.0, sc=5
 ```
 
-Field | Type | Req | Description
+Field | Type | Def | Description
 ----  | ---- | --- | ----------
-un    | T    |  N  | Units name
-gr    | F    |  Y  | Grid spacing in virtual units
-sc    | S    |  Y  | Pixels per virtual unit
+un    | text    |  ""  | Units name
+gr    | number    |  1.0  | Grid spacing in virtual units
+sc    | number    |  1.0  | Scale - pixels per virtual unit
 
 
 ## Globals
@@ -64,7 +64,7 @@ $lt=4
 $lc=salmon
 ```
 
-Field | Type | Req | Description
+Field | Type | Def | Description
 ----  | ---- | --- | ----------
 $fc   |  C   |  N  | Fill color
 $lc   |  C   |  N  | Line color
@@ -72,6 +72,12 @@ $lt   |  F   |  N  | Line thickness
 $ta   |  A   |  N  | Text alignment
 $ss   |  P   |  N  | Start point style
 $es   |  P   |  N  | End point style
+        Color _fc = Color.LightBlue;
+        Color _lc = Color.Red;
+        float _lt = 2.5f;
+        ContentAlignment _ta = ContentAlignment.MiddleCenter;
+        PointStyle _ss = PointStyle.None;
+        PointStyle _es = PointStyle.None;
 
 
 ## User Values

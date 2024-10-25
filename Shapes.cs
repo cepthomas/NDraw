@@ -28,7 +28,7 @@ namespace NDraw
     {
         #region Constants
         /// <summary>Since there is no None value, use this one.</summary>
-        public const HatchStyle NO_HATCH = HatchStyle.Percent90; // (HatchStyle)255;
+        public const HatchStyle NO_HATCH = HatchStyle.Percent90; // (HatchStyle)255; TODO get rid of this
         #endregion
 
         #region Properties

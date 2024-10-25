@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Ephemera.NBagOfTricks;
 
-// [](C:\Users\cepth\OneDrive\OneDriveDocuments\condo\physical\yard.nd)
-
 
 namespace NDraw
 {
@@ -38,8 +36,14 @@ namespace NDraw
         /// <summary>Parms for current line.</summary>
         readonly Dictionary<string, string> _params = [];
 
-        /// <summary>Identified globals. Probably not really necessary.</summary>
-        readonly Dictionary<string, string> _globals = [];
+        #region Globals and defaults
+        Color _fc = Color.LightBlue;
+        Color _lc = Color.LightSalmon;
+        float _lt = 2.5f;
+        ContentAlignment _ta = ContentAlignment.MiddleCenter;
+        PointStyle _ss = PointStyle.None;
+        PointStyle _es = PointStyle.None;
+        #endregion
         #endregion
 
         #region Enum mappings
@@ -68,9 +72,16 @@ namespace NDraw
         /// <param name="fn"></param>
         public void ParseFile(string fn)
         {
-            Page = new();
+            // Reset.
+            _fc = Color.LightBlue;
+            _lc = Color.LightSalmon;
+            _lt = 2.5f;
+            _ta = ContentAlignment.MiddleCenter;
+            _ss = PointStyle.None;
+            _es = PointStyle.None;
             _row = 0;
             Errors.Clear();
+            Page = new();
 
             foreach (string sf in File.ReadAllLines(fn))
             {
@@ -161,8 +172,8 @@ namespace NDraw
                     InitShapeCommon(line);
                     line.Start = ParsePoint("sx", "sy");
                     line.End = ParsePoint("ex", "ey");
-                    line.StartStyle = ParsePointStyle("ss", "$ss");
-                    line.EndStyle = ParsePointStyle("es", "$es");
+                    line.StartStyle = ParsePointStyle("ss", _ss);
+                    line.EndStyle = ParsePointStyle("es", _es);
                     Page.Lines.Add(line);
                     break;
 
@@ -184,15 +195,16 @@ namespace NDraw
                     Page.Ellipses.Add(ellipse);
                     break;
 
-                default: // Assume value assignment.
-                    if (lhs.StartsWith('$'))
-                    {
-                        _globals[lhs] = rhs;
-                    }
-                    else
-                    {
-                        UserVals[lhs] = Evaluate(rhs);
-                    }
+                // Global/default defs. TODO this is fragile - fix
+                case "$fc": _fc = Color.FromName(rhs); break;
+                case "$lc": _lc = Color.FromName(rhs); break;
+                case "$lt": _lt = float.Parse(rhs); break;
+                case "$ta": _ta = _alignment[rhs]; break;
+                case "$ss": _ss = _pointStyle[rhs]; break;
+                case "$es": _es = _pointStyle[rhs]; break;
+
+                default: // Assume user value assignment.
+                    UserVals[lhs] = Evaluate(rhs);
                     break;
             }
         }
@@ -201,15 +213,15 @@ namespace NDraw
         /// Populates common elements of shapes.
         /// </summary>
         /// <param name="shape"></param>
-        void InitShapeCommon(Shape shape)
+        void InitShapeCommon(Shape shape) //TODO better way?
         {
             shape.Layer = (int)ParseNumeric("lr", 1);
             shape.Text = ParseText("tx", "");
-            shape.Hatch = ParseHatch("ht", "");
-            shape.LineThickness = ParseNumericS("lt", "$lt");
-            shape.LineColor = ParseColor("lc", "$lc");
-            shape.FillColor = ParseColor("fc", "$fc");
-            shape.TextAlignment = ParseAlignment("ta", "$ta");
+            shape.Hatch = ParseHatch("ht");
+            shape.LineThickness = ParseNumeric("lt", _lt);
+            shape.LineColor = ParseColor("lc", _lc);
+            shape.FillColor = ParseColor("fc", _fc);
+            shape.TextAlignment = ParseAlignment("ta", _ta);
         }
 
         /// <summary>
@@ -257,7 +269,7 @@ namespace NDraw
         }
 
         /// <summary>
-        /// 
+        /// Parse a scalar or expression.
         /// </summary>
         /// <param name="paramName"></param>
         /// <param name="def"></param>
@@ -275,31 +287,12 @@ namespace NDraw
                 return (float)def;
             }
 
-            // no good
+            // >>> no good
             throw new SyntaxException($"Invalid numeric value: {paramName}");
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="paramName"></param>
-        /// <param name="def"></param>
-        /// <returns></returns>
-        /// <exception cref="SyntaxException"></exception>
-        float ParseNumericS(string paramName, string? def = null) // TODO a bit klunky.
-        {
-            string? valName = GetParamValueOrDefault(paramName, def);
-            if (valName is not null)
-            {
-                return Evaluate(valName); // may throw
-            }
-
-            // no good
-            throw new SyntaxException($"Invalid numeric value: {paramName}");
-        }
-
-        /// <summary>
-        /// 
+        /// Parse a text value.
         /// </summary>
         /// <param name="paramName"></param>
         /// <param name="def"></param>
@@ -314,15 +307,15 @@ namespace NDraw
 
             if (def is not null) // use default?
             {
-                return (string)def;
+                return def;
             }
 
-            // no good
+            // >>> no good
             throw new SyntaxException($"Invalid text: {paramName}");
         }
 
         /// <summary>
-        /// 
+        /// Parse a point definition. No default.
         /// </summary>
         /// <param name="paramNameX"></param>
         /// <param name="paramNameY"></param>
@@ -348,115 +341,94 @@ namespace NDraw
                 return new(x, y);
             }
 
-            // no good
+            // >>> no good
             throw new SyntaxException($"Invalid point: {paramNameX} {paramNameY}");
         }
 
         /// <summary>
-        /// 
+        /// Parse a color definition.
         /// </summary>
         /// <param name="paramName"></param>
         /// <param name="def"></param>
         /// <returns></returns>
         /// <exception cref="SyntaxException"></exception>
-        Color ParseColor(string paramName, string? def = null)
+        Color ParseColor(string paramName, Color? def = null)
         {
-            string? colorName = GetParamValueOrDefault(paramName, def);
-
-            if (colorName is not null && Color.FromName(colorName).IsKnownColor)
+            if (_params.TryGetValue(paramName, out string? colorName) && Color.FromName(colorName).IsKnownColor)
             {
                 return Color.FromName(colorName);
             }
 
-            // no good
+            if (def is not null)
+            {
+                return (Color)def;
+            }
+
+            // >>> no good
             throw new SyntaxException($"Invalid color: {paramName}");
         }
 
         /// <summary>
-        /// 
+        /// Parse an alignment definition.
         /// </summary>
         /// <param name="paramName"></param>
         /// <param name="def"></param>
         /// <returns></returns>
         /// <exception cref="SyntaxException"></exception>
-        ContentAlignment ParseAlignment(string paramName, string? def = null)
+        ContentAlignment ParseAlignment(string paramName, ContentAlignment? def = null)
         {
-            string? alignName = GetParamValueOrDefault(paramName, def);
-
-            if (alignName is not null && _alignment.TryGetValue(alignName, out ContentAlignment val))
+            if (_params.TryGetValue(paramName, out string? alignName) && _alignment.TryGetValue(alignName, out ContentAlignment val))
             {
                 return val;
             }
 
-            // no good
+            if (def is not null)
+            {
+                return (ContentAlignment)def;
+            }
+
+            // >>> no good
             throw new SyntaxException($"Invalid alignment: {paramName}");
         }
 
         /// <summary>
-        /// 
+        /// Parse a hatch definition. No default.
         /// </summary>
         /// <param name="paramName"></param>
-        /// <param name="def"></param>
         /// <returns></returns>
-        /// <exception cref="SyntaxException"></exception>
-        HatchStyle ParseHatch(string paramName, string? def = null)
+        HatchStyle ParseHatch(string paramName)
         {
-            string? hatchName = GetParamValueOrDefault(paramName, def);
-
-            if (hatchName == "")
+            if (_params.TryGetValue(paramName, out string? hatchName) && _hatchStyle.TryGetValue(hatchName, out HatchStyle val))
+            {
+                return val;
+            }
+            else
             {
                 return Shape.NO_HATCH;
             }
-
-            if (hatchName is not null && _hatchStyle.TryGetValue(hatchName, out HatchStyle val))
-            {
-                return val;
-            }
-
-            // no good
-            throw new SyntaxException($"Invalid hatch: {paramName}");
         }
 
         /// <summary>
-        /// 
+        /// Parse a point style definition.
         /// </summary>
         /// <param name="paramName"></param>
         /// <param name="def"></param>
         /// <returns></returns>
         /// <exception cref="SyntaxException"></exception>
-        PointStyle ParsePointStyle(string paramName, string? def = null)
+        PointStyle ParsePointStyle(string paramName, PointStyle? def = null)
         {
-            string? pointStyleName = GetParamValueOrDefault(paramName, def);
-
-            if (pointStyleName is not null && _pointStyle.TryGetValue(pointStyleName, out PointStyle val))
+            if (_params.TryGetValue(paramName, out string? pointStyleName) && _pointStyle.TryGetValue(pointStyleName, out PointStyle val))
             {
                 return val;
             }
 
-            // no good
-            throw new SyntaxException($"Invalid point style: {paramName}");
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="paramName"></param>
-        /// <param name="def"></param>
-        /// <returns></returns>
-        string? GetParamValueOrDefault(string paramName, string? def)
-        {
-            _params.TryGetValue(paramName, out string? val); // valid name?
-
-            if (val is null && def is not null) // try default - global or literal
+            if (def is not null)
             {
-                if (!_globals.TryGetValue(def, out val))
-                {
-                    // Assume literal.
-                    val = def;
-                }
+                return (PointStyle)def;
             }
 
-            return val;
+            // >>> no good
+            throw new SyntaxException($"Invalid point style: {paramName}");
         }
     }
 }
