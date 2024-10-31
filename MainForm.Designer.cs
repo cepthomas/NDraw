@@ -72,31 +72,31 @@ namespace NDraw
             // OpenMenuItem
             // 
             OpenMenuItem.Name = "OpenMenuItem";
-            OpenMenuItem.Size = new System.Drawing.Size(224, 26);
+            OpenMenuItem.Size = new System.Drawing.Size(145, 26);
             OpenMenuItem.Text = "Open";
             // 
             // RecentMenuItem
             // 
             RecentMenuItem.Name = "RecentMenuItem";
-            RecentMenuItem.Size = new System.Drawing.Size(224, 26);
+            RecentMenuItem.Size = new System.Drawing.Size(145, 26);
             RecentMenuItem.Text = "Recent";
             // 
             // RenderMenuItem
             // 
             RenderMenuItem.Name = "RenderMenuItem";
-            RenderMenuItem.Size = new System.Drawing.Size(224, 26);
+            RenderMenuItem.Size = new System.Drawing.Size(145, 26);
             RenderMenuItem.Text = "Render";
             // 
             // SettingsMenuItem
             // 
             SettingsMenuItem.Name = "SettingsMenuItem";
-            SettingsMenuItem.Size = new System.Drawing.Size(224, 26);
+            SettingsMenuItem.Size = new System.Drawing.Size(145, 26);
             SettingsMenuItem.Text = "Settings";
             // 
             // AboutMenuItem
             // 
             AboutMenuItem.Name = "AboutMenuItem";
-            AboutMenuItem.Size = new System.Drawing.Size(224, 26);
+            AboutMenuItem.Size = new System.Drawing.Size(145, 26);
             AboutMenuItem.Text = "About";
             // 
             // BtnGrid
@@ -189,8 +189,8 @@ namespace NDraw
             AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(858, 653);
-            Controls.Add(RtbLog);
             Controls.Add(Canvas);
+            Controls.Add(RtbLog);
             Controls.Add(ToolStrip);
             Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             Name = "MainForm";
