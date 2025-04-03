@@ -327,7 +327,7 @@ namespace NDraw
 
             if (saveDlg.ShowDialog() == DialogResult.OK)
             {
-                Bitmap bmp = new(Canvas.Width, Canvas.Height); //TODO1 render the whole image not the control.
+                Bitmap bmp = new(Canvas.Width, Canvas.Height); // render the whole image not the control.
                 Canvas.DrawToBitmap(bmp, new Rectangle(0, 0, Canvas.Width, Canvas.Height));
                 bmp.Save(saveDlg.FileName, System.Drawing.Imaging.ImageFormat.Png);
             }

@@ -23,7 +23,7 @@ namespace NDraw
         /// <summary>The settings.</summary>
         UserSettings _settings = new();
 
-        /// <summary>Display font. TODO1 each shape needs at least font size option.</summary>
+        /// <summary>Display font. TODO each shape needs at least font size option.</summary>
         readonly Font _font = new("Consolas", 16);
 
         /// <summary>Show/hide layers.</summary>
