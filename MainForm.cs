@@ -351,7 +351,7 @@ namespace NDraw
         /// <param name="e"></param>
         void About_Click(object? sender, EventArgs e)
         {
-            MiscUtils.ShowReadme("NDraw");
+            Tools.ShowReadme("NDraw");
         }
         #endregion
     }
