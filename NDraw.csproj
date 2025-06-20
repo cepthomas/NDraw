@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0-windows</TargetFramework>
         <UseWindowsForms>true</UseWindowsForms>
@@ -11,13 +12,15 @@
         <Description>NDraw</Description>
         <Copyright>MIT License</Copyright>
         <!-- <DefineConstants>DEBUG;TRACE</DefineConstants> -->
-        <OutputPath>bin\</OutputPath>
-        <WarningLevel>4</WarningLevel>
-        <NoWarn>CS1591;CA1822;IDE0052</NoWarn>
         <Nullable>enable</Nullable>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
         <!-- en none -->
+
+        <OutputPath>bin\</OutputPath>
+        <WarningLevel>4</WarningLevel>
+        <NoWarn>CS1591;CA1822;IDE0052</NoWarn>
+
     </PropertyGroup>
 
     <ItemGroup>
