@@ -3,12 +3,14 @@
     <PropertyGroup>
         
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows</TargetFramework>
         <UseWindowsForms>true</UseWindowsForms>
+        <OutputPath>bin\</OutputPath>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
         <ApplicationIcon>Resources\Morso.ico</ApplicationIcon>
         <RootNamespace>NDraw</RootNamespace>
         <AssemblyName>NDraw</AssemblyName>
-        <Deterministic>False</Deterministic>
         <Description>NDraw</Description>
         <Copyright>MIT License</Copyright>
         <!-- <DefineConstants>DEBUG;TRACE</DefineConstants> -->
@@ -16,8 +18,6 @@
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
         <!-- en none -->
-
-        <OutputPath>bin\</OutputPath>
         <WarningLevel>4</WarningLevel>
         <NoWarn>CS1591;CA1822;IDE0052</NoWarn>
 
