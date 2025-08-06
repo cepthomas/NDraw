@@ -1,0 +1,55 @@
+
+page=pg_1, un="feet", gr=5.0, sc=30
+
+Cx=15
+Cy=25
+$lt=5
+
+
+///// Pickleball court
+$lc=silver
+
+L=Cx-10
+R=Cx+10
+T=Cy-22
+B=Cy+22
+
+
+// Top to bottom.
+line=pb_base1, lr=1, sx=L, sy=T, ex=R, ey=T
+line=pb_serv1, lr=1, sx=L, sy=T+15, ex=R, ey=T+15
+line=pb_nvz1, lr=1, sx=L, sy=Cy-7, ex=R, ey=Cy-7
+line=tt_net, lr=1, sx=L, sy=Cy, ex=R, ey=Cy
+line=pb_nvz1, lr=1, sx=L, sy=Cy+7, ex=R, ey=Cy+7
+line=pb_serv2, lr=1, sx=L, sy=B-15, ex=R, ey=B-15
+line=pb_base1, lr=1, sx=L, sy=B, ex=R, ey=B
+
+// Left to right.
+line=pb_sing1, lr=1, sx=L, sy=T, ex=L, ey=B
+line=pb_srvc1, lr=1, sx=Cx, sy=T, ex=Cx, ey=T+15
+line=pb_srvc2, lr=1, sx=Cx, sy=B, ex=Cx, ey=B-15
+line=pb_sing2, lr=1, sx=R, sy=T, ex=R, ey=B
+
+
+///// Touchtennis court
+$lc=dimgray
+
+L=Cx-10
+R=Cx+10
+T=Cy-20
+B=Cy+20
+
+// Top to bottom.
+line=tt_base1, lr=2, sx=L, sy=T, ex=R, ey=T
+line=tt_serv1, lr=2, sx=L, sy=T+7, ex=R, ey=T+7
+line=tt_net,   lr=2, sx=L, sy=Cy, ex=R, ey=Cy
+line=tt_serv2, lr=2, sx=L, sy=B-7, ex=R, ey=B-7
+line=tt_base1, lr=2, sx=L, sy=B, ex=R, ey=B
+
+// Left to right.
+line=tt_dbls1, lr=2, sx=L, sy=T, ex=L, ey=B
+line=tt_sing1, lr=2, sx=L+2, sy=T, ex=L+2, ey=B
+line=tt_servc, lr=2, sx=Cx, sy=Cy-13, ex=Cx, ey=Cy+13
+line=tt_sing2, lr=2, sx=R-2, sy=T, ex=R-2, ey=B
+line=tt_dbls2, lr=2, sx=R, sy=T, ex=R, ey=B
+

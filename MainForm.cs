@@ -75,7 +75,7 @@ namespace NDraw
                 OpenFile(args[1]);
                 Parse();
             }
-            else if(_settings.OpenLastFile && _settings.MruSize > 0)
+            else if(_settings.OpenLastFile && _settings.RecentFiles.Count > 0)
             {
                 OpenFile(_settings.RecentFiles[0]);
                 Parse();
