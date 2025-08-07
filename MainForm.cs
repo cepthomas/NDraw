@@ -82,6 +82,20 @@ namespace NDraw
             }
         }
 
+
+        
+
+        protected override void OnLoad(EventArgs e)
+        {
+            //Bitmap bmp = MyCanvas.Render(); // render the whole image not the control.
+            //bmp.Save(@"C:\Users\cepth\Desktop\test123.png", System.Drawing.Imaging.ImageFormat.Png);
+
+            base.OnLoad(e);
+        }
+
+
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -183,7 +197,7 @@ namespace NDraw
 
                 if (p.Errors.Count == 0)
                 {
-                    Canvas.Init(p.Page, _settings);
+                    MyCanvas.Init(p.Page, _settings);
                 }
                 else
                 {
@@ -274,7 +288,7 @@ namespace NDraw
             switch (e.KeyCode)
             {
                 case Keys.H:
-                    Canvas.Reset();
+                    MyCanvas.Reset();
                     break;
             }
             base.OnKeyDown(e);
@@ -298,12 +312,12 @@ namespace NDraw
                     case "3":
                     case "4":
                         int n = int.Parse(b.Text);
-                        Canvas.SetLayer(n - 1, b.Checked);
+                        MyCanvas.SetLayer(n - 1, b.Checked);
                         break;
 
                     case "Ruler":
                     case "Grid":
-                        Canvas.SetVisibility(BtnRuler.Checked, BtnGrid.Checked);
+                        MyCanvas.SetVisibility(BtnRuler.Checked, BtnGrid.Checked);
                         break;
                 }
             }
@@ -327,8 +341,9 @@ namespace NDraw
 
             if (saveDlg.ShowDialog() == DialogResult.OK)
             {
-                Bitmap bmp = new(Canvas.Width, Canvas.Height); // render the whole image not the control.
-                Canvas.DrawToBitmap(bmp, new Rectangle(0, 0, Canvas.Width, Canvas.Height));
+                //Bitmap bmp = new(MyCanvas.Width, MyCanvas.Height); // render the whole image not the control.
+                //MyCanvas.DrawToBitmap(bmp, new Rectangle(0, 0, MyCanvas.Width, MyCanvas.Height));
+                Bitmap bmp = MyCanvas.Render(1600);
                 bmp.Save(saveDlg.FileName, System.Drawing.Imaging.ImageFormat.Png);
             }
         }

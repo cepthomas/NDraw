@@ -24,7 +24,7 @@ namespace NDraw
         UserSettings _settings = new();
 
         /// <summary>Display font. TODO each shape needs at least font size option.</summary>
-        readonly Font _font = new("Consolas", 16);
+        readonly Font _font = new("Cascadia Code", 12);
 
         /// <summary>Show/hide layers.</summary>
         readonly bool[] _layers = new bool[NUM_LAYERS];
@@ -71,7 +71,7 @@ namespace NDraw
         const int HIGHLIGHT_SIZE = 8;
 
         /// <summary>Cosmetics in pixels.</summary>
-        const int BORDER_SIZE = 50;
+        const int BORDER_SIZE = 80;
 
         /// <summary>Cosmetics in pixels.</summary>
         const int TICK_SIZE = 10;
@@ -126,7 +126,6 @@ namespace NDraw
         {
             _page = page;
             _settings = settings;
-
 
             // Get ranges.
             foreach(var shape in page.Shapes)
@@ -218,6 +217,121 @@ namespace NDraw
         }
         #endregion
 
+
+
+
+        public Bitmap Render(int widthPixels)
+        {
+            // Scale per request.
+            var width = _xMax + _xMin;
+            var height = _yMax + _yMin;
+            var ratio = height / width;
+            var heightPixels = (int)(widthPixels * ratio);
+
+            // Reset zoom.
+            var zoom = _zoom;
+            _zoom = 1.0f;
+            Bitmap bmp = new(widthPixels, heightPixels);
+
+            var g = Graphics.FromImage(bmp);
+
+            DoPaint(g, new(0, 0, widthPixels, heightPixels));
+
+            // Restore zoom.
+            _zoom = zoom;
+
+            return bmp;
+        }
+
+
+
+        void DoPaint(Graphics g, Rectangle client)
+        {
+            g.Clear(_settings.BackColor);
+
+            //var virtualTL = DisplayToVirtual(client.Location);
+            //var birtualBR = DisplayToVirtual(new Point(client.Right, client.Bottom));
+            //var virtVisible = new RectangleF(virtualTL, new SizeF(birtualBR.X - virtualTL.X, birtualBR.Y - virtualTL.Y));
+
+            // Draw the grid.
+            DrawGrid(g, client);
+
+            g.SetClip(new Rectangle(BORDER_SIZE, BORDER_SIZE, client.Width - BORDER_SIZE, client.Height - BORDER_SIZE));
+
+            // Draw the shapes.
+            foreach (var shape in _page.Shapes)
+            {
+                // Is it visible? TODO
+                //if (shape.ContainedIn(virtVisible, true) && _layers[shape.Layer - 1])
+                if (_layers[shape.Layer - 1])
+                {
+                    using Pen penLine = new(shape.LineColor, shape.LineThickness);
+                    using Brush brush = shape.Hatch is null ? new SolidBrush(shape.FillColor) : new HatchBrush((HatchStyle)shape.Hatch, shape.LineColor, shape.FillColor);
+
+                    // Map to display coordinates.
+                    var bounds = shape.ToRect();
+                    var disptl = VirtualToDisplay(bounds.Location);
+                    var dispbr = VirtualToDisplay(new(bounds.Right, bounds.Bottom));
+                    var dispRect = new RectangleF(disptl, new SizeF(dispbr.X - disptl.X, dispbr.Y - disptl.Y));
+
+                    //g.DrawRectangle(Pens.Red, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
+
+                    switch (shape)
+                    {
+                        case RectShape shapeRect:
+                            g.FillRectangle(brush, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
+                            g.DrawRectangle(penLine, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
+                            break;
+
+                        case EllipseShape shapeEllipse:
+                            g.FillEllipse(brush, dispRect);
+                            g.DrawEllipse(penLine, dispRect);
+                            break;
+
+                        case LineShape shapeLine:
+                            g.DrawLine(penLine, VirtualToDisplay(shapeLine.Start), VirtualToDisplay(shapeLine.End));
+
+                            if (shapeLine.State != ShapeState.Highlighted)
+                            {
+                                // Draw line ends.
+                                float angle = (float)MathUtils.RadiansToDegrees(shapeLine.Angle);
+                                DrawPoint(g, penLine, VirtualToDisplay(shapeLine.Start), shapeLine.StartStyle, angle - 180);
+                                DrawPoint(g, penLine, VirtualToDisplay(shapeLine.End), shapeLine.EndStyle, angle);
+                            }
+                            break;
+                    }
+
+                    // Text.
+                    if (shape.Text != "")
+                    {
+                        var (vert, hor) = _alignment[shape.TextAlignment];
+                        using StringFormat fmt = new() { Alignment = hor, LineAlignment = vert };
+                        g.DrawString(shape.Text, _font, Brushes.Black, dispRect, fmt);
+                    }
+
+                    // Highlight features.
+                    if (shape.State == ShapeState.Highlighted)
+                    {
+                        foreach (var pt in shape.AllFeaturePoints())
+                        {
+                            PointF disppt = VirtualToDisplay(pt);
+                            g.FillEllipse(penLine.Brush, Squarify(disppt.X, disppt.Y, HIGHLIGHT_SIZE));
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
         #region Painting
         /// <summary>
         /// 
@@ -225,6 +339,9 @@ namespace NDraw
         /// <param name="e">The particular PaintEventArgs.</param>
         protected override void OnPaint(PaintEventArgs e)
         {
+            DoPaint(e.Graphics, ClientRectangle);
+
+            /*
             e.Graphics.Clear(_settings.BackColor);
 
             var tl = DisplayToVirtual(ClientRectangle.Location);
@@ -298,6 +415,7 @@ namespace NDraw
                     }
                 }
             }
+            */
         }
 
         /// <summary>
@@ -335,21 +453,23 @@ namespace NDraw
         /// Draw the grid.
         /// </summary>
         /// <param name="g">The Graphics object to use.</param>
-        void DrawGrid(Graphics g)
+        void DrawGrid(Graphics g, Rectangle client)
         {
             using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH);
 
+            var fontPixels = g.MeasureString("X", _font);
+
             // Draw main axes.
-            //g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, Height);
-            //g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, Width, BORDER_SIZE);
+            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, client.Height);
+            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, client.Width, BORDER_SIZE);
 
             bool done = false;
 
             // Draw X-Axis ticks.
-            for (float x = _xMin; !done; x += _page.Grid)
+            for (float x = 0; !done; x += _page.Grid) //_xMin
             {
                 var xd = VirtualToDisplay(new(x, 0)).X;
-                if(xd > Width)
+                if(xd > client.Width)
                 {
                     done = true;
                 }
@@ -357,22 +477,26 @@ namespace NDraw
                 {
                     if(_grid)
                     {
-                        g.DrawLine(penGrid, xd, BORDER_SIZE - TICK_SIZE, xd, Width);
+                        g.DrawLine(penGrid, xd, BORDER_SIZE - TICK_SIZE, xd, client.Width);
                     }
 
                     if (_ruler)
                     {
-                        g.DrawString(x.ToString(_numericalFormat), _font, Brushes.Black, xd - TICK_SIZE, 0);
+                        //g.DrawString(x.ToString(_numericalFormat), _font, Brushes.Black, xd - TICK_SIZE, 0);
+                        g.TranslateTransform(xd + (int)(fontPixels.Width / 2), 5);
+                        g.RotateTransform(90);
+                        g.DrawString(x.ToString(_numericalFormat), _font, Brushes.Black, 0, 0);
+                        g.ResetTransform();
                     }
                 }
             }
 
             // Draw Y-Axis ticks.
             done = false;
-            for (float y = _yMin; !done; y += _page.Grid)
+            for (float y = 0; !done; y += _page.Grid) //_yMin
             {
                 var yd = VirtualToDisplay(new(0, y)).Y;
-                if (yd > Height)
+                if (yd > client.Height)
                 {
                     done = true;
                 }
@@ -380,7 +504,7 @@ namespace NDraw
                 {
                     if (_grid)
                     {
-                        g.DrawLine(penGrid, BORDER_SIZE - TICK_SIZE, yd, Width, yd);
+                        g.DrawLine(penGrid, BORDER_SIZE - TICK_SIZE, yd, client.Width, yd);
                     }
 
                     if (_ruler)
@@ -390,22 +514,6 @@ namespace NDraw
                 }
             }
         }
-
-        ///// <summary>
-        ///// Draw text using the specified transformations.
-        ///// </summary>
-        ///// <param name="g">The Graphics object to use.</param>
-        ///// <param name="pt">Origin for rotate.</param>
-        ///// <param name="text">The text of the label.</param>
-        ///// <param name="font">The tool.</param>
-        ///// <param name="degrees">The rotation of the axis.</param>
-        //void DrawText(Graphics g, PointF pt, string text, Font font, int degrees)
-        //{
-        //    g.TranslateTransform(pt.X, pt.Y);
-        //    g.RotateTransform(degrees);
-        //    g.DrawString(text, font, Brushes.Black, 0, 0);
-        //    g.ResetTransform();
-        //}
         #endregion
 
         #region Mouse events

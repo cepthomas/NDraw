@@ -43,7 +43,7 @@ namespace NDraw
             BtnLayer2 = new System.Windows.Forms.ToolStripButton();
             BtnLayer3 = new System.Windows.Forms.ToolStripButton();
             BtnLayer4 = new System.Windows.Forms.ToolStripButton();
-            Canvas = new Canvas();
+            MyCanvas = new Canvas();
             RtbLog = new System.Windows.Forms.RichTextBox();
             ToolStrip.SuspendLayout();
             SuspendLayout();
@@ -165,12 +165,12 @@ namespace NDraw
             // 
             // Canvas
             // 
-            Canvas.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            Canvas.BackColor = System.Drawing.Color.WhiteSmoke;
-            Canvas.Location = new System.Drawing.Point(12, 30);
-            Canvas.Name = "Canvas";
-            Canvas.Size = new System.Drawing.Size(832, 466);
-            Canvas.TabIndex = 1;
+            MyCanvas.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            MyCanvas.BackColor = System.Drawing.Color.WhiteSmoke;
+            MyCanvas.Location = new System.Drawing.Point(12, 30);
+            MyCanvas.Name = "Canvas";
+            MyCanvas.Size = new System.Drawing.Size(832, 466);
+            MyCanvas.TabIndex = 1;
             // 
             // RtbLog
             // 
@@ -189,7 +189,7 @@ namespace NDraw
             AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(858, 653);
-            Controls.Add(Canvas);
+            Controls.Add(MyCanvas);
             Controls.Add(RtbLog);
             Controls.Add(ToolStrip);
             Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
@@ -204,7 +204,7 @@ namespace NDraw
         #endregion
 
         private System.Windows.Forms.ToolStrip ToolStrip;
-        private Canvas Canvas;
+        private Canvas MyCanvas;
         private System.Windows.Forms.ToolStripDropDownButton FileDropDownButton;
         private System.Windows.Forms.ToolStripMenuItem RecentMenuItem;
         private System.Windows.Forms.RichTextBox RtbLog;
