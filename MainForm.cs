@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
+using System.Drawing.Imaging;
 using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfUis;
 
@@ -36,8 +37,6 @@ namespace NDraw
         public MainForm()
         {
             InitializeComponent();
-
-            //this.OnKeyDown(KeyEventArgs)
 
             Text = "NDraw - no file";
 
@@ -82,22 +81,8 @@ namespace NDraw
             }
         }
 
-
-        
-
-        protected override void OnLoad(EventArgs e)
-        {
-            //Bitmap bmp = MyCanvas.Render(); // render the whole image not the control.
-            //bmp.Save(@"C:\Users\cepth\Desktop\test123.png", System.Drawing.Imaging.ImageFormat.Png);
-
-            base.OnLoad(e);
-        }
-
-
-
-
         /// <summary>
-        /// 
+        /// Shutting down.
         /// </summary>
         /// <param name="e"></param>
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -186,8 +171,6 @@ namespace NDraw
         /// </summary>
         void Parse()
         {
-            //RtbLog.Clear();
-
             try
             {
                 Tell($"Parsing {_fn}");
@@ -201,10 +184,7 @@ namespace NDraw
                 }
                 else
                 {
-                    foreach (var err in p.Errors)
-                    {
-                        Tell($"Error: {err}");
-                    }
+                    p.Errors.ForEach(e => Tell($"Error: {e}"));
                 }
             }
             catch (Exception ex)
@@ -280,7 +260,7 @@ namespace NDraw
         }
 
         /// <summary>
-        /// 
+        /// Key handler.
         /// </summary>
         /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
@@ -295,7 +275,7 @@ namespace NDraw
         }
 
         /// <summary>
-        /// 
+        /// Layer selection.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -330,26 +310,75 @@ namespace NDraw
         /// <param name="e"></param>
         void Render_Click(object? sender, EventArgs e)
         {
-            var fn = _fn == "" ? Path.GetTempFileName().Replace(".tmp", ".png") : _fn.Replace(".nd", ".png");
+            //var bmp = MyCanvas.Render(1600);
+            //ShowBitmap(bmp);
+
+            var fn = _fn == "" ? Path.GetTempFileName().Replace(".tmp", ".bmp") : _fn.Replace(".nd", ".bmp");
+            //Filter = $"Audio Files|*.wav;*.mp3;*.m4a;*.flac",
 
             using SaveFileDialog saveDlg = new()
             {
-                Filter = "Image files (*.png)|*.png",
                 Title = "Export to image file",
+                Filter = "(*.bmp)|*.bmp|(*.png)|*.png|(*.jpg)|*.jpg",
                 FileName = fn
             };
 
             if (saveDlg.ShowDialog() == DialogResult.OK)
             {
-                //Bitmap bmp = new(MyCanvas.Width, MyCanvas.Height); // render the whole image not the control.
-                //MyCanvas.DrawToBitmap(bmp, new Rectangle(0, 0, MyCanvas.Width, MyCanvas.Height));
                 Bitmap bmp = MyCanvas.Render(1600);
-                bmp.Save(saveDlg.FileName, System.Drawing.Imaging.ImageFormat.Png);
+
+                ImageFormat? fmt = saveDlg.FilterIndex switch
+                {
+                    1 => ImageFormat.Bmp,
+                    2 => ImageFormat.Png,
+                    3 => ImageFormat.Jpeg,
+                    _ => null
+
+                };
+
+                if (fmt is not null)
+                {
+                    bmp.Save(saveDlg.FileName, fmt);
+                }
+
+                bmp.Dispose();
             }
         }
 
         /// <summary>
-        /// 
+        /// Debug utility.
+        /// </summary>
+        /// <param name="bmp"></param>
+        void ShowBitmap(Bitmap bmp)
+        {
+            Size sz = new(bmp.Width / 2, bmp.Height / 2);
+
+            using var bmpr = bmp.Resize(sz.Width, sz.Height);
+
+            PictureBox pic = new()
+            {
+                Dock = DockStyle.Fill,
+                Image = bmpr,
+            };
+
+            using Form f = new()
+            {
+                Location = Cursor.Position,
+                StartPosition = FormStartPosition.Manual,
+                FormBorderStyle = FormBorderStyle.SizableToolWindow,
+                ShowIcon = false,
+                ShowInTaskbar = false
+            };
+            f.ClientSize = sz; // do after construction
+            f.Text = $"Original:{bmp.Width}X{bmp.Height} Window:{Width}X{Height}";
+
+            f.Controls.Add(pic);
+
+            f.ShowDialog();
+        }
+
+        /// <summary>
+        /// Tell the user something.
         /// </summary>
         /// <param name="s"></param>
         void Tell(string s)

@@ -1,5 +1,12 @@
 
-page=pg_1, un="feet", gr=2.0, sc=30
+page=pg_1, un="feet", gr=2.0, sc=50
+// un  | units name
+// gr  | grid spacing in virtual units
+// sc  | scale - pixels per virtual unit
+
+// line=AAA, lr=1, sx=1, sy=1, ex=11, ey=1, tx="300px"
+// line=BBB, lr=1, sx=0, sy=1.5, ex=40, ey=1.5, tx="1200px"
+
 
 Cx=15
 Cy=25

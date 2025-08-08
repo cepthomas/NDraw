@@ -11,6 +11,7 @@ using System.Text.Json.Serialization;
 using System.Drawing.Drawing2D;
 using Ephemera.NBagOfTricks;
 
+// TODO curve/arc shape.
 
 namespace NDraw
 {
@@ -22,7 +23,7 @@ namespace NDraw
     public enum PointStyle { None, Arrow, Tee };
     #endregion
 
-    /// <summary>Base/abstract class for all shape types. Deals exclusively in virtual (page) units.</summary>
+    /// <summary>Abstract base class for all shapes.</summary>
     [Serializable]
     public abstract class Shape
     {
@@ -33,7 +34,7 @@ namespace NDraw
         /// <summary>Layer 1-4.</summary>
         public int Layer { get; set; } = 1;
 
-        /// <summary>Text to display.</summary>
+        /// <summary>Text to display. TODO font size option</summary>
         public string Text { get; set; } = "";
 
         /// <summary>Text alignment. Technically ContentAlignment is misapplied here but it makes for easier handling.</summary>
