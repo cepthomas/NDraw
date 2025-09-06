@@ -33,6 +33,7 @@ These types are supported in the shape definitions.
 | color   | color            | html known name                       |
 | enum    | point style      | a(rrow), t(ee), n(one)                |
 | enum    | hatch style      | ho, ve, fd, bd, lg, dc                |
+| enum    | dash style       | sld, dsh, dot, dd, ddd                |
 | enum    | text alignment   | tl, tc, tr, ml, mc, mr, bl, bc, br    |
 
 Expression may contain numbers, var names, +, - e.g. `my_val=some_location - 2.33 + some_offset`.
@@ -63,9 +64,11 @@ $lc=salmon
 
 Field | Type      | Def          | Description
 ----  | ----      | ---          | ----------
+$lr   |  text     |              | layer name or empty for all
 $fc   |  color    | ghostwhite   | fill color
 $lc   |  color    | dimgray      | line color
 $lt   |  number   | 2.0          | line thickness
+$ld   |  enum     | sld          | line dash
 $ta   |  enum     | mc           | text alignment
 $ss   |  enum     | n            | start point style
 $es   |  enum     | n            | end point style
@@ -90,6 +93,7 @@ fc    |  color    | $fc     | fill color
 ht    |  enum     | n       | hatch type
 lc    |  color    | $lc     | line color
 lt    |  number   | $lt     | line thickness
+ld    |  enum     | sld     | line dash
 ta    |  enum     | $ta     | text alignment
 
 

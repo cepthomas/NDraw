@@ -32,7 +32,7 @@ namespace NDraw
         public int Id { get; private set; }
 
         /// <summary>Layer 1-4.</summary>
-        public int Layer { get; set; } = 1;
+        public string Layer { get; set; } = "?";
 
         /// <summary>Text to display. TODO font size option</summary>
         public string Text { get; set; } = "";
@@ -47,6 +47,10 @@ namespace NDraw
         /// <summary>Line Color</summary>
         [JsonConverter(typeof(JsonColorConverter))]
         public Color LineColor { get; set; } = Color.Green;
+
+        /// <summary>Line Dash</summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public DashStyle? LineDash { get; set; } = null;
 
         /// <summary>Fill Color</summary>
         [JsonConverter(typeof(JsonColorConverter))]
@@ -179,7 +183,7 @@ namespace NDraw
         public override string ToString()
         {
             string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
-            return $"Line:{Id}{fp}  Start:{Start.X}, {Start.Y}  End:{End.X}, {End.Y}";
+            return $"Line:{Id}{fp}  Layer:{Layer}  Start:{Start.X},{Start.Y}  End:{End.X},{End.Y}";
         }
     }
 
@@ -284,7 +288,7 @@ namespace NDraw
         public override string ToString()
         {
             string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
-            return $"Rect:{Id}{fp}  Location:{Location.X}, {Location.Y}  Width:{Width}  Height:{Height}";
+            return $"Rect:{Id}{fp}  Layer:{Layer}  Location:{Location.X},{Location.Y}  Width:{Width}  Height:{Height}";
         }
     }
 
@@ -356,7 +360,7 @@ namespace NDraw
         public override string ToString()
         {
             string fp = _lastFeature > 0 ? $"  Feature:{_lastFeature}" : "";
-            return $"Ellipse:{Id}{fp}  Center:{Center.X}, {Center.Y}  Width:{Width}  Height:{Height}";
+            return $"Ellipse:{Id}{fp}  Layer:{Layer}  Center:{Center.X},{Center.Y}  Width:{Width}  Height:{Height}";
         }
 
         /// <summary>Helper.</summary>

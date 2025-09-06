@@ -25,9 +25,13 @@ namespace NDraw
 
         /// <summary>Detect changed script files.</summary>
         readonly MultiFileWatcher _watcher = new();
+        //readonly MultiFileWatcher _watcher = new();
 
         /// <summary>Current file name.</summary>
         string _fn = "";
+
+        /// <summary>Cache layers.</summary>
+        List<ToolStripButton> _layerButtons = [];
         #endregion
 
         #region Lifecycle
@@ -58,26 +62,17 @@ namespace NDraw
             RenderMenuItem.Click += Render_Click;
             SettingsMenuItem.Click += Settings_Click;
             AboutMenuItem.Click += About_Click;
-
-            foreach (var btn in new List<ToolStripButton>() { BtnLayer1, BtnLayer2, BtnLayer3, BtnLayer4, BtnRuler, BtnGrid })
-            {
-                btn.Click += Btn_Click;
-                btn.Checked = true;
-                Btn_Click(btn, EventArgs.Empty);
-            }
-
             _watcher.FileChange += Watcher_Changed;
 
+            // CL args?
             var args = Environment.GetCommandLineArgs();
             if(args.Length >= 2)
             {
-                OpenFile(args[1]);
-                Parse();
+                DoFile(args[1]);
             }
             else if(_settings.OpenLastFile && _settings.RecentFiles.Count > 0)
             {
-                OpenFile(_settings.RecentFiles[0]);
-                Parse();
+                DoFile(_settings.RecentFiles[0]);
             }
         }
 
@@ -93,6 +88,130 @@ namespace NDraw
             base.OnFormClosing(e);
         }
         #endregion
+
+        #region Main work
+        /// <summary>
+        /// Open a file and process it.
+        /// </summary>
+        /// <param name="fn">File to open. Could be current.</param>
+        void DoFile(string fn)
+        {
+            bool newFile = fn != _fn;
+
+            if (newFile)
+            {
+                if (fn.EndsWith(".nd"))
+                {
+                    _fn = fn;
+                    _watcher.Clear();
+                    _watcher.Add(fn);
+                    AddToRecentDefs(fn);
+                    Text = $"NDraw - {fn}";
+                }
+                else
+                {
+                    Tell($"Invalid NDraw File: {fn}");
+                    Text = "NDraw - no file";
+                    return; // => early return
+                }
+            }
+
+            try
+            {
+                Tell($"Parsing {_fn}");
+                Parser p = new(fn);
+                //dev p.Page.Save("xyz.json");
+
+                if (p.Errors.Count == 0)
+                {
+                    DestroyLayerButtons();
+
+                    MyCanvas.Init(p.Page, _settings);
+                    if (newFile)
+                    {
+                        MyCanvas.Reset();
+                    }
+
+                    CreateLayerButtons(p);
+
+                    MyCanvas.Invalidate();
+                }
+                else
+                {
+                    p.Errors.ForEach(e => Tell($"Error: {e}"));
+                }
+            }
+            catch (Exception ex)
+            {
+                Tell($"Parse Fail: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        void CreateLayerButtons(Parser p)
+        {
+            foreach (var layer in p.Layers)
+            {
+                ToolStripButton btn = new()
+                {
+                    Text = layer,
+                    Size = new Size(29, 24),
+                    CheckOnClick = true,
+                    DisplayStyle = ToolStripItemDisplayStyle.Text,
+                    ImageTransparentColor = Color.Magenta,
+                    Name = $"LAYER_{layer}",
+                };
+                //BtnLayer.BackColor = System.Drawing.SystemColors.Control;
+                //BtnLayer.ToolTipText = "Layer 1";
+
+                // Init it.
+                btn.Click += BtnLayer_Click;
+                btn.Checked = true;
+                BtnLayer_Click(btn, EventArgs.Empty);
+
+                ToolStrip.Items.Add(btn);
+                _layerButtons.Add(btn);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        void DestroyLayerButtons()
+        {
+            _layerButtons.ForEach(b => { ToolStrip.Items.Remove(b); b.Dispose(); });
+            _layerButtons.Clear();
+        }
+        #endregion
+
+        /// <summary>
+        /// Layer selection.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void BtnLayer_Click(object? sender, EventArgs e)
+        {
+            if (sender is not null)
+            {
+                var b = sender as ToolStripButton;
+                var text = b!.Text!;
+
+                switch (text)
+                {
+                    case "Ruler":
+                    case "Grid":
+                        MyCanvas.SetVisibility(BtnRuler.Checked, BtnGrid.Checked);
+                        break;
+
+                    default:
+                        MyCanvas.SetLayer(text, b.Checked);
+                        break;
+                }
+            }
+        }
 
         #region File handling
         /// <summary>
@@ -110,8 +229,8 @@ namespace NDraw
 
             if (openDlg.ShowDialog() == DialogResult.OK)
             {
-                OpenFile(openDlg.FileName);
-                Parse();
+                DoFile(openDlg.FileName);
+                //Parse(true);
             }
         }
 
@@ -127,74 +246,27 @@ namespace NDraw
                 string fn = sender.ToString()!;
                 if (fn != "Recent")
                 {
-                    OpenFile(fn);
-                    Parse();
+                    DoFile(fn);
+                    //Parse(true);
                 }
             }
         }
 
         /// <summary>
-        /// Open a file and process it.
+        /// File has changed so recompile.
         /// </summary>
-        /// <param name="fn"></param>
-        void OpenFile(string fn)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void Watcher_Changed(object? sender, MultiFileWatcher.FileChangeEventArgs e)
         {
-            if(fn.EndsWith(".nd"))
+            // Kick over to main UI thread.
+            this.InvokeIfRequired(_ =>
             {
-                try
-                {
-                    _fn = fn;
-
-                    // Update file watcher.
-                    _watcher.Clear();
-                    _watcher.Add(fn);
-
-                    AddToRecentDefs(fn);
-
-                    Text = $"NDraw - {fn}";
-                }
-                catch (Exception ex)
-                {
-                    Tell($"Open Fail: {ex.Message}");
-                    Text = "NDraw - no file";
-                }
-            }
-            else
-            {
-                Tell($"Invalid NDraw File: {fn}");
-                Text = "NDraw - no file";
-            }
+                Tell($"File changed {_fn}");
+                DoFile(_fn);
+            });
         }
 
-        /// <summary>
-        /// Parse current file.
-        /// </summary>
-        void Parse()
-        {
-            try
-            {
-                Tell($"Parsing {_fn}");
-                Parser p = new();
-                p.ParseFile(_fn);
-                //p.Page.Save("xyz.json");
-
-                if (p.Errors.Count == 0)
-                {
-                    MyCanvas.Init(p.Page, _settings);
-                }
-                else
-                {
-                    p.Errors.ForEach(e => Tell($"Error: {e}"));
-                }
-            }
-            catch (Exception ex)
-            {
-                Tell($"Parse Fail: {ex}");
-            }
-        }
-        #endregion
-
-        #region Recent files
         /// <summary>
         /// Create the menu with the recently used files.
         /// </summary>
@@ -245,21 +317,6 @@ namespace NDraw
 
         #region Misc
         /// <summary>
-        /// One or more files have changed so recompile.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void Watcher_Changed(object? sender, MultiFileWatcher.FileChangeEventArgs e)
-        {
-            // Kick over to main UI thread.
-            this.InvokeIfRequired(_ =>
-            {
-                Tell($"File changed {_fn}");
-                Parse();
-            });
-        }
-
-        /// <summary>
         /// Key handler.
         /// </summary>
         /// <param name="e"></param>
@@ -269,38 +326,16 @@ namespace NDraw
             {
                 case Keys.H:
                     MyCanvas.Reset();
+                    MyCanvas.Invalidate();
+                    e.Handled = true;
+                    break;
+
+                case Keys.C:
+                    RtbLog.Clear();
+                    e.Handled = true;
                     break;
             }
             base.OnKeyDown(e);
-        }
-
-        /// <summary>
-        /// Layer selection.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void Btn_Click(object? sender, EventArgs e)
-        {
-            if (sender is not null)
-            {
-                var b = sender as ToolStripButton;
-
-                switch (b!.Text)
-                {
-                    case "1":
-                    case "2":
-                    case "3":
-                    case "4":
-                        int n = int.Parse(b.Text);
-                        MyCanvas.SetLayer(n - 1, b.Checked);
-                        break;
-
-                    case "Ruler":
-                    case "Grid":
-                        MyCanvas.SetVisibility(BtnRuler.Checked, BtnGrid.Checked);
-                        break;
-                }
-            }
         }
 
         /// <summary>
@@ -325,7 +360,7 @@ namespace NDraw
 
             if (saveDlg.ShowDialog() == DialogResult.OK)
             {
-                Bitmap bmp = MyCanvas.Render(1600);
+                Bitmap bmp = MyCanvas.GenBitmap(1600);
 
                 ImageFormat? fmt = saveDlg.FilterIndex switch
                 {

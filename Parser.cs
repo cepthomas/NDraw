@@ -21,12 +21,12 @@ namespace NDraw
         #region Properties
         /// <summary>The parsing product.</summary>
         public Page Page { get; private set; } = new();
-        
+
         /// <summary>Parsing errors.</summary>
         public List<string> Errors { get; private set; } = [];
 
-        /// <summary>User assigned values.</summary>
-        public Dictionary<string, float> UserVals { get; private set; } = [];
+        /// <summary>Layer names.</summary>
+        public List<string> Layers { get; private set; } = [];
         #endregion
 
         #region Fields
@@ -36,50 +36,79 @@ namespace NDraw
         /// <summary>Parms for current line.</summary>
         readonly Dictionary<string, string> _params = [];
 
+        /// <summary>User assigned values.</summary>
+        Dictionary<string, float> _userVals = [];
+
         #region Globals and defaults
-        Color _fc;
-        Color _lc;
-        float _lt;
-        ContentAlignment _ta;
-        PointStyle _ss;
-        PointStyle _es;
+        string _layer = "?";
+        Color _fc = Color.GhostWhite;
+        Color _lc = Color.DimGray;
+        float _lt = 2.0f;
+        DashStyle _ld = DashStyle.Solid;
+        ContentAlignment _ta = ContentAlignment.MiddleCenter;
+        PointStyle _ss = PointStyle.None;
+        PointStyle _es = PointStyle.None;
         #endregion
         #endregion
 
         #region Enum mappings
         readonly Dictionary<string, PointStyle> _pointStyle = new()
         {
-            { "n", PointStyle.None }, { "a", PointStyle.Arrow }, { "t", PointStyle.Tee }
+            { "n", PointStyle.None },
+            { "a", PointStyle.Arrow },
+            { "t", PointStyle.Tee }
         };
-        
+
         readonly Dictionary<string, HatchStyle> _hatchStyle = new()
         {
-            { "ho", HatchStyle.Horizontal },       { "ve", HatchStyle.Vertical },    { "fd", HatchStyle.ForwardDiagonal },
-            { "bd", HatchStyle.BackwardDiagonal }, { "lg", HatchStyle.LargeGrid },   { "dc", HatchStyle.DiagonalCross },
+            { "ho", HatchStyle.Horizontal },
+            { "ve", HatchStyle.Vertical },
+            { "fd", HatchStyle.ForwardDiagonal },
+            { "bd", HatchStyle.BackwardDiagonal },
+            { "lg", HatchStyle.LargeGrid },
+            { "dc", HatchStyle.DiagonalCross }
+        };
+
+        readonly Dictionary<string, DashStyle> _dashStyle = new()
+        {
+            { "sld", DashStyle.Solid },
+            { "dsh", DashStyle.Dash },
+            { "dot", DashStyle.Dot },
+            { "dd",  DashStyle.DashDot },
+            { "ddd", DashStyle.DashDotDot }
         };
 
         readonly Dictionary<string, ContentAlignment> _alignment = new()
         {
-            { "tl", ContentAlignment.TopLeft },    { "tc", ContentAlignment.TopCenter },    { "tr", ContentAlignment.TopRight },
-            { "ml", ContentAlignment.MiddleLeft }, { "mc", ContentAlignment.MiddleCenter }, { "mr", ContentAlignment.MiddleRight },
-            { "bl", ContentAlignment.BottomLeft }, { "bc", ContentAlignment.BottomCenter }, { "br", ContentAlignment.BottomRight },
+            { "tl", ContentAlignment.TopLeft },
+            { "tc", ContentAlignment.TopCenter },
+            { "tr", ContentAlignment.TopRight },
+            { "ml", ContentAlignment.MiddleLeft },
+            { "mc", ContentAlignment.MiddleCenter },
+            { "mr", ContentAlignment.MiddleRight },
+            { "bl", ContentAlignment.BottomLeft },
+            { "bc", ContentAlignment.BottomCenter },
+            { "br", ContentAlignment.BottomRight }
         };
         #endregion
 
         /// <summary>
-        /// Do a file.
+        /// 
         /// </summary>
         /// <param name="fn"></param>
-        public void ParseFile(string fn)
+        public Parser(string fn)
         {
             // Reset.
+            _layer = "?";
             _fc = Color.GhostWhite;
             _lc = Color.DimGray;
             _lt = 2.0f;
+            _ld = DashStyle.Solid;
             _ta = ContentAlignment.MiddleCenter;
             _ss = PointStyle.None;
             _es = PointStyle.None;
             _row = 0;
+
             Errors.Clear();
             Page = new();
 
@@ -174,6 +203,15 @@ namespace NDraw
                     break;
 
                 // Global/default defs.
+                case "$lr":
+                    // If new, add to collection.
+                    if (!Layers.Contains(rhs))
+                    {
+                        Layers.Add(rhs);
+                    }
+                    _layer = rhs;
+                    break;
+
                 case "$fc":
                     _fc = KnownColor(rhs);
                     break;
@@ -184,6 +222,10 @@ namespace NDraw
 
                 case "$lt":
                     _lt = float.Parse(rhs);
+                    break;
+
+                case "$ld":
+                    _ld = _dashStyle[rhs];
                     break;
 
                 case "$ta":
@@ -199,7 +241,7 @@ namespace NDraw
                     break;
 
                 default: // Assume user value assignment.
-                    UserVals[lhs] = Evaluate(rhs);
+                    _userVals[lhs] = Evaluate(rhs);
                     break;
             }
         }
@@ -253,11 +295,17 @@ namespace NDraw
             }
 
             // Common stuff.
-            shape.Layer = (int)ParseNumeric("lr", 1);
+            shape.Layer = ParseText("lr", _layer);
+            // If new, add to collection.
+            if (!Layers.Contains(shape.Layer))
+            {
+                Layers.Add(shape.Layer);
+            }
             shape.Text = ParseText("tx", "");
             shape.Hatch = ParseHatch("ht");
             shape.LineThickness = ParseNumeric("lt", _lt);
             shape.LineColor = ParseColor("lc", _lc);
+            shape.LineDash = ParseDash("ld", _ld);
             shape.FillColor = ParseColor("fc", _fc);
             shape.TextAlignment = ParseAlignment("ta", _ta);
 
@@ -292,7 +340,7 @@ namespace NDraw
                     }
                     else // named
                     {
-                        f = UserVals.TryGetValue(p, out float value) ? value : throw new SyntaxException($"Unknown name for value {p}");
+                        f = _userVals.TryGetValue(p, out float value) ? value : throw new SyntaxException($"Unknown name for value {p}");
                     }
 
                     // Do the math.
@@ -448,6 +496,26 @@ namespace NDraw
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Parse a dash definition.
+        /// </summary>
+        /// <param name="paramName"></param>
+        /// <returns></returns>
+        DashStyle ParseDash(string paramName, DashStyle? def = null)
+        {
+            if (_params.TryGetValue(paramName, out string? dashName) && _dashStyle.TryGetValue(dashName, out DashStyle val))
+            {
+                return val;
+            }
+
+            if (def is not null)
+            {
+                return (DashStyle)def;
+            }
+
+            return DashStyle.Solid;
         }
 
         /// <summary>

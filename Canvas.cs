@@ -29,7 +29,7 @@ namespace NDraw
         readonly Font _font = new("Cascadia Code", 12);
 
         /// <summary>Show/hide layers.</summary>
-        readonly bool[] _layers = new bool[NUM_LAYERS];
+        readonly Dictionary<string, bool> _layers = [];
 
         /// <summary>Ruler visibility.</summary>
         bool _ruler = true;
@@ -63,8 +63,8 @@ namespace NDraw
         #endregion
 
         #region Constants
-        /// <summary>How many layers.</summary>
-        const int NUM_LAYERS = 4;
+        ///// <summary>How many layers.</summary>
+        //const int NUM_LAYERS = 4;
 
         /// <summary>Left and top borders (pixels).</summary>
         const int BORDER_SIZE = 80;
@@ -114,7 +114,7 @@ namespace NDraw
         }
 
         /// <summary>
-        /// Perform initialization.
+        /// Process page to graphics.
         /// </summary>
         /// <param name="page"></param>
         /// <param name="settings"></param>
@@ -122,9 +122,10 @@ namespace NDraw
         {
             _page = page;
             _settings = settings;
+            _layers.Clear();
 
             // Get x and y ranges.
-            foreach(var shape in page.Shapes)
+            foreach (var shape in page.Shapes)
             {
                 var rect = shape.ToRect();
                 _virtMinX = Math.Min(_virtMinX, rect.Left);
@@ -140,25 +141,19 @@ namespace NDraw
             _virtMaxY = Box(_virtMaxY).high;
 
             _numFormat = StringUtils.FormatSpecifier(MathF.Max(_virtMaxX, _virtMaxY));
-
-            // Init geometry.
-            Reset();
         }
         #endregion
 
         #region Public functions
         /// <summary>
-        /// 
+        /// Show/hide layer.
         /// </summary>
         /// <param name="layer"></param>
         /// <param name="value"></param>
-        public void SetLayer(int layer, bool value)
+        public void SetLayer(string layer, bool value)
         {
-            if(layer >= 0 && layer < NUM_LAYERS)
-            {
-                _layers[layer] = value;
-                Invalidate();
-            }
+            _layers[layer] = value;
+            Invalidate();
         }
 
         /// <summary>
@@ -181,7 +176,6 @@ namespace NDraw
             _zoom = 1.0f;
             _offsetX = 0;
             _offsetY = 0;
-            Invalidate();
         }
         #endregion
 
@@ -217,7 +211,7 @@ namespace NDraw
         /// </summary>
         /// <param name="width">Width </param>
         /// <returns></returns>
-        public Bitmap Render(int width)
+        public Bitmap GenBitmap(int width)
         {
             // Scale per request.
             var virtWidth = _virtMaxX + _virtMinX;
@@ -264,9 +258,13 @@ namespace NDraw
             foreach (var shape in _page.Shapes)
             {
                 // Is it visible?
-                if (_layers[shape.Layer - 1])  // TODO && shape.ContainedIn(virtVisible, true)
+                if (_layers.ContainsKey(shape.Layer) && _layers[shape.Layer])  // TODO && shape.ContainedIn(virtVisible, true)
                 {
                     using Pen penLine = new(shape.LineColor, shape.LineThickness);
+                    if (shape.LineDash is not null)
+                    {
+                        penLine.DashStyle = (DashStyle)shape.LineDash;
+                    }
                     using Brush brush = shape.Hatch is null ? new SolidBrush(shape.FillColor) : new HatchBrush((HatchStyle)shape.Hatch, shape.LineColor, shape.FillColor);
 
                     // Map to display coordinates.
@@ -449,7 +447,7 @@ namespace NDraw
             {
                 int fp = shape.IsFeaturePoint(virtLoc, range);
 
-                if (fp > 0 && _layers[shape.Layer - 1])
+                if (fp > 0 && _layers.ContainsKey(shape.Layer) && _layers[shape.Layer])
                 {
                     shape.State = ShapeState.Highlighted;
                     toHighlight = shape;
@@ -551,6 +549,7 @@ namespace NDraw
             {
                 case Keys.H: // reset
                     Reset();
+                    Invalidate();
                     break;
             }
 

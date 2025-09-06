@@ -39,10 +39,6 @@ namespace NDraw
             AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             BtnGrid = new System.Windows.Forms.ToolStripButton();
             BtnRuler = new System.Windows.Forms.ToolStripButton();
-            BtnLayer1 = new System.Windows.Forms.ToolStripButton();
-            BtnLayer2 = new System.Windows.Forms.ToolStripButton();
-            BtnLayer3 = new System.Windows.Forms.ToolStripButton();
-            BtnLayer4 = new System.Windows.Forms.ToolStripButton();
             MyCanvas = new Canvas();
             RtbLog = new System.Windows.Forms.RichTextBox();
             ToolStrip.SuspendLayout();
@@ -51,7 +47,7 @@ namespace NDraw
             // ToolStrip
             // 
             ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { FileDropDownButton, BtnGrid, BtnRuler, BtnLayer1, BtnLayer2, BtnLayer3, BtnLayer4 });
+            ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { FileDropDownButton, BtnGrid, BtnRuler });
             ToolStrip.Location = new System.Drawing.Point(0, 0);
             ToolStrip.Name = "ToolStrip";
             ToolStrip.Size = new System.Drawing.Size(858, 27);
@@ -119,50 +115,6 @@ namespace NDraw
             BtnRuler.Text = "Ruler";
             BtnRuler.ToolTipText = "Ruler Visible";
             // 
-            // BtnLayer1
-            // 
-            BtnLayer1.BackColor = System.Drawing.SystemColors.Control;
-            BtnLayer1.CheckOnClick = true;
-            BtnLayer1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            BtnLayer1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            BtnLayer1.Name = "BtnLayer1";
-            BtnLayer1.Size = new System.Drawing.Size(29, 24);
-            BtnLayer1.Text = "1";
-            BtnLayer1.ToolTipText = "Layer 1";
-            // 
-            // BtnLayer2
-            // 
-            BtnLayer2.BackColor = System.Drawing.SystemColors.Control;
-            BtnLayer2.CheckOnClick = true;
-            BtnLayer2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            BtnLayer2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            BtnLayer2.Name = "BtnLayer2";
-            BtnLayer2.Size = new System.Drawing.Size(29, 24);
-            BtnLayer2.Text = "2";
-            BtnLayer2.ToolTipText = "Layer 2";
-            // 
-            // BtnLayer3
-            // 
-            BtnLayer3.BackColor = System.Drawing.SystemColors.Control;
-            BtnLayer3.CheckOnClick = true;
-            BtnLayer3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            BtnLayer3.ImageTransparentColor = System.Drawing.Color.Magenta;
-            BtnLayer3.Name = "BtnLayer3";
-            BtnLayer3.Size = new System.Drawing.Size(29, 24);
-            BtnLayer3.Text = "3";
-            BtnLayer3.ToolTipText = "Layer 3";
-            // 
-            // BtnLayer4
-            // 
-            BtnLayer4.BackColor = System.Drawing.SystemColors.Control;
-            BtnLayer4.CheckOnClick = true;
-            BtnLayer4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            BtnLayer4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            BtnLayer4.Name = "BtnLayer4";
-            BtnLayer4.Size = new System.Drawing.Size(29, 24);
-            BtnLayer4.Text = "4";
-            BtnLayer4.ToolTipText = "Layer 4";
-            // 
             // Canvas
             // 
             MyCanvas.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
@@ -211,10 +163,6 @@ namespace NDraw
         private System.Windows.Forms.ToolStripMenuItem OpenMenuItem;
         private System.Windows.Forms.ToolStripMenuItem SettingsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RenderMenuItem;
-        private System.Windows.Forms.ToolStripButton BtnLayer1;
-        private System.Windows.Forms.ToolStripButton BtnLayer2;
-        private System.Windows.Forms.ToolStripButton BtnLayer3;
-        private System.Windows.Forms.ToolStripButton BtnLayer4;
         private System.Windows.Forms.ToolStripButton BtnGrid;
         private System.Windows.Forms.ToolStripButton BtnRuler;
         private System.Windows.Forms.ToolStripMenuItem AboutMenuItem;

@@ -1,62 +1,86 @@
 
+// One half of combined tt, pb, lt courts.
+
 page=pg_1, un="feet", gr=2.0, sc=50
 // un  | units name
 // gr  | grid spacing in virtual units
 // sc  | scale - pixels per virtual unit
 
-// line=AAA, lr=1, sx=1, sy=1, ex=11, ey=1, tx="300px"
-// line=BBB, lr=1, sx=0, sy=1.5, ex=40, ey=1.5, tx="1200px"
 
-
-Cx=15
-Cy=25
+///// General geometry /////
+center_x=20 //15
+center_y=40 //25
 $lt=5
 
 
-///// Pickleball court
-$lc=silver
+///// Lawn Tennis court /////
+$lc=blue
+$lr=tennis
+$ld=dsh
+// width = s27 d36
+// half ct = 39
+// base to svc = 18
 
-L=Cx-10
-R=Cx+10
-T=Cy-22
-B=Cy+22
+L=center_x-18
+R=center_x+18
+T=center_y-39
+B=center_y
+
+// Horizontal.
+line=lt_base,  sx=L, sy=T, ex=R, ey=T
+line=lt_serv,  sx=L, sy=T+18, ex=R, ey=T+18
+line=lt_net,   sx=L, sy=center_y, ex=R, ey=center_y
+
+// Vertical.
+line=lt_dblsL, sx=L, sy=T, ex=L, ey=B
+line=lt_singL, sx=L+4.5, sy=T, ex=L+4.5, ey=B
+line=lt_cntr,  sx=center_x, sy=center_y-21, ex=center_x, ey=center_y
+line=lt_singR, sx=R-4.5, sy=T, ex=R-4.5, ey=B
+line=lt_dblsR, sx=R, sy=T, ex=R, ey=B
 
 
-// Top to bottom.
-line=pb_base1, lr=1, sx=L, sy=T, ex=R, ey=T
-line=pb_serv1, lr=1, sx=L, sy=T+15, ex=R, ey=T+15
-line=pb_nvz1, lr=1, sx=L, sy=Cy-7, ex=R, ey=Cy-7
-line=tt_net, lr=1, sx=L, sy=Cy, ex=R, ey=Cy
-line=pb_nvz1, lr=1, sx=L, sy=Cy+7, ex=R, ey=Cy+7
-line=pb_serv2, lr=1, sx=L, sy=B-15, ex=R, ey=B-15
-line=pb_base1, lr=1, sx=L, sy=B, ex=R, ey=B
+///// Pickleball court /////
+$lc=red
+$lr=pball
+$ld=dot
 
-// Left to right.
-line=pb_sing1, lr=1, sx=L, sy=T, ex=L, ey=B
-line=pb_srvc1, lr=1, sx=Cx, sy=T, ex=Cx, ey=T+15
-line=pb_srvc2, lr=1, sx=Cx, sy=B, ex=Cx, ey=B-15
-line=pb_sing2, lr=1, sx=R, sy=T, ex=R, ey=B
+L=center_x-10
+R=center_x+10
+T=center_y-22
+B=center_y
+
+// Horizontal.
+line=pb_base, sx=L, sy=T, ex=R, ey=T
+line=pb_serv, sx=L, sy=T+15, ex=R, ey=T+15
+line=pb_nvz,  sx=L, sy=center_y-7, ex=R, ey=center_y-7
+line=tt_net,  sx=L, sy=center_y, ex=R, ey=center_y
+
+// Vertical.
+line=pb_singl, sx=L, sy=T, ex=L, ey=B
+line=pb_cntr,  sx=center_x, sy=T, ex=center_x, ey=T+15
+line=pb_singr, sx=R, sy=T, ex=R, ey=B
 
 
-///// Touchtennis court
+///// Touchtennis court /////
 $lc=dimgray
+$lr=touch
+$ld=sld
+// 40 l 20 w 
 
-L=Cx-10
-R=Cx+10
-T=Cy-20
-B=Cy+20
+L=center_x-10
+R=center_x+10
+T=center_y-20
+B=center_y
 
-// Top to bottom.
-line=tt_base1, lr=2, sx=L, sy=T, ex=R, ey=T
-line=tt_serv1, lr=2, sx=L, sy=T+7, ex=R, ey=T+7
-line=tt_net,   lr=2, sx=L, sy=Cy, ex=R, ey=Cy
-line=tt_serv2, lr=2, sx=L, sy=B-7, ex=R, ey=B-7
-line=tt_base1, lr=2, sx=L, sy=B, ex=R, ey=B
+// Horizontal.
+line=tt_base,  sx=L, sy=T, ex=R, ey=T
+line=tt_serv,  sx=L, sy=T+7, ex=R, ey=T+7
+line=tt_net,   sx=L, sy=center_y, ex=R, ey=center_y
 
-// Left to right.
-line=tt_dbls1, lr=2, sx=L, sy=T, ex=L, ey=B
-line=tt_sing1, lr=2, sx=L+2, sy=T, ex=L+2, ey=B
-line=tt_servc, lr=2, sx=Cx, sy=Cy-13, ex=Cx, ey=Cy+13
-line=tt_sing2, lr=2, sx=R-2, sy=T, ex=R-2, ey=B
-line=tt_dbls2, lr=2, sx=R, sy=T, ex=R, ey=B
+// Vertical.
+line=tt_dblsL, sx=L, sy=T, ex=L, ey=B
+line=tt_singL, sx=L+2, sy=T, ex=L+2, ey=B
+line=tt_serv,  sx=center_x, sy=center_y-13, ex=center_x, ey=center_y
+line=tt_singR, sx=R-2, sy=T, ex=R-2, ey=B
+line=tt_dblsR, sx=R, sy=T, ex=R, ey=B
 
