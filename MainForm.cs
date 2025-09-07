@@ -31,7 +31,7 @@ namespace NDraw
         string _fn = "";
 
         /// <summary>Cache layers.</summary>
-        List<ToolStripButton> _layerButtons = [];
+        readonly List<ToolStripButton> _layerButtons = [];
         #endregion
 
         #region Lifecycle
@@ -57,20 +57,31 @@ namespace NDraw
 
             PopulateRecentMenu();
 
+            // Menu items.
             OpenMenuItem.Click += Open_Click;
             RecentMenuItem.Click += Recent_Click;
             RenderMenuItem.Click += Render_Click;
             SettingsMenuItem.Click += Settings_Click;
             AboutMenuItem.Click += About_Click;
+
+            // Toolstrip buttons.
+            BtnGrid.Checked = true;
+            BtnRuler.Checked = true;
+            BtnAllLayers.Checked = true;
+            BtnGrid.Click += Btn_Click;
+            BtnRuler.Click += Btn_Click;
+            BtnAllLayers.Click += Btn_Click;
+
+            // Other handlers.
             _watcher.FileChange += Watcher_Changed;
 
             // CL args?
             var args = Environment.GetCommandLineArgs();
-            if(args.Length >= 2)
+            if (args.Length >= 2)
             {
                 DoFile(args[1]);
             }
-            else if(_settings.OpenLastFile && _settings.RecentFiles.Count > 0)
+            else if (_settings.OpenLastFile && _settings.RecentFiles.Count > 0)
             {
                 DoFile(_settings.RecentFiles[0]);
             }
@@ -87,6 +98,15 @@ namespace NDraw
             _settings.Save();
             base.OnFormClosing(e);
         }
+
+
+
+
+        //protected override void OnResize(EventArgs e)
+        //{
+        //    MyCanvas.Invalidate();
+        //    base.OnResize(e);
+        //}
         #endregion
 
         #region Main work
@@ -144,11 +164,13 @@ namespace NDraw
             catch (Exception ex)
             {
                 Tell($"Parse Fail: {ex}");
+                _fn = null;
+                Text = "NDraw - no file";
             }
         }
 
         /// <summary>
-        /// 
+        /// Make buttons from user layers.
         /// </summary>
         /// <param name="p"></param>
         void CreateLayerButtons(Parser p)
@@ -164,14 +186,11 @@ namespace NDraw
                     ImageTransparentColor = Color.Magenta,
                     Name = $"LAYER_{layer}",
                 };
-                //BtnLayer.BackColor = System.Drawing.SystemColors.Control;
-                //BtnLayer.ToolTipText = "Layer 1";
 
-                // Init it.
-                btn.Click += BtnLayer_Click;
+                // Init it. Turn all layers on.
+                btn.Click += Btn_Click;
                 btn.Checked = true;
-                BtnLayer_Click(btn, EventArgs.Empty);
-
+                Btn_Click(btn, EventArgs.Empty);
                 ToolStrip.Items.Add(btn);
                 _layerButtons.Add(btn);
             }
@@ -185,33 +204,33 @@ namespace NDraw
             _layerButtons.ForEach(b => { ToolStrip.Items.Remove(b); b.Dispose(); });
             _layerButtons.Clear();
         }
-        #endregion
 
         /// <summary>
-        /// Layer selection.
+        /// Toolstrip button click handler.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void BtnLayer_Click(object? sender, EventArgs e)
+        void Btn_Click(object? sender, EventArgs e)
         {
-            if (sender is not null)
+            var btn = (ToolStripButton)sender!;
+
+            switch (btn.Text)
             {
-                var b = sender as ToolStripButton;
-                var text = b!.Text!;
+                case "Ruler":
+                case "Grid":
+                    MyCanvas.SetVisibility(BtnRuler.Checked, BtnGrid.Checked);
+                    break;
 
-                switch (text)
-                {
-                    case "Ruler":
-                    case "Grid":
-                        MyCanvas.SetVisibility(BtnRuler.Checked, BtnGrid.Checked);
-                        break;
+                case "All Layers":
+                    _layerButtons.ForEach(b => { MyCanvas.SetLayer(b.Text, BtnAllLayers.Checked); });
+                    break;
 
-                    default:
-                        MyCanvas.SetLayer(text, b.Checked);
-                        break;
-                }
+                default:
+                    MyCanvas.SetLayer(btn.Text, btn.Checked);
+                    break;
             }
         }
+        #endregion
 
         #region File handling
         /// <summary>
@@ -241,7 +260,7 @@ namespace NDraw
         /// <param name="e"></param>
         void Recent_Click(object? sender, EventArgs e)
         {
-            if(sender is not null)
+            if (sender is not null)
             {
                 string fn = sender.ToString()!;
                 if (fn != "Recent")

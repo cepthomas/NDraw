@@ -1,7 +1,7 @@
 
 // One half of combined tt, pb, lt courts.
 
-page=pg_1, un="feet", gr=2.0, sc=50
+page=pg_1, un="feet", gr=2.0, sc=1 //50
 // un  | units name
 // gr  | grid spacing in virtual units
 // sc  | scale - pixels per virtual unit

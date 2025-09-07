@@ -13,7 +13,7 @@
     - `shift+mousewheel` scrolls left/right.
     - `ctrl+mousewheel` zooms in/out.
     - `H` resets the display.
-    - Show/hide layers, grid, ruler.
+    - buttons to show/hide layers, grid, ruler.
 
 
 # The File Format

@@ -11,7 +11,7 @@ using System.Text.Json.Serialization;
 using System.Drawing.Drawing2D;
 using Ephemera.NBagOfTricks;
 
-// TODO curve/arc shape.
+// TODO1 curve/arc shape.
 
 namespace NDraw
 {
@@ -34,7 +34,7 @@ namespace NDraw
         /// <summary>Layer 1-4.</summary>
         public string Layer { get; set; } = "?";
 
-        /// <summary>Text to display. TODO font size option</summary>
+        /// <summary>Text to display. TODO1 font size option</summary>
         public string Text { get; set; } = "";
 
         /// <summary>Text alignment. Technically ContentAlignment is misapplied here but it makes for easier handling.</summary>

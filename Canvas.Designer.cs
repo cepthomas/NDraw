@@ -30,22 +30,22 @@ namespace NDraw
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            toolTip = new System.Windows.Forms.ToolTip(components);
+            SuspendLayout();
             // 
             // toolTip
             // 
-            this.toolTip.AutomaticDelay = 100;
-            this.toolTip.UseAnimation = false;
-            this.toolTip.UseFading = false;
+            toolTip.AutomaticDelay = 100;
+            toolTip.UseAnimation = false;
+            toolTip.UseFading = false;
             // 
             // Canvas
             // 
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.Name = "Canvas";
-            this.Size = new System.Drawing.Size(731, 437);
-            this.ResumeLayout(false);
+            BackColor = System.Drawing.Color.WhiteSmoke;
+            Name = "Canvas";
+            Size = new System.Drawing.Size(731, 437);
+            ResumeLayout(false);
 
         }
 

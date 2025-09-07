@@ -8,6 +8,9 @@ $lc=salmon
 $fc=lightyellow
 $ta=mc
 
+$lc=blue
+$lr=111
+$ld=dsh
 
 // define user values: id=value (float or simple expression)
 pabc=23.5
@@ -25,27 +28,31 @@ hatches_x=100
 hatches_h=15
 hatches_w=30
 
-// shapes: id=type, param=value, ...
-rect=my_rect1, lr=1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", ta=tl
+///// shapes: id=type, param=value, ...
+rect=my_rect1, x=loc_2_x, y=loc_2_y, w=size_1_w + 4.4, h=size_1_h, lc=green, fc=lightgreen, tx="Nice day", ta=tl
 
-line=my_line1, lr=2, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, ta=tl, es=t, ss=t
+line=my_line1, sx=loc_1_x, sy=loc_1_y, ex=loc_2_x, ey=loc_3_y, lt=2, tx=loc_1_x+100, ta=tl, es=t, ss=t
 
-line=base_line, lr=1, sx=60, sy=10, ex=84, ey=50, tx="base line", es=t, ss=a
+line=base_line, sx=60, sy=10, ex=84, ey=50, tx="base line", es=t, ss=a
 
 $lc=purple
 
-line=angle_line, lr=1, sx=10, sy=120, ex=60, ey=70, tx="45 deg", es=t, ss=a
+line=angle_line, ld=dot, sx=10, sy=120, ex=60, ey=70, tx="45 deg", es=t, ss=a
 
 $lt=6
 
-ellipse=my_circle, lr=2, x=20, y=50, w=30, h=30, tx="I'm rrrround", ta=mc
+ellipse=my_circle, x=20, y=50, w=30, h=30, tx="I'm rrrround", ta=mc
 
-// all the hatched rectangles
-rect=hatch_ho, lr=3, x=hatches_x, y=loc_2_y+0, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="No Hatch"
-rect=hatch_ho, lr=3, x=hatches_x, y=loc_2_y+20, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Horizontal", ht=ho
-rect=hatch_ve, lr=3, x=hatches_x, y=loc_2_y+40, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Vertical", ht=ve
-rect=hatch_fd, lr=3, x=hatches_x, y=loc_2_y+60, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Forward Diagonal", ht=fd
-rect=hatch_bd, lr=3, x=hatches_x, y=loc_2_y+80, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Backward Diagonal", ht=bd
-rect=hatch_lg, lr=3, x=hatches_x, y=loc_2_y+100, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Large Grid", ht=lg
-rect=hatch_dc, lr=3, x=hatches_x, y=loc_2_y+120, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Diagonal Cross", ht=dc
+$lc=red
+$lr=222
+$ld=ddd
+
+///// all the hatched rectangles
+rect=hatch_ho, lr=333, x=hatches_x, y=loc_2_y+0, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="No Hatch"
+rect=hatch_ho, lr=333, x=hatches_x, y=loc_2_y+20, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Horizontal", ht=ho
+rect=hatch_ve, lr=333, x=hatches_x, y=loc_2_y+40, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Vertical", ht=ve
+rect=hatch_fd, x=hatches_x, y=loc_2_y+60, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Forward Diagonal", ht=fd
+rect=hatch_bd, x=hatches_x, y=loc_2_y+80, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Backward Diagonal", ht=bd
+rect=hatch_lg, x=hatches_x, ld=dsh, y=loc_2_y+100, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Large Grid", ht=lg
+rect=hatch_dc, x=hatches_x, ld=dsh, y=loc_2_y+120, w=hatches_w, h=hatches_h, lc=orangered, fc=yellow, tx="Diagonal Cross", ht=dc
 

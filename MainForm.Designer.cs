@@ -39,6 +39,7 @@ namespace NDraw
             AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             BtnGrid = new System.Windows.Forms.ToolStripButton();
             BtnRuler = new System.Windows.Forms.ToolStripButton();
+            BtnAllLayers = new System.Windows.Forms.ToolStripButton();
             MyCanvas = new Canvas();
             RtbLog = new System.Windows.Forms.RichTextBox();
             ToolStrip.SuspendLayout();
@@ -47,7 +48,7 @@ namespace NDraw
             // ToolStrip
             // 
             ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { FileDropDownButton, BtnGrid, BtnRuler });
+            ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { FileDropDownButton, BtnGrid, BtnRuler, BtnAllLayers });
             ToolStrip.Location = new System.Drawing.Point(0, 0);
             ToolStrip.Name = "ToolStrip";
             ToolStrip.Size = new System.Drawing.Size(858, 27);
@@ -115,6 +116,16 @@ namespace NDraw
             BtnRuler.Text = "Ruler";
             BtnRuler.ToolTipText = "Ruler Visible";
             // 
+            // BtnAllLayers
+            // 
+            BtnAllLayers.CheckOnClick = true;
+            BtnAllLayers.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            BtnAllLayers.ImageTransparentColor = System.Drawing.Color.Magenta;
+            BtnAllLayers.Name = "BtnAllLayers";
+            BtnAllLayers.Size = new System.Drawing.Size(47, 24);
+            BtnAllLayers.Text = "All Layers";
+            BtnAllLayers.ToolTipText = "Show or hide all layers";
+            // 
             // Canvas
             // 
             MyCanvas.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
@@ -156,16 +167,19 @@ namespace NDraw
         #endregion
 
         private System.Windows.Forms.ToolStrip ToolStrip;
-        private Canvas MyCanvas;
         private System.Windows.Forms.ToolStripDropDownButton FileDropDownButton;
         private System.Windows.Forms.ToolStripMenuItem RecentMenuItem;
-        private System.Windows.Forms.RichTextBox RtbLog;
         private System.Windows.Forms.ToolStripMenuItem OpenMenuItem;
         private System.Windows.Forms.ToolStripMenuItem SettingsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RenderMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AboutMenuItem;
+
         private System.Windows.Forms.ToolStripButton BtnGrid;
         private System.Windows.Forms.ToolStripButton BtnRuler;
-        private System.Windows.Forms.ToolStripMenuItem AboutMenuItem;
+        private System.Windows.Forms.ToolStripButton BtnAllLayers;
+
+        private Canvas MyCanvas;
+        private System.Windows.Forms.RichTextBox RtbLog;
     }
 }
 
