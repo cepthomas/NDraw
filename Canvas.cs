@@ -12,13 +12,6 @@ using System.Diagnostics;
 using Ephemera.NBagOfTricks;
 
 
-// Fit to grid intervals.
-//_virtMinX = Box(_virtMinX).low;
-//_virtMaxX = Box(_virtMaxX).high;
-//_virtMinY = Box(_virtMinY).low;
-//_virtMaxY = Box(_virtMaxY).high;
-
-
 
 // Things in virtual (page) units use virt* in name, otherwise pixels.
 
@@ -48,29 +41,6 @@ namespace NDraw
         /// <summary>Based on range.</summary>
         string _numFormat = "";
 
-        /// <summary>Current zoom level. AKA scale</summary>
-        float _zoom = 1.0f;
-
-        ///// <summary>Current horizontal offset (pixels).</summary>
-        //int _offsetX = 0;
-
-        ///// <summary>Current vertical offset (pixels).</summary>
-        //int _offsetY = 0;
-
-
-
-        /// <summary>Top left of visible (pixels).</summary>    
-        float _originX = 0;
-        float _originY = 0;
-
-
-        bool _debug = true;
-        int _planarScroll = 2; // (pixels) TODO calc from res?
-
-        float _zoomIncrement = 0.1f;
-
-
-
         /// <summary>Range of all shapes (virtual).</summary>
         float _virtMinX = float.MaxValue;
 
@@ -82,7 +52,25 @@ namespace NDraw
 
         /// <summary>Range of all shapes (virtual).</summary>
         float _virtMaxY = float.MinValue;
+
+        /// <summary>Top left of visible (pixels).</summary>
+        int _originX = 0;
+
+        /// <summary>Top left of visible (pixels).</summary>
+        int _originY = 0;
+
+
+
+        /// <summary>Current zoom level. AKA scale</summary>
+        float _zoom = 1.0f;
+        float _zoomIncrement = 0.1f;
+
+        /// <summary>H/V scroll increment (pixels).</summary>
+        int _planarScroll = 2;
         #endregion
+
+        bool _debug = true;
+
 
         #region Constants
         /// <summary>Left and top borders (pixels).</summary>
@@ -99,12 +87,6 @@ namespace NDraw
 
         /// <summary>How close do you have to be to select a shape (pixels).</summary>
         const int SELECT_RANGE = 10;
-
-        ///// <summary>Maximum zoom.</summary>
-        //const float ZOOM_MAX = 10.0f;
-
-        ///// <summary>Minimum zoom.</summary>
-        //const float ZOOM_MIN = 0.1f;
         #endregion
 
         #region Enum mappings
@@ -130,6 +112,7 @@ namespace NDraw
         {
             InitializeComponent();
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
+            //DoTest();
         }
 
         /// <summary>
@@ -186,45 +169,22 @@ namespace NDraw
         /// </summary>
         public void Reset()
         {
-            //PointF VirtualToDisplay(PointF virt)
-            //{
-            //    var dispX = (virt.X * _zoom) * _page.Scale + _offsetX + BORDER_SIZE;
-            //    var dispY = (virt.Y * _zoom) * _page.Scale + _offsetY + BORDER_SIZE;
-            //    return new(dispX, dispY);
-            //}
-
-            // Calc scale.
-
-
-
-            //_virtMinX = Math.Min(_virtMinX, rect.Left);
-            //_virtMaxX = Math.Max(_virtMaxX, rect.Right);
-            //_virtMinY = Math.Min(_virtMinY, rect.Top);
-            //_virtMaxY = Math.Max(_virtMaxY, rect.Bottom);
-
-            var virtWidth = _virtMaxX + _virtMinX; // 40
+            var virtWidth = _virtMaxX + _virtMinX;
             var virtHeight = _virtMaxY + _virtMinY;
 
             var drawRect = new Rectangle(BORDER_SIZE, BORDER_SIZE, ClientRectangle.Width - BORDER_SIZE, ClientRectangle.Height - BORDER_SIZE);
-            // var scale = virtWidth / drawRect.Width; // pix per unit
-
-            //_zoom = 1.0f;
-
-            var scale = drawRect.Width / virtWidth; // pix per unit
-            _zoom = scale;
-            _zoomIncrement = _zoom / 10;
-
+            //var scale = drawRect.Width / virtWidth;
+            _zoom = (float)drawRect.Width / virtWidth; // pix per unit
+            _zoomIncrement = _zoom / 20;
 
             _originX = 0;
             _originY = 0;
-            //_offsetX = 0;
-            //_offsetY = 0;
         }
         #endregion
 
         #region Misc window handlers
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="e"></param>
         protected override void OnResize(EventArgs e)
@@ -234,7 +194,7 @@ namespace NDraw
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="e"></param>
         protected override void OnLostFocus(EventArgs e)
@@ -252,7 +212,7 @@ namespace NDraw
         /// <summary>
         /// Render whole image to bitmap.
         /// </summary>
-        /// <param name="width">Width </param> 
+        /// <param name="width">Width </param>
         /// <returns></returns>
         public Bitmap GenBitmap(int width)
         {
@@ -497,7 +457,6 @@ namespace NDraw
             Shape? toHighlight = null;
 
             var virtLoc = DisplayToVirtual(e.Location);
-            float range = SELECT_RANGE / _zoom / _page.Scale;
 
             if (_debug)
             {
@@ -507,7 +466,7 @@ namespace NDraw
 
             foreach (Shape shape in _page.Shapes) // TODO if adjacent shapes this gets both.
             {
-                int fp = shape.IsFeaturePoint(virtLoc, range);
+                int fp = shape.IsFeaturePoint(virtLoc, SELECT_RANGE);
 
                 if (fp > 0 && _layers.TryGetValue(shape.Layer, out bool value) && value)
                 {
@@ -553,67 +512,23 @@ namespace NDraw
             // Number of detents the mouse wheel has rotated, multiplied by the WHEEL_DELTA constant.
             var delta = _settings.WheelResolution * e.Delta / SystemInformation.MouseWheelScrollDelta;
 
-
-
-            var virtLoc = DisplayToVirtual(e.Location);
-
-
-
-
-
             switch (e.Button, ctrl, shift)
             {
-                case (MouseButtons.None, true, false): // Zoom in/out at mouse position
+                case (MouseButtons.None, true, false): // Zoom in/out at mouse position TODO1 centering.
                     var zoomFactor = delta > 0 ? _zoomIncrement : -_zoomIncrement; // delta + => scroll up
                     var newZoom = _zoom + zoomFactor;
-
-
-
+                    // Adjust origins to center zoom at mouse.
+                    // float offx = e.X * zoomFactor;
+                    // float offy = e.Y * zoomFactor;
+                    // var xxx = DisplayToVirtual(e.Location);
                     _zoom = newZoom;
-
-
-
-                    //// Adjust origins to center zoom at mouse.
-                    //float offx = e.X * zoomFactor;
-                    //float offy = e.Y * zoomFactor;
-
-
-                    var xxx = DisplayToVirtual(e.Location);
-
+                    // var zzz = VirtualToDisplay(xxx);
 
                     _originX += (e.Location.X - ClientRectangle.Width / 2);
                     _originY += (e.Location.Y - ClientRectangle.Height / 2);
 
-
-                    //_originX += xxx.X;
-                    //_originY += xxx.Y;
-
-
-
-                    //_originX -= (int)offx;
-                    //_originY -= (int)offy;
-
                     redraw = true;
                     break;
-
-                //case (MouseButtons.None, true, false): // Zoom in/out at mouse position
-                //    var zoomFactor = delta > 0 ? ZOOM_MIN : -ZOOM_MIN;
-                //    var newZoom = _zoom + zoomFactor;
-
-                //    if (newZoom > ZOOM_MIN && newZoom < ZOOM_MAX)
-                //    {
-                //        _zoom = newZoom;
-
-                //        // Adjust offsets to center zoom at mouse.
-                //        float offx = e.X * zoomFactor;
-                //        float offy = e.Y * zoomFactor;
-
-                //        _offsetX -= (int)offx;
-                //        _offsetY -= (int)offy;
-
-                //        redraw = true;
-                //    }
-                //    break;
 
                 case (MouseButtons.None, false, true): // Shift left/right
                     _originX -= delta * _planarScroll;
@@ -629,7 +544,7 @@ namespace NDraw
                     break;
             };
 
-            // Clamp origin to >= 0..
+            // Clamp origin to >= 0.
             _originX = Math.Max(_originX, 0);
             _originY = Math.Max(_originY, 0);
 
@@ -643,7 +558,7 @@ namespace NDraw
 
         #region Key events
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
@@ -667,28 +582,22 @@ namespace NDraw
         /// </summary>
         /// <param name="virt"></param>
         /// <returns></returns>
-        PointF VirtualToDisplay(PointF virt)
+        Point VirtualToDisplay(PointF virt)
         {
-            //var dispX = (virt.X * _zoom) + _originX + BORDER_SIZE;
-            //var dispY = (virt.Y * _zoom) + _originY + BORDER_SIZE;
             var dispX = (virt.X * _zoom) - _originX + BORDER_SIZE;
             var dispY = (virt.Y * _zoom) - _originY + BORDER_SIZE;
-            //var dispX = (virt.X * _zoom) * _page.Scale + _offsetX + BORDER_SIZE;
-            //var dispY = (virt.Y * _zoom) * _page.Scale + _offsetY + BORDER_SIZE;
-            return new(dispX, dispY);
+            return new((int)dispX, (int)dispY);
         }
 
         /// <summary>
-        /// Obtain the virtual point for a display position.
+        /// Map a display point to virtual.
         /// </summary>
         /// <param name="disp">The display point.</param>
         /// <returns>The virtual point.</returns>
-        PointF DisplayToVirtual(Point disp)
+        PointF DisplayToVirtual(Point disp) // OK
         {
-            var virtX = ((float)disp.X + _originX - BORDER_SIZE) / _page.Scale / _zoom;
-            var virtY = ((float)disp.Y + _originY - BORDER_SIZE) / _page.Scale / _zoom;
-            //var virtX = ((float)disp.X - _originX - BORDER_SIZE) / _page.Scale / _zoom;
-            //var virtY = ((float)disp.Y - _originY - BORDER_SIZE) / _page.Scale / _zoom;
+            var virtX = ((float)disp.X + _originX - BORDER_SIZE) / _zoom;
+            var virtY = ((float)disp.Y + _originY - BORDER_SIZE) / _zoom;
             return new PointF(virtX, virtY);
         }
 

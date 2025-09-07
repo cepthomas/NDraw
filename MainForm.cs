@@ -25,12 +25,11 @@ namespace NDraw
 
         /// <summary>Detect changed script files.</summary>
         readonly MultiFileWatcher _watcher = new();
-        //readonly MultiFileWatcher _watcher = new();
 
         /// <summary>Current file name.</summary>
         string _fn = "";
 
-        /// <summary>Cache layers.</summary>
+        /// <summary>Cache layer buttons.</summary>
         readonly List<ToolStripButton> _layerButtons = [];
         #endregion
 
@@ -98,15 +97,6 @@ namespace NDraw
             _settings.Save();
             base.OnFormClosing(e);
         }
-
-
-
-
-        //protected override void OnResize(EventArgs e)
-        //{
-        //    MyCanvas.Invalidate();
-        //    base.OnResize(e);
-        //}
         #endregion
 
         #region Main work
@@ -249,7 +239,6 @@ namespace NDraw
             if (openDlg.ShowDialog() == DialogResult.OK)
             {
                 DoFile(openDlg.FileName);
-                //Parse(true);
             }
         }
 
@@ -266,7 +255,6 @@ namespace NDraw
                 if (fn != "Recent")
                 {
                     DoFile(fn);
-                    //Parse(true);
                 }
             }
         }
@@ -354,6 +342,7 @@ namespace NDraw
                     e.Handled = true;
                     break;
             }
+
             base.OnKeyDown(e);
         }
 
@@ -364,11 +353,7 @@ namespace NDraw
         /// <param name="e"></param>
         void Render_Click(object? sender, EventArgs e)
         {
-            //var bmp = MyCanvas.Render(1600);
-            //ShowBitmap(bmp);
-
             var fn = _fn == "" ? Path.GetTempFileName().Replace(".tmp", ".bmp") : _fn.Replace(".nd", ".bmp");
-            //Filter = $"Audio Files|*.wav;*.mp3;*.m4a;*.flac",
 
             using SaveFileDialog saveDlg = new()
             {
@@ -387,7 +372,6 @@ namespace NDraw
                     2 => ImageFormat.Png,
                     3 => ImageFormat.Jpeg,
                     _ => null
-
                 };
 
                 if (fmt is not null)

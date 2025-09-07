@@ -19,9 +19,6 @@ namespace NDraw
         /// <summary>Grid spacing in virtual units.</summary>
         public float Grid { get; set; } = 5.0f;
 
-        /// <summary>Pixels per unit.</summary>
-        public float Scale { get; set; } = 10.0f;
-
         /// <summary>Real world.</summary>
         public string UnitsName { get; set; } = "feet";
 

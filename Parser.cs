@@ -49,6 +49,7 @@ namespace NDraw
         PointStyle _ss = PointStyle.None;
         PointStyle _es = PointStyle.None;
         #endregion
+
         #endregion
 
         #region Enum mappings
@@ -93,25 +94,11 @@ namespace NDraw
         #endregion
 
         /// <summary>
-        /// 
+        /// Do the work.
         /// </summary>
-        /// <param name="fn"></param>
+        /// <param name="fn">User file.</param>
         public Parser(string fn)
         {
-            // Reset.
-            _layer = "?";
-            _fc = Color.GhostWhite;
-            _lc = Color.DimGray;
-            _lt = 2.0f;
-            _ld = DashStyle.Solid;
-            _ta = ContentAlignment.MiddleCenter;
-            _ss = PointStyle.None;
-            _es = PointStyle.None;
-            _row = 0;
-
-            Errors.Clear();
-            Page = new();
-
             foreach (string sf in File.ReadAllLines(fn))
             {
                 _row++;
@@ -127,6 +114,7 @@ namespace NDraw
                     // Don't torture the author.
                     if (Errors.Count >= 5)
                     {
+                        Errors.Add($"And more...");
                         return;
                     }
                 }
@@ -192,7 +180,6 @@ namespace NDraw
             {
                 case "page":
                     Page.UnitsName = ParseText("un", "");
-                    Page.Scale = ParseNumeric("sc", 1.0f);
                     Page.Grid = ParseNumeric("gr", 1.0f);
                     break;
 
