@@ -13,8 +13,6 @@ using Ephemera.NBagOfTricks;
 
 
 
-// Things in virtual (page) units use virt* in name, otherwise pixels.
-
 namespace NDraw
 {
     public partial class Canvas : UserControl
@@ -41,35 +39,51 @@ namespace NDraw
         /// <summary>Based on range.</summary>
         string _numFormat = "";
 
-        /// <summary>Range of all shapes (virtual).</summary>
-        float _virtMinX = float.MaxValue;
-
-        /// <summary>Range of all shapes (virtual).</summary>
-        float _virtMinY = float.MaxValue;
-
-        /// <summary>Range of all shapes (virtual).</summary>
-        float _virtMaxX = float.MinValue;
-
-        /// <summary>Range of all shapes (virtual).</summary>
-        float _virtMaxY = float.MinValue;
-
         /// <summary>Top left of visible (pixels).</summary>
         int _originX = 0;
 
         /// <summary>Top left of visible (pixels).</summary>
         int _originY = 0;
 
-
-
-        /// <summary>Current zoom level. AKA scale</summary>
-        float _zoom = 1.0f;
-        float _zoomIncrement = 0.1f;
-
         /// <summary>H/V scroll increment (pixels).</summary>
         int _planarScroll = 2;
+
+        /// <summary>Current zoom level aka scale.</summary>
+        float _zoom = 1.0f;
+
+        /// <summary>Zoom step.</summary>
+        float _zoomIncrement = 0.1f;
+
+        /// <summary>Dev.</summary>
+        readonly bool _debug = true;
         #endregion
 
-        bool _debug = true;
+        #region TODO1 home
+        void DoTest()
+        {
+            _zoom = (float)ClientRectangle.Width / 40.0f; // pix per unit
+            _zoomIncrement = _zoom / 20;
+
+            _originX = 0;
+            _originY = 0;
+
+            //_center.X = 80;
+            //_center.Y = 150;
+
+            PointF pf = new(309, 188);
+            Point pd = VirtualToDisplay(pf);
+            var p1 = DisplayToVirtual(pd);
+
+            _zoom += 10.0f;
+            pd = VirtualToDisplay(pf);
+            p1 = DisplayToVirtual(pd);
+        }
+
+        Rectangle DrawArea()
+        {
+            return new Rectangle(BORDER_SIZE, BORDER_SIZE, ClientRectangle.Width - BORDER_SIZE, ClientRectangle.Height - BORDER_SIZE);
+        }
+        #endregion
 
 
         #region Constants
@@ -112,7 +126,8 @@ namespace NDraw
         {
             InitializeComponent();
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-            //DoTest();
+            
+            DoTest();
         }
 
         /// <summary>
@@ -126,18 +141,18 @@ namespace NDraw
             _settings = settings;
             _layers.Clear();
 
-            // Get x and y ranges.
-            foreach (var shape in page.Shapes)
-            {
-                var rect = shape.ToRect();
-                _virtMinX = Math.Min(_virtMinX, rect.Left);
-                _virtMaxX = Math.Max(_virtMaxX, rect.Right);
-                _virtMinY = Math.Min(_virtMinY, rect.Top);
-                _virtMaxY = Math.Max(_virtMaxY, rect.Bottom);
-            }
+            // // Get x and y virtual ranges.
+            // foreach (var shape in page.Shapes)
+            // {
+            //     var rect = shape.ToRect();
+            //     _virtMinX = Math.Min(_virtMinX, rect.Left);
+            //     _virtMaxX = Math.Max(_virtMaxX, rect.Right);
+            //     _virtMinY = Math.Min(_virtMinY, rect.Top);
+            //     _virtMaxY = Math.Max(_virtMaxY, rect.Bottom);
+            // }
 
-            _numFormat = StringUtils.FormatSpecifier(MathF.Max(_virtMaxX, _virtMaxY));
-        }
+            _numFormat = StringUtils.FormatSpecifier(_page.Width);
+/        }
         #endregion
 
         #region Public functions
@@ -169,14 +184,8 @@ namespace NDraw
         /// </summary>
         public void Reset()
         {
-            var virtWidth = _virtMaxX + _virtMinX;
-            var virtHeight = _virtMaxY + _virtMinY;
-
-            var drawRect = new Rectangle(BORDER_SIZE, BORDER_SIZE, ClientRectangle.Width - BORDER_SIZE, ClientRectangle.Height - BORDER_SIZE);
-            //var scale = drawRect.Width / virtWidth;
-            _zoom = (float)drawRect.Width / virtWidth; // pix per unit
+            _zoom = (float)DrawArea().Width / _page.Width; // pixels per unit
             _zoomIncrement = _zoom / 20;
-
             _originX = 0;
             _originY = 0;
         }
@@ -212,14 +221,12 @@ namespace NDraw
         /// <summary>
         /// Render whole image to bitmap.
         /// </summary>
-        /// <param name="width">Width </param>
+        /// <param name="width">Final width in pixels.</param>
         /// <returns></returns>
-        public Bitmap GenBitmap(int width)
+        public Bitmap GenBitmap(int width) // TODO1
         {
             // Scale per request.
-            var virtWidth = _virtMaxX + _virtMinX; // 40
-            var virtHeight = _virtMaxY + _virtMinY;
-            var ratio = virtHeight / virtWidth;
+            var ratio = _page.Height / _page.Width;
             var height = (int)(width * ratio);
 
             // Cache current UI state.
@@ -246,6 +253,15 @@ namespace NDraw
 
         #region Drawing
         /// <summary>
+        /// Draw the UI.
+        /// </summary>
+        /// <param name="e">The particular PaintEventArgs.</param>
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            DrawIt(e.Graphics, ClientRectangle);
+        }
+
+        /// <summary>
         /// Does the actual drawing.
         /// </summary>
         /// <param name="g"></param>
@@ -265,8 +281,7 @@ namespace NDraw
             }
 
             // Draw the shapes, clipped.
-            var drawRect = new Rectangle(BORDER_SIZE, BORDER_SIZE, client.Width - BORDER_SIZE, client.Height - BORDER_SIZE);
-            g.SetClip(drawRect);
+            g.SetClip(DrawArea());
 
             foreach (var shape in _page.Shapes)
             {
@@ -285,7 +300,6 @@ namespace NDraw
                     var disptl = VirtualToDisplay(bounds.Location);
                     var dispbr = VirtualToDisplay(new(bounds.Right, bounds.Bottom));
                     var dispRect = new RectangleF(disptl, new SizeF(dispbr.X - disptl.X, dispbr.Y - disptl.Y));
-                    //g.DrawRectangle(Pens.Red, dispRect.X, dispRect.Y, dispRect.Width, dispRect.Height);
 
                     switch (shape)
                     {
@@ -336,19 +350,73 @@ namespace NDraw
             {
                 using Pen penMark = new(Color.Red, 1);
                 int sz = 50;
-                g.DrawRectangle(penMark, BORDER_SIZE, BORDER_SIZE, sz, sz);
-                g.DrawRectangle(penMark, BORDER_SIZE + 500, BORDER_SIZE, sz, sz);
-                g.DrawRectangle(penMark, BORDER_SIZE, BORDER_SIZE + 500, sz, sz);
+                g.FillRectangle(Brushes.Violet, DrawArea().Left, DrawArea().Top, sz, sz);
+                g.FillRectangle(Brushes.Violet, DrawArea().Left + 500, DrawArea().Top, sz, sz);
+                g.FillRectangle(Brushes.Violet, DrawArea().Left, DrawArea().Top + 500, sz, sz);
             }
         }
 
         /// <summary>
-        /// Do the work.
+        /// Draw the grid.
         /// </summary>
-        /// <param name="e">The particular PaintEventArgs.</param>
-        protected override void OnPaint(PaintEventArgs e)
+        /// <param name="g">The Graphics object to use.</param>
+        void DrawGrid(Graphics g, Rectangle client)
         {
-            DrawIt(e.Graphics, ClientRectangle);
+            using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH);
+
+            var fontPixels = g.MeasureString("X", _font);
+
+            // Draw main axes.
+            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, client.Height);
+            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, client.Width, BORDER_SIZE);
+
+            // Draw X-Axis ticks.
+            for (float x = 0; x <= _page.Width; x += _page.Grid)
+            {
+                var xd = VirtualToDisplay(new(x, 0)).X;
+                if (xd > client.Width)
+                {
+                    break;
+                }
+                else if (xd > BORDER_SIZE) // clip
+                {
+                    if (_showGrid)
+                    {
+                        g.DrawLine(penGrid, xd, BORDER_SIZE - TICK_SIZE, xd, client.Width);
+                    }
+
+                    if (_showRuler)
+                    {
+                        //g.DrawString(x.ToString(_numFormat), _font, Brushes.Black, xd - TICK_SIZE, 0);
+                        g.TranslateTransform(xd + (int)(fontPixels.Width / 2), 5);
+                        g.RotateTransform(90);
+                        g.DrawString(x.ToString(_numFormat), _font, Brushes.Black, 0, 0);
+                        g.ResetTransform();
+                    }
+                }
+            }
+
+            // Draw Y-Axis ticks.
+            for (float y = 0; y <= _page.Height ; y += _page.Grid)
+            {
+                var yd = VirtualToDisplay(new(0, y)).Y;
+                if (yd > client.Height)
+                {
+                    break;
+                }
+                else if (yd > BORDER_SIZE) // clip
+                {
+                    if (_showGrid)
+                    {
+                        g.DrawLine(penGrid, BORDER_SIZE - TICK_SIZE, yd, client.Width, yd);
+                    }
+
+                    if (_showRuler)
+                    {
+                        g.DrawString(y.ToString(_numFormat), _font, Brushes.Black, 0, yd - TICK_SIZE);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -380,69 +448,6 @@ namespace NDraw
             }
 
             g.ResetTransform();
-        }
-
-        /// <summary>
-        /// Draw the grid.
-        /// </summary>
-        /// <param name="g">The Graphics object to use.</param>
-        void DrawGrid(Graphics g, Rectangle client)
-        {
-            using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH);
-
-            var fontPixels = g.MeasureString("X", _font);
-
-            // Draw main axes.
-            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, client.Height);
-            g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, client.Width, BORDER_SIZE);
-
-            // Draw X-Axis ticks.
-            for (float x = 0;  ; x += _page.Grid) //_virtMinX
-            {
-                var xd = VirtualToDisplay(new(x, 0)).X;
-                if(xd > client.Width)
-                {
-                    break;
-                }
-                else if(xd > BORDER_SIZE) // clip
-                {
-                    if(_showGrid)
-                    {
-                        g.DrawLine(penGrid, xd, BORDER_SIZE - TICK_SIZE, xd, client.Width);
-                    }
-
-                    if (_showRuler)
-                    {
-                        //g.DrawString(x.ToString(_numFormat), _font, Brushes.Black, xd - TICK_SIZE, 0);
-                        g.TranslateTransform(xd + (int)(fontPixels.Width / 2), 5);
-                        g.RotateTransform(90);
-                        g.DrawString(x.ToString(_numFormat), _font, Brushes.Black, 0, 0);
-                        g.ResetTransform();
-                    }
-                }
-            }
-
-            // Draw Y-Axis ticks.
-            for (float y = 0; ; y += _page.Grid) //_virtMinY
-            {
-                var yd = VirtualToDisplay(new(0, y)).Y;
-                if (yd > client.Height)
-                {
-                    break;
-                }
-                else if (yd > BORDER_SIZE) // clip
-                {
-                    if (_showGrid)
-                    {
-                        g.DrawLine(penGrid, BORDER_SIZE - TICK_SIZE, yd, client.Width, yd);
-                    }
-
-                    if (_showRuler)
-                    {
-                        g.DrawString(y.ToString(_numFormat), _font, Brushes.Black, 0, yd - TICK_SIZE);
-                    }
-                }
-            }
         }
         #endregion
 
@@ -514,19 +519,10 @@ namespace NDraw
 
             switch (e.Button, ctrl, shift)
             {
-                case (MouseButtons.None, true, false): // Zoom in/out at mouse position TODO1 centering.
+                case (MouseButtons.None, true, false):
                     var zoomFactor = delta > 0 ? _zoomIncrement : -_zoomIncrement; // delta + => scroll up
                     var newZoom = _zoom + zoomFactor;
-                    // Adjust origins to center zoom at mouse.
-                    // float offx = e.X * zoomFactor;
-                    // float offy = e.Y * zoomFactor;
-                    // var xxx = DisplayToVirtual(e.Location);
                     _zoom = newZoom;
-                    // var zzz = VirtualToDisplay(xxx);
-
-                    _originX += (e.Location.X - ClientRectangle.Width / 2);
-                    _originY += (e.Location.Y - ClientRectangle.Height / 2);
-
                     redraw = true;
                     break;
 
@@ -544,9 +540,9 @@ namespace NDraw
                     break;
             };
 
-            // Clamp origin to >= 0.
-            _originX = Math.Max(_originX, 0);
-            _originY = Math.Max(_originY, 0);
+            // Clamp origin to >= 0. TODO1
+            //_originX = Math.Max(_originX, 0);
+            //_originY = Math.Max(_originY, 0);
 
             if (redraw)
             {

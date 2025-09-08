@@ -50,8 +50,9 @@ page=pg_1, un="feet", gr=10.0, sc=5
 Field | Type      | Def       | Description
 ----  | ----      | ---       | ----------
 un    | text      | ""        | units name
+wd    | width     |           | in units
+ht    | height    |           | in units
 gr    | number    | 1.0       | grid spacing in virtual units
-sc    | number    | 1.0       | scale - pixels per virtual unit
 
 
 ## Globals

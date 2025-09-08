@@ -180,6 +180,8 @@ namespace NDraw
             {
                 case "page":
                     Page.UnitsName = ParseText("un", "");
+                    Page.Width = ParseNumeric("wd");
+                    Page.Height = ParseNumeric("ht");
                     Page.Grid = ParseNumeric("gr", 1.0f);
                     break;
 

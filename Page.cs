@@ -16,8 +16,14 @@ namespace NDraw
     public class Page
     {
         #region Properties
+        /// <summary>Width in virtual units.</summary>
+        public float Width { get; set; } = 100.0f;
+
+        /// <summary>Height  virtual units.</summary>
+        public float Height { get; set; } = 100.0f;
+
         /// <summary>Grid spacing in virtual units.</summary>
-        public float Grid { get; set; } = 5.0f;
+        public float Grid { get; set; } = 1.0f;
 
         /// <summary>Real world.</summary>
         public string UnitsName { get; set; } = "feet";

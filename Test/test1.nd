@@ -1,6 +1,6 @@
 
 // page: units grid scale
-page=pg_1, un="feet", gr=10.0 //, sc=5
+page=pg_1, un="feet", wd=200, ht=200, gr=10.0
 
 // global values: can be changed any time
 $lt=3

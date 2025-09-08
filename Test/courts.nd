@@ -1,17 +1,11 @@
 
-// One half of combined tt, pb, lt courts.
-
-page=pg_1, un="feet", gr=2.0 //, sc=1 //50
-// un  | units name
-// gr  | grid spacing in virtual units
-// sc  | scale - pixels per virtual unit
-
+///// Page /////
+page=pg_1, un="feet", wd=42, ht=44, gr=2.0
 
 ///// General geometry /////
-center_x=20 //15
-center_y=40 //25
+center_x=20
+center_y=40
 $lt=5
-
 
 ///// Lawn Tennis court /////
 $lc=blue
@@ -38,7 +32,6 @@ line=lt_cntr,  sx=center_x, sy=center_y-21, ex=center_x, ey=center_y
 line=lt_singR, sx=R-4.5, sy=T, ex=R-4.5, ey=B
 line=lt_dblsR, sx=R, sy=T, ex=R, ey=B
 
-
 ///// Pickleball court /////
 $lc=red
 $lr=pball
@@ -60,12 +53,10 @@ line=pb_singl, sx=L, sy=T, ex=L, ey=B
 line=pb_cntr,  sx=center_x, sy=T, ex=center_x, ey=T+15
 line=pb_singr, sx=R, sy=T, ex=R, ey=B
 
-
 ///// Touchtennis court /////
 $lc=dimgray
 $lr=touch
 $ld=sld
-// 40 l 20 w 
 
 L=center_x-10
 R=center_x+10
