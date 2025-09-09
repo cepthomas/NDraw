@@ -9,8 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 using Ephemera.NBagOfTricks;
-
 
 
 namespace NDraw
@@ -50,41 +50,18 @@ namespace NDraw
 
         /// <summary>Current zoom level aka scale.</summary>
         float _zoom = 1.0f;
+        #endregion
 
-        /// <summary>Zoom step.</summary>
-        float _zoomIncrement = 0.1f;
-
+        #region Dev
         /// <summary>Dev.</summary>
-        readonly bool _debug = true;
-        #endregion
+        readonly bool _debug = false;
 
-        #region TODO1 home
-        void DoTest()
+        public void DumpBitmap()
         {
-            _zoom = (float)ClientRectangle.Width / 40.0f; // pix per unit
-            _zoomIncrement = _zoom / 20;
-
-            _originX = 0;
-            _originY = 0;
-
-            //_center.X = 80;
-            //_center.Y = 150;
-
-            PointF pf = new(309, 188);
-            Point pd = VirtualToDisplay(pf);
-            var p1 = DisplayToVirtual(pd);
-
-            _zoom += 10.0f;
-            pd = VirtualToDisplay(pf);
-            p1 = DisplayToVirtual(pd);
-        }
-
-        Rectangle DrawArea()
-        {
-            return new Rectangle(BORDER_SIZE, BORDER_SIZE, ClientRectangle.Width - BORDER_SIZE, ClientRectangle.Height - BORDER_SIZE);
+            Bitmap bmp = GenBitmap(1600);
+            bmp.Save(@"C:\Users\cepth\Desktop\courts.bmp", ImageFormat.Bmp);
         }
         #endregion
-
 
         #region Constants
         /// <summary>Left and top borders (pixels).</summary>
@@ -126,8 +103,6 @@ namespace NDraw
         {
             InitializeComponent();
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-            
-            DoTest();
         }
 
         /// <summary>
@@ -139,20 +114,9 @@ namespace NDraw
         {
             _page = page;
             _settings = settings;
-            _layers.Clear();
-
-            // // Get x and y virtual ranges.
-            // foreach (var shape in page.Shapes)
-            // {
-            //     var rect = shape.ToRect();
-            //     _virtMinX = Math.Min(_virtMinX, rect.Left);
-            //     _virtMaxX = Math.Max(_virtMaxX, rect.Right);
-            //     _virtMinY = Math.Min(_virtMinY, rect.Top);
-            //     _virtMaxY = Math.Max(_virtMaxY, rect.Bottom);
-            // }
-
             _numFormat = StringUtils.FormatSpecifier(_page.Width);
-/        }
+            _layers.Clear();
+        }
         #endregion
 
         #region Public functions
@@ -184,8 +148,7 @@ namespace NDraw
         /// </summary>
         public void Reset()
         {
-            _zoom = (float)DrawArea().Width / _page.Width; // pixels per unit
-            _zoomIncrement = _zoom / 20;
+            _zoom = DrawArea().Width / _page.Width; // pixels per unit
             _originX = 0;
             _originY = 0;
         }
@@ -193,7 +156,6 @@ namespace NDraw
 
         #region Misc window handlers
         /// <summary>
-        ///
         /// </summary>
         /// <param name="e"></param>
         protected override void OnResize(EventArgs e)
@@ -203,7 +165,6 @@ namespace NDraw
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="e"></param>
         protected override void OnLostFocus(EventArgs e)
@@ -223,7 +184,7 @@ namespace NDraw
         /// </summary>
         /// <param name="width">Final width in pixels.</param>
         /// <returns></returns>
-        public Bitmap GenBitmap(int width) // TODO1
+        public Bitmap GenBitmap(int width)
         {
             // Scale per request.
             var ratio = _page.Height / _page.Width;
@@ -234,8 +195,10 @@ namespace NDraw
             var originX = _originX;
             var originY = _originY;
 
-            // Reset for render.
-            Reset();
+            // Reset specifically for render.
+            _zoom = (width - BORDER_SIZE) / _page.Width; // pixels per unit
+            _originX = 0;
+            _originY = 0;
 
             // Do the render.
             Bitmap bmp = new(width, height);
@@ -281,7 +244,9 @@ namespace NDraw
             }
 
             // Draw the shapes, clipped.
-            g.SetClip(DrawArea());
+            //g.SetClip(DrawArea());
+            var drawRect = new Rectangle(BORDER_SIZE, BORDER_SIZE, client.Width - BORDER_SIZE, client.Height - BORDER_SIZE);
+            g.SetClip(drawRect);
 
             foreach (var shape in _page.Shapes)
             {
@@ -348,11 +313,11 @@ namespace NDraw
 
             if (_debug)
             {
-                using Pen penMark = new(Color.Red, 1);
-                int sz = 50;
-                g.FillRectangle(Brushes.Violet, DrawArea().Left, DrawArea().Top, sz, sz);
-                g.FillRectangle(Brushes.Violet, DrawArea().Left + 500, DrawArea().Top, sz, sz);
-                g.FillRectangle(Brushes.Violet, DrawArea().Left, DrawArea().Top + 500, sz, sz);
+                var sz = 50;
+                var da = DrawArea();
+                g.FillRectangle(Brushes.Violet, da.Left,     da.Top,     sz, sz);
+                g.FillRectangle(Brushes.Violet, da.Left+500, da.Top,     sz, sz);
+                g.FillRectangle(Brushes.Violet, da.Left,     da.Top+500, sz, sz);
             }
         }
 
@@ -362,18 +327,19 @@ namespace NDraw
         /// <param name="g">The Graphics object to use.</param>
         void DrawGrid(Graphics g, Rectangle client)
         {
-            using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH);
-
-            var fontPixels = g.MeasureString("X", _font);
+            using Pen penGrid = new(_settings.GridColor, GRID_LINE_WIDTH + 3);
 
             // Draw main axes.
             g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, client.Height);
             g.DrawLine(penGrid, BORDER_SIZE, BORDER_SIZE, client.Width, BORDER_SIZE);
 
-            // Draw X-Axis ticks.
+            penGrid.Width = GRID_LINE_WIDTH;
+            var fontPixels = g.MeasureString("X", _font);
+
+            // Draw X-Axis ticks and vertical lines.
             for (float x = 0; x <= _page.Width; x += _page.Grid)
             {
-                var xd = VirtualToDisplay(new(x, 0)).X;
+                var xd = VtoDX(x);// (new(x, 0)).X;
                 if (xd > client.Width)
                 {
                     break;
@@ -382,7 +348,7 @@ namespace NDraw
                 {
                     if (_showGrid)
                     {
-                        g.DrawLine(penGrid, xd, BORDER_SIZE - TICK_SIZE, xd, client.Width);
+                        g.DrawLine(penGrid, xd, BORDER_SIZE - TICK_SIZE, xd, client.Height);
                     }
 
                     if (_showRuler)
@@ -396,10 +362,10 @@ namespace NDraw
                 }
             }
 
-            // Draw Y-Axis ticks.
+            // Draw Y-Axis ticks and horizontal lines.
             for (float y = 0; y <= _page.Height ; y += _page.Grid)
             {
-                var yd = VirtualToDisplay(new(0, y)).Y;
+                var yd = VtoDY(y);// new(0, y)).Y;
                 if (yd > client.Height)
                 {
                     break;
@@ -461,17 +427,24 @@ namespace NDraw
             bool redraw = false;
             Shape? toHighlight = null;
 
-            var virtLoc = DisplayToVirtual(e.Location);
+            var virtLoc = DisplayToVirtualX(e.Location);
 
             if (_debug)
             {
-                toolTip.Show($"x:{virtLoc.X.ToString(_numFormat)} y:{virtLoc.Y.ToString(_numFormat)}", this, e.X + 15, e.Y);
+                List<string> list =
+                [
+                    $"x:{virtLoc.X.ToString(_numFormat)}",
+                    $"y:{virtLoc.Y.ToString(_numFormat)}",
+                    $"[{e.X}:{e.Y}]"
+                ];
+
+                toolTip.Show(string.Join("  ", list), this, e.X + 15, e.Y);
                 return;
             }
 
             foreach (Shape shape in _page.Shapes) // TODO if adjacent shapes this gets both.
             {
-                int fp = shape.IsFeaturePoint(virtLoc, SELECT_RANGE);
+                int fp = shape.IsFeaturePoint(virtLoc, SELECT_RANGE / _zoom);
 
                 if (fp > 0 && _layers.TryGetValue(shape.Layer, out bool value) && value)
                 {
@@ -516,11 +489,12 @@ namespace NDraw
 
             // Number of detents the mouse wheel has rotated, multiplied by the WHEEL_DELTA constant.
             var delta = _settings.WheelResolution * e.Delta / SystemInformation.MouseWheelScrollDelta;
+            var zoomIncr = _zoom / 20;
 
             switch (e.Button, ctrl, shift)
             {
                 case (MouseButtons.None, true, false):
-                    var zoomFactor = delta > 0 ? _zoomIncrement : -_zoomIncrement; // delta + => scroll up
+                    var zoomFactor = delta > 0 ? zoomIncr : -zoomIncr; // delta + => scroll up
                     var newZoom = _zoom + zoomFactor;
                     _zoom = newZoom;
                     redraw = true;
@@ -528,21 +502,19 @@ namespace NDraw
 
                 case (MouseButtons.None, false, true): // Shift left/right
                     _originX -= delta * _planarScroll;
+                    _originX = Math.Max(0, _originX);
                     redraw = true;
                     break;
 
                 case (MouseButtons.None, false, false): // Shift up/down
                     _originY -= delta * _planarScroll;
+                    _originY = Math.Max(0, _originY);
                     redraw = true;
                     break;
 
                 default:
                     break;
             };
-
-            // Clamp origin to >= 0. TODO1
-            //_originX = Math.Max(_originX, 0);
-            //_originY = Math.Max(_originY, 0);
 
             if (redraw)
             {
@@ -554,7 +526,7 @@ namespace NDraw
 
         #region Key events
         /// <summary>
-        ///
+        /// Key down.
         /// </summary>
         /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
@@ -573,48 +545,32 @@ namespace NDraw
         #endregion
 
         #region Mapping functions
-        /// <summary>
-        /// Map a virtual point to the display.
-        /// </summary>
-        /// <param name="virt"></param>
+        /// <summary>Helper to get main drawing area.</summary>
         /// <returns></returns>
-        Point VirtualToDisplay(PointF virt)
-        {
-            var dispX = (virt.X * _zoom) - _originX + BORDER_SIZE;
-            var dispY = (virt.Y * _zoom) - _originY + BORDER_SIZE;
-            return new((int)dispX, (int)dispY);
-        }
+        Rectangle DrawArea() { return new Rectangle(BORDER_SIZE, BORDER_SIZE, ClientRectangle.Width - BORDER_SIZE, ClientRectangle.Height - BORDER_SIZE); }
 
-        /// <summary>
-        /// Map a display point to virtual.
-        /// </summary>
-        /// <param name="disp">The display point.</param>
-        /// <returns>The virtual point.</returns>
-        PointF DisplayToVirtual(Point disp) // OK
-        {
-            var virtX = ((float)disp.X + _originX - BORDER_SIZE) / _zoom;
-            var virtY = ((float)disp.Y + _originY - BORDER_SIZE) / _zoom;
-            return new PointF(virtX, virtY);
-        }
+        /// <summary>Map a virtual point to the display.</summary>
+        Point VirtualToDisplay(PointF virt) { return new(VtoDX(virt.X), VtoDY(virt.Y)); }
 
-        /// <summary>
-        /// Make a square with the point at the center.
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="range"></param>
-        /// <returns></returns>
+        int VtoDX(float x) { return (int)((x * _zoom) - _originX + BORDER_SIZE); }
+
+        int VtoDY(float y) { return (int)((y * _zoom) - _originY + BORDER_SIZE); }
+
+        /// <summary>Map a display point to virtual.</summary>
+        PointF DisplayToVirtualX(Point disp) { return new PointF(DtoVX(disp.X), DtoVY(disp.Y)); }
+
+        float DtoVX(int x) { return ((float)x + _originX - BORDER_SIZE) / _zoom; }
+
+        float DtoVY(int y) { return ((float)y + _originY - BORDER_SIZE) / _zoom; }
+
+        /// <summary>Make a square with the point at the center.</summary>
         RectangleF Squarify(float x, float y, float range)
         {
             RectangleF r = new(x - range, y - range, range * 2, range * 2);
             return r;
         }
 
-        /// <summary>
-        /// Return the integral grid neighbors.
-        /// </summary>
-        /// <param name="val">(low,high) neighbors</param>
-        /// <returns></returns>
+        /// <summary>Return the integral grid neighbors.</summary>
         (float low, float high) Box(float val)
         {
             var v = val - (val % _page.Grid);

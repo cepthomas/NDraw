@@ -1,6 +1,6 @@
 
 ///// Page /////
-page=pg_1, un="feet", wd=42, ht=44, gr=2.0
+page=pg_1, un="feet", wd=40, ht=42, gr=2.0
 
 ///// General geometry /////
 center_x=20
@@ -10,7 +10,7 @@ $lt=5
 ///// Lawn Tennis court /////
 $lc=blue
 $lr=tennis
-$ld=dsh
+$ld=dot
 // width = s27 d36
 // half ct = 39
 // base to svc = 18
@@ -35,7 +35,7 @@ line=lt_dblsR, sx=R, sy=T, ex=R, ey=B
 ///// Pickleball court /////
 $lc=red
 $lr=pball
-$ld=dot
+$ld=dsh
 
 L=center_x-10
 R=center_x+10

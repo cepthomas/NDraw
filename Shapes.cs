@@ -71,10 +71,12 @@ namespace NDraw
         protected static int _nextId = 1;
         #endregion
 
+        #region Lifecycle
         protected Shape()
         {
             Id = _nextId++;
         }
+        #endregion
 
         #region Common functions
         /// <summary>

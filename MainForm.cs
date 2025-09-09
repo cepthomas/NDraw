@@ -130,7 +130,6 @@ namespace NDraw
             {
                 Tell($"Parsing {_fn}");
                 Parser p = new(fn);
-                //dev p.Page.Save("xyz.json");
 
                 if (p.Errors.Count == 0)
                 {
@@ -145,6 +144,8 @@ namespace NDraw
                     CreateLayerButtons(p);
 
                     MyCanvas.Invalidate();
+
+                    //MyCanvas.DumpBitmap(); // dev
                 }
                 else
                 {
@@ -154,7 +155,7 @@ namespace NDraw
             catch (Exception ex)
             {
                 Tell($"Parse Fail: {ex}");
-                _fn = null;
+                _fn = "";
                 Text = "NDraw - no file";
             }
         }
