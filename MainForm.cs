@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
 using System.Drawing.Imaging;
+using System.Reflection;
 using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfUis;
 
@@ -40,6 +41,7 @@ namespace NDraw
         public MainForm()
         {
             InitializeComponent();
+            Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
 
             Text = "NDraw - no file";
 

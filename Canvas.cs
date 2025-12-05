@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Drawing.Imaging;
 using Ephemera.NBagOfTricks;
+using System.Reflection;
 
 
 namespace NDraw
