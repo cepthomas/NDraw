@@ -19,12 +19,6 @@ namespace NDraw
     public sealed class UserSettings : SettingsCore
     {
         #region Properties - editable
-        [DisplayName("Form Color")]
-        [Description("Form Color")]
-        [Browsable(true)]
-        [JsonConverter(typeof(JsonColorConverter))]
-        public Color BackColor { get; set; } = Color.LightGray;
-
         [DisplayName("Grid Color")]
         [Description("Grid Color")]
         [Browsable(true)]

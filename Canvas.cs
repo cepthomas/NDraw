@@ -231,7 +231,13 @@ namespace NDraw
         /// <param name="client"></param>
         void DrawIt(Graphics g, Rectangle client)
         {
-            g.Clear(_settings.BackColor);
+            g.Clear(BackColor);
+
+            if (_page.Shapes.Count == 0)
+            {
+                g.DrawString($"No Data", _font, Brushes.Black, 5, 15);
+                return;
+            }
 
             // Draw the grid first.
             DrawGrid(g, client);
