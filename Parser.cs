@@ -107,7 +107,7 @@ namespace NDraw
                 {
                     ParseLine(sf);
                 }
-                catch (Exception ex) // SyntaxException KeyNotFoundException FormatException
+                catch (Exception ex) // SyntaxException KeyNotFoundException NotSupportedException
                 {
                     Errors.Add($"Parse error at row {_row}: {ex.Message}");
 
