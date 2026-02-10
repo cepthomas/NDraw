@@ -57,10 +57,11 @@ namespace NDraw
         /// <summary>Dev.</summary>
         readonly bool _debug = false;
 
+        /// <summary>Dev.</summary>
         public void DumpBitmap()
         {
             Bitmap bmp = GenBitmap(1600);
-            bmp.Save(@"C:\Users\cepth\Desktop\courts.bmp", ImageFormat.Bmp);
+            bmp.Save(@"out.bmp", ImageFormat.Bmp);
         }
         #endregion
 
