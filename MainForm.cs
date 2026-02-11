@@ -215,11 +215,11 @@ namespace NDraw
                     break;
 
                 case "All Layers":
-                    _layerButtons.ForEach(b => { MyCanvas.SetLayer(b.Text, BtnAllLayers.Checked); });
+                    _layerButtons.ForEach(b => { MyCanvas.SetLayer(b.Text ?? "???", BtnAllLayers.Checked); });
                     break;
 
                 default:
-                    MyCanvas.SetLayer(btn.Text, btn.Checked);
+                    MyCanvas.SetLayer(btn.Text ?? "???", btn.Checked);
                     break;
             }
         }
