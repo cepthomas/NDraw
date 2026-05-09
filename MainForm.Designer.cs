@@ -155,7 +155,6 @@ namespace NDraw
             Controls.Add(MyCanvas);
             Controls.Add(RtbLog);
             Controls.Add(ToolStrip);
-            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             Name = "MainForm";
             Text = "Form1";
             ToolStrip.ResumeLayout(false);
