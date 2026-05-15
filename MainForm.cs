@@ -392,14 +392,10 @@ namespace NDraw
         /// <param name="bmp"></param>
         void ShowBitmap(Bitmap bmp)
         {
-            Size sz = new(bmp.Width / 2, bmp.Height / 2);
-
-            using var bmpr = bmp.Resize(sz.Width, sz.Height);
-
             PictureBox pic = new()
             {
                 Dock = DockStyle.Fill,
-                Image = bmpr,
+                Image = bmp,
             };
 
             using Form f = new()
@@ -410,7 +406,7 @@ namespace NDraw
                 ShowIcon = false,
                 ShowInTaskbar = false
             };
-            f.ClientSize = sz; // do after construction
+            f.ClientSize = bmp.Size; // must do after construction
             f.Text = $"Original:{bmp.Width}X{bmp.Height} Window:{Width}X{Height}";
 
             f.Controls.Add(pic);
